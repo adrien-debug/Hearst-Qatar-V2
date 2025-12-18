@@ -1,0 +1,1973 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Container Bitmain/Antspace - Viewer 3D Premium</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .ui-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 166, 81, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 320px;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .ui-panel h2 {
+            color: #00A651;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .ui-panel .subtitle {
+            color: #888;
+            font-size: 11px;
+            margin-bottom: 15px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-group:last-child {
+            border-bottom: none;
+        }
+
+        .control-group h3 {
+            color: #00A651;
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 11px;
+        }
+
+        .spec-label {
+            color: #888;
+        }
+
+        .spec-value {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #00A651;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 6px;
+        }
+
+        button:hover {
+            background: #008040;
+            transform: translateY(-1px);
+        }
+
+        button.secondary {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        button.secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .highlight {
+            background: rgba(0, 166, 81, 0.1);
+            border: 1px solid #00A651;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 11px;
+            color: #00A651;
+            line-height: 1.6;
+        }
+
+        .selection-panel {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 166, 81, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 320px;
+            max-width: 400px;
+            z-index: 100;
+            display: none;
+        }
+
+        .selection-panel.active {
+            display: block;
+        }
+
+        .selection-panel h3 {
+            color: #00A651;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .selection-info {
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .selection-info .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .selection-info .info-label {
+            color: #888;
+        }
+
+        .selection-info .info-value {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .close-selection {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            padding: 0;
+        }
+
+        .close-selection:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .color-legend {
+            display: grid;
+            gap: 8px;
+        }
+
+        .color-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-swatch {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 166, 81, 0.3);
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 166, 81, 0.3);
+            border-top-color: #00A651;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #00A651;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Chargement du container 3D...</p>
+    </div>
+
+    <div class="ui-panel">
+        <h2>📦 Container Bitmain/Antspace HD5</h2>
+        <div class="subtitle">Reproduction 3D depuis plan - Dalle béton 40cm</div>
+        
+        <div class="control-group">
+            <h3>Actions</h3>
+            <button onclick="resetCamera()">🎯 Réinitialiser Vue</button>
+            <button onclick="toggleGrid()" class="secondary">📐 Grille</button>
+            <button onclick="toggleWireframe()" class="secondary">🔲 Wireframe</button>
+            <button onclick="toggleAxes()" class="secondary">🧭 Axes</button>
+        </div>
+
+        <div class="control-group">
+            <h3>Dimensions Container</h3>
+            <div class="spec-item">
+                <span class="spec-label">Longueur</span>
+                <span class="spec-value">12.196 m</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Largeur</span>
+                <span class="spec-value">2.438 m</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Hauteur</span>
+                <span class="spec-value">2.896 m</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Dalle béton</span>
+                <span class="spec-value">40 cm</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>Palette de Couleurs</h3>
+            <div class="color-legend">
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #1a1a1a;"></div>
+                    <span class="spec-label">Container noir métal</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #C0C0C0;"></div>
+                    <span class="spec-label">Béton / Tuyaux</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #1E3A8A;"></div>
+                    <span class="spec-label">Panneaux bleus</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #00A651;"></div>
+                    <span class="spec-label">Logo Hearst</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #000000;"></div>
+                    <span class="spec-label">Grilles ventilation</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight">
+            ✅ Reproduction fidèle du plan<br>
+            ✅ Dalle béton 40cm intégrée<br>
+            ✅ Matériaux réalistes PBR<br>
+            ✅ Éclairage cinématique<br>
+            ✅ Contrôles intuitifs
+        </div>
+    </div>
+
+    <div class="selection-panel" id="selectionPanel">
+        <button class="close-selection" onclick="closeSelection()">×</button>
+        <h3>📋 Élément Sélectionné</h3>
+        <div class="selection-info" id="selectionInfo">
+            <p style="color: #888; text-align: center;">Cliquez sur un élément pour voir ses informations</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // ============================================
+        // CONFIGURATION ET CONSTANTES
+        // ============================================
+        
+        const COLORS = {
+            // Container et structure
+            blackMetal: 0x1a1a1a,
+            
+            // Béton et tuyauterie
+            concrete: 0xC0C0C0,
+            silverPipes: 0xC0C0C0,
+            
+            // Panneaux et détails
+            bluePanels: 0x1E3A8A,
+            blackGrilles: 0x000000,
+            
+            // Branding
+            hearstGreen: 0x00A651,
+            
+            // Environnement
+            ground: 0x8B7355,
+            sky: 0x87ceeb
+        };
+
+        // Dimensions exactes du container (en mètres)
+        const DIMENSIONS = {
+            length: 12.196,  // Longueur (axe X)
+            width: 2.438,    // Largeur (axe Z)
+            height: 2.896,   // Hauteur (axe Y)
+            concreteBase: 0.4 // Dalle béton 40cm
+        };
+
+        // ============================================
+        // VARIABLES GLOBALES
+        // ============================================
+        
+        let scene, camera, renderer;
+        let containerGroup;
+        let gridHelper, axesHelper;
+        let wireframeMode = false;
+        
+        // Contrôles caméra
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let rotation = { x: 0.3, y: 0.5 };
+        let zoom = 25;
+
+        // Sélection d'objets
+        let raycaster, mouse;
+        let selectedObject = null;
+        let selectableObjects = [];
+
+        // ============================================
+        // INITIALISATION
+        // ============================================
+        
+        function init() {
+            // Création de la scène
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0a0a);
+            scene.fog = new THREE.Fog(0x0a0a0a, 80, 200);
+
+            // Caméra
+            camera = new THREE.PerspectiveCamera(
+                50,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            camera.position.set(20, 12, 20);
+            camera.lookAt(0, 2, 0);
+
+            // Renderer - Configuration ULTRA RÉALISTE
+            renderer = new THREE.WebGLRenderer({ 
+                antialias: true,
+                alpha: false,
+                powerPreference: 'high-performance'
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            
+            // Ombres haute qualité
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.shadowMap.autoUpdate = true;
+            
+            // Rendu physiquement correct
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.3; // Légèrement plus lumineux
+            renderer.physicallyCorrectLights = true; // Éclairage physique
+            
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            // Setup
+            setupControls();
+            setupLights();
+            createGround();
+            createGrid();
+            createAxes();
+            createContainer();
+            setupSelection();
+
+            // Événements
+            window.addEventListener('resize', onWindowResize);
+
+            // Cacher le loading
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+            }, 500);
+
+            // Animation
+            animate();
+        }
+
+        // ============================================
+        // CONTRÔLES CAMÉRA
+        // ============================================
+        
+        function setupControls() {
+            renderer.domElement.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            renderer.domElement.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+
+                rotation.y += deltaX * 0.005;
+                rotation.x += deltaY * 0.005;
+
+                // Limiter la rotation verticale
+                rotation.x = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, rotation.x));
+
+                updateCameraPosition();
+
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            renderer.domElement.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            renderer.domElement.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                zoom += e.deltaY * 0.02;
+                zoom = Math.max(10, Math.min(80, zoom));
+                updateCameraPosition();
+            });
+
+            function updateCameraPosition() {
+                const targetY = 2; // Centre du container
+                camera.position.x = zoom * Math.sin(rotation.y) * Math.cos(rotation.x);
+                camera.position.y = targetY + zoom * Math.sin(rotation.x);
+                camera.position.z = zoom * Math.cos(rotation.y) * Math.cos(rotation.x);
+                camera.lookAt(0, targetY, 0);
+            }
+        }
+
+        // ============================================
+        // ÉCLAIRAGE
+        // ============================================
+        
+        function setupLights() {
+            // Lumière ambiante douce (environnement global)
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambientLight);
+
+            // SOLEIL - Lumière directionnelle principale (éclairage naturel)
+            const sunLight = new THREE.DirectionalLight(0xfff5e6, 1.8);
+            sunLight.position.set(30, 40, 25);
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.width = 4096;
+            sunLight.shadow.mapSize.height = 4096;
+            sunLight.shadow.camera.left = -50;
+            sunLight.shadow.camera.right = 50;
+            sunLight.shadow.camera.top = 50;
+            sunLight.shadow.camera.bottom = -50;
+            sunLight.shadow.camera.near = 0.5;
+            sunLight.shadow.camera.far = 150;
+            sunLight.shadow.bias = -0.00005;
+            sunLight.shadow.radius = 2; // Ombres douces
+            scene.add(sunLight);
+
+            // Fill Light (lumière de remplissage) - simule la lumière réfléchie
+            const fillLight = new THREE.DirectionalLight(0xb3d9ff, 0.6);
+            fillLight.position.set(-25, 20, -25);
+            scene.add(fillLight);
+
+            // Rim Light (lumière de contour) - pour faire ressortir le métal noir
+            const rimLight = new THREE.DirectionalLight(0xffffff, 0.7);
+            rimLight.position.set(0, 20, -35);
+            scene.add(rimLight);
+
+            // Back Light (contre-jour) - pour la profondeur
+            const backLight = new THREE.DirectionalLight(0xffffff, 0.4);
+            backLight.position.set(-15, 10, 30);
+            scene.add(backLight);
+
+            // Lumière hémisphérique (ciel/sol) - éclairage environnemental réaliste
+            const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x8B7355, 0.6);
+            hemiLight.position.set(0, 50, 0);
+            scene.add(hemiLight);
+
+            // Spot lights pour accentuer les détails (2 spots)
+            const spotLight1 = new THREE.SpotLight(0xffffff, 0.5);
+            spotLight1.position.set(15, 25, 15);
+            spotLight1.angle = Math.PI / 6;
+            spotLight1.penumbra = 0.3;
+            spotLight1.decay = 2;
+            spotLight1.distance = 100;
+            scene.add(spotLight1);
+
+            const spotLight2 = new THREE.SpotLight(0xffffff, 0.5);
+            spotLight2.position.set(-15, 25, -15);
+            spotLight2.angle = Math.PI / 6;
+            spotLight2.penumbra = 0.3;
+            spotLight2.decay = 2;
+            spotLight2.distance = 100;
+            scene.add(spotLight2);
+        }
+
+        // ============================================
+        // ENVIRONNEMENT
+        // ============================================
+        
+        function createGround() {
+            const groundGeometry = new THREE.PlaneGeometry(200, 200, 50, 50);
+            const groundMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.ground,
+                roughness: 0.95,
+                metalness: 0.05
+            });
+            
+            // Ajouter texture sol réaliste
+            addGroundTexture(groundMaterial);
+            
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+        }
+
+        function addGroundTexture(material) {
+            // Texture sol désertique/sable
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024;
+            canvas.height = 1024;
+            const ctx = canvas.getContext('2d');
+
+            // Fond sable/terre
+            ctx.fillStyle = '#8B7355';
+            ctx.fillRect(0, 0, 1024, 1024);
+
+            // Bruit pour texture sable
+            const imageData = ctx.getImageData(0, 0, 1024, 1024);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const noise = Math.random() * 50 - 25;
+                data[i] = Math.max(0, Math.min(255, data[i] + noise));
+                data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + noise));
+                data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + noise));
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+
+            // Petites pierres/cailloux
+            ctx.fillStyle = 'rgba(100, 80, 60, 0.3)';
+            for (let i = 0; i < 200; i++) {
+                const x = Math.random() * 1024;
+                const y = Math.random() * 1024;
+                const size = Math.random() * 5 + 2;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(20, 20);
+
+            material.map = texture;
+            material.needsUpdate = true;
+        }
+
+        function createGrid() {
+            gridHelper = new THREE.GridHelper(100, 100, COLORS.hearstGreen, 0x333333);
+            gridHelper.position.y = 0.01;
+            scene.add(gridHelper);
+        }
+
+        function createAxes() {
+            axesHelper = new THREE.AxesHelper(15);
+            axesHelper.visible = false;
+            scene.add(axesHelper);
+        }
+
+        // ============================================
+        // CRÉATION DU CONTAINER
+        // ============================================
+        
+        function createContainer() {
+            containerGroup = new THREE.Group();
+
+            // 1. DALLE BÉTON (40cm)
+            createConcreteBase();
+
+            // 2. CONTAINER PRINCIPAL (noir métal)
+            createMainContainer();
+
+            // 3. SYSTÈME DE REFROIDISSEMENT
+            createCoolingSystem();
+
+            // 4. DÉTAILS ET FINITIONS
+            createDetails();
+
+            scene.add(containerGroup);
+            
+            console.log('✅ Container 3D créé avec succès');
+        }
+
+        // ============================================
+        // 1. DALLE BÉTON
+        // ============================================
+        
+        function createConcreteBase() {
+            const baseWidth = DIMENSIONS.length + 0.5;
+            const baseDepth = DIMENSIONS.width + 0.5;
+            
+            const baseGeometry = new THREE.BoxGeometry(
+                baseWidth,
+                DIMENSIONS.concreteBase,
+                baseDepth
+            );
+            
+            const baseMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.concrete,
+                roughness: 0.9,
+                metalness: 0.1
+            });
+
+            // Ajouter texture béton
+            addConcreteTexture(baseMaterial);
+            
+            const base = new THREE.Mesh(baseGeometry, baseMaterial);
+            base.name = 'DALLE-BETON-01'; // Référence simple
+            base.position.y = DIMENSIONS.concreteBase / 2;
+            base.castShadow = true;
+            base.receiveShadow = true;
+            containerGroup.add(base);
+        }
+
+        // ============================================
+        // TEXTURES MÉTALLIQUES PROCÉDURALES
+        // ============================================
+        
+        function addMetalTexture(material) {
+            // Créer une texture TRÈS VISIBLE pour le métal container
+            const canvas = document.createElement('canvas');
+            canvas.width = 2048;
+            canvas.height = 2048;
+            const ctx = canvas.getContext('2d');
+
+            // Fond métal noir avec gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, 2048);
+            gradient.addColorStop(0, '#2a2a2a');
+            gradient.addColorStop(0.5, '#1a1a1a');
+            gradient.addColorStop(1, '#0a0a0a');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 2048, 2048);
+
+            // LIGNES HORIZONTALES TRÈS VISIBLES (style tôle ondulée)
+            const lineSpacing = 20; // Tous les 20 pixels
+            
+            for (let y = 0; y < 2048; y += lineSpacing) {
+                // Ligne claire (relief)
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+                ctx.fillRect(0, y, 2048, 3);
+                
+                // Ligne très sombre (creux)
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fillRect(0, y + 3, 2048, 2);
+                
+                // Ligne moyenne
+                ctx.fillStyle = 'rgba(80, 80, 80, 0.15)';
+                ctx.fillRect(0, y + 5, 2048, 8);
+            }
+
+            // Ajouter du bruit métallique VISIBLE
+            const imageData = ctx.getImageData(0, 0, 2048, 2048);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const noise = Math.random() * 60 - 30;
+                data[i] = Math.max(0, Math.min(255, data[i] + noise));
+                data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + noise));
+                data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + noise));
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+
+            // Ajouter des RAYURES et marques d'usure VISIBLES
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 100; i++) {
+                const x = Math.random() * 2048;
+                const y = Math.random() * 2048;
+                const length = Math.random() * 200 + 50;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + length, y);
+                ctx.stroke();
+            }
+
+            // Taches de rouille/usure
+            ctx.fillStyle = 'rgba(139, 69, 19, 0.1)';
+            for (let i = 0; i < 30; i++) {
+                const x = Math.random() * 2048;
+                const y = Math.random() * 2048;
+                const size = Math.random() * 80 + 20;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Créer la texture Three.js
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(3, 3);
+            texture.anisotropy = renderer.capabilities.getMaxAnisotropy(); // Qualité maximale
+
+            material.map = texture;
+            
+            // Créer aussi une normal map pour le relief
+            const normalCanvas = document.createElement('canvas');
+            normalCanvas.width = 2048;
+            normalCanvas.height = 2048;
+            const normalCtx = normalCanvas.getContext('2d');
+            
+            // Gradient pour simuler le relief
+            for (let y = 0; y < 2048; y += lineSpacing) {
+                const normalGradient = normalCtx.createLinearGradient(0, y, 0, y + lineSpacing);
+                normalGradient.addColorStop(0, '#8080ff');
+                normalGradient.addColorStop(0.3, '#8080c0');
+                normalGradient.addColorStop(0.7, '#808080');
+                normalGradient.addColorStop(1, '#8080ff');
+                normalCtx.fillStyle = normalGradient;
+                normalCtx.fillRect(0, y, 2048, lineSpacing);
+            }
+            
+            const normalTexture = new THREE.CanvasTexture(normalCanvas);
+            normalTexture.wrapS = THREE.RepeatWrapping;
+            normalTexture.wrapT = THREE.RepeatWrapping;
+            normalTexture.repeat.set(3, 3);
+            
+            material.normalMap = normalTexture;
+            material.normalScale = new THREE.Vector2(1.5, 1.5); // Relief prononcé
+            
+            material.needsUpdate = true;
+        }
+
+        function addConcreteTexture(material) {
+            // Créer une texture canvas pour le béton
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            // Fond béton gris
+            ctx.fillStyle = '#C0C0C0';
+            ctx.fillRect(0, 0, 512, 512);
+
+            // Ajouter du bruit pour texture béton
+            const imageData = ctx.getImageData(0, 0, 512, 512);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const noise = Math.random() * 40 - 20;
+                data[i] += noise;     // R
+                data[i + 1] += noise; // G
+                data[i + 2] += noise; // B
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+
+            // Créer la texture Three.js
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(2, 2);
+
+            material.map = texture;
+            material.needsUpdate = true;
+        }
+
+        // ============================================
+        // 2. CONTAINER PRINCIPAL
+        // ============================================
+        
+        function createMainContainer() {
+            // Matériau métal noir avec texture procédurale
+            const containerMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.blackMetal,
+                roughness: 0.4,
+                metalness: 0.95,
+                envMapIntensity: 1.5,
+                roughnessMap: null, // Sera ajouté avec texture procédurale
+                normalScale: new THREE.Vector2(0.5, 0.5)
+            });
+
+            // Ajouter une texture de bruit pour le métal
+            addMetalTexture(containerMaterial);
+
+            // Corps principal du container
+            const containerGeometry = new THREE.BoxGeometry(
+                DIMENSIONS.length,
+                DIMENSIONS.height,
+                DIMENSIONS.width
+            );
+            
+            const container = new THREE.Mesh(containerGeometry, containerMaterial);
+            container.name = 'CONTAINER-PRINCIPAL'; // Référence simple
+            container.position.y = DIMENSIONS.concreteBase + DIMENSIONS.height / 2;
+            container.castShadow = true;
+            container.receiveShadow = true;
+            containerGroup.add(container);
+
+            // Ondulations métalliques (côtés longs) - avec texture
+            const corrugationMaterial = containerMaterial.clone();
+            createCorrugations(container, corrugationMaterial);
+
+            // Portes arrière
+            createDoors(container);
+
+            // Porte latérale (côté ventilateurs)
+            createSideDoor(container);
+
+            // Logo Hearst sur les flancs
+            createLogos(container);
+        }
+
+        function createCorrugations(parent, material) {
+            // RAINURES 3D PHYSIQUES - SEULEMENT sur le bloc du BAS (container)
+            const ribCount = 50;
+            const ribWidth = 0.15;
+            const ribDepth = 0.12; // Relief 3D
+            const spacing = DIMENSIONS.length / ribCount;
+
+            // Matériau nervures
+            const ribMaterial = new THREE.MeshStandardMaterial({
+                color: 0x2a2a2a,
+                roughness: 0.3,
+                metalness: 0.95,
+                envMapIntensity: 2.0
+            });
+
+            // Hauteur = SEULEMENT le container (pas le cooling)
+            const ribHeight = DIMENSIONS.height;
+
+            for (let i = 0; i < ribCount; i++) {
+                const x = -DIMENSIONS.length / 2 + i * spacing;
+                
+                // Nervure NORD - seulement sur le container
+                const ribGeometry = new THREE.BoxGeometry(ribWidth, ribHeight, ribDepth);
+                const rib = new THREE.Mesh(ribGeometry, ribMaterial);
+                rib.name = `ONDULATION-${i + 1}`;
+                rib.position.set(x, 0, DIMENSIONS.width / 2 + ribDepth / 2);
+                rib.castShadow = true;
+                rib.receiveShadow = true;
+                parent.add(rib);
+
+                // Nervure SUD - seulement sur le container
+                const ribSouth = new THREE.Mesh(ribGeometry, ribMaterial);
+                ribSouth.name = `ONDULATION-SUD-${i + 1}`;
+                ribSouth.position.set(x, 0, -DIMENSIONS.width / 2 - ribDepth / 2);
+                ribSouth.castShadow = true;
+                ribSouth.receiveShadow = true;
+                parent.add(ribSouth);
+            }
+
+            // CREUX entre les nervures - seulement sur le container
+            const grooveCount = ribCount - 1;
+            const grooveWidth = spacing - ribWidth - 0.02;
+            const grooveDepth = 0.08;
+            
+            const grooveMaterial = new THREE.MeshStandardMaterial({
+                color: 0x0a0a0a,
+                roughness: 0.6,
+                metalness: 0.9
+            });
+
+            for (let i = 0; i < grooveCount; i++) {
+                const x = -DIMENSIONS.length / 2 + (i + 0.5) * spacing;
+                
+                // Creux NORD
+                const grooveGeometry = new THREE.BoxGeometry(grooveWidth, ribHeight - 0.2, grooveDepth);
+                const groove = new THREE.Mesh(grooveGeometry, grooveMaterial);
+                groove.position.set(x, 0, DIMENSIONS.width / 2 + grooveDepth / 2 - 0.02);
+                groove.receiveShadow = true;
+                parent.add(groove);
+
+                // Creux SUD
+                const grooveSouth = new THREE.Mesh(grooveGeometry, grooveMaterial);
+                grooveSouth.position.set(x, 0, -DIMENSIONS.width / 2 - grooveDepth / 2 + 0.02);
+                grooveSouth.receiveShadow = true;
+                parent.add(grooveSouth);
+            }
+        }
+
+        function createDoors(parent) {
+            const doorMaterial = new THREE.MeshStandardMaterial({
+                color: 0x0a0a0a,
+                roughness: 0.4,
+                metalness: 0.95
+            });
+
+            // Ajouter texture métal container aux portes
+            addMetalTexture(doorMaterial);
+
+            const doorWidth = DIMENSIONS.width / 2 - 0.05;
+            const doorHeight = DIMENSIONS.height - 0.2;
+            const doorGeometry = new THREE.BoxGeometry(0.05, doorHeight, doorWidth);
+
+            // Porte gauche
+            const doorLeft = new THREE.Mesh(doorGeometry, doorMaterial);
+            doorLeft.name = 'PORTE-ARRIERE-GAUCHE'; // Référence simple
+            doorLeft.position.set(DIMENSIONS.length / 2, 0, -doorWidth / 2 - 0.025);
+            parent.add(doorLeft);
+
+            // Porte droite
+            const doorRight = new THREE.Mesh(doorGeometry, doorMaterial);
+            doorRight.name = 'PORTE-ARRIERE-DROITE'; // Référence simple
+            doorRight.position.set(DIMENSIONS.length / 2, 0, doorWidth / 2 + 0.025);
+            parent.add(doorRight);
+
+            // Poignées
+            const handleGeometry = new THREE.BoxGeometry(0.1, 0.15, 0.05);
+            const handleMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.silverPipes,
+                roughness: 0.3,
+                metalness: 0.9
+            });
+
+            const handleLeft = new THREE.Mesh(handleGeometry, handleMaterial);
+            handleLeft.name = 'POIGNEE-ARRIERE-GAUCHE'; // Référence simple
+            handleLeft.position.set(DIMENSIONS.length / 2 + 0.05, 0, -doorWidth / 2);
+            parent.add(handleLeft);
+
+            const handleRight = new THREE.Mesh(handleGeometry, handleMaterial);
+            handleRight.name = 'POIGNEE-ARRIERE-DROITE'; // Référence simple
+            handleRight.position.set(DIMENSIONS.length / 2 + 0.05, 0, doorWidth / 2);
+            parent.add(handleRight);
+        }
+
+        function createSideDoor(parent) {
+            // Panneaux noirs pour fermer complètement le container (longueur et largeur)
+            const panelMaterial = new THREE.MeshStandardMaterial({
+                color: 0x0a0a0a,
+                roughness: 0.4,
+                metalness: 0.95
+            });
+
+            // Ajouter texture métal container
+            addMetalTexture(panelMaterial);
+
+            const doorHeight = DIMENSIONS.height;
+            
+            // PANNEAU CÔTÉ GAUCHE (Ouest) - Sur toute la LARGEUR
+            const leftPanelGeometry = new THREE.BoxGeometry(0.08, doorHeight, DIMENSIONS.width);
+            const leftPanel = new THREE.Mesh(leftPanelGeometry, panelMaterial);
+            leftPanel.name = 'PANNEAU-CONTAINER-OUEST'; // Référence simple
+            leftPanel.position.set(-DIMENSIONS.length / 2 - 0.04, 0, 0);
+            leftPanel.castShadow = true;
+            parent.add(leftPanel);
+
+            // PANNEAU CÔTÉ AVANT (Nord) - Sur toute la LONGUEUR
+            const frontPanelGeometry = new THREE.BoxGeometry(DIMENSIONS.length, doorHeight, 0.08);
+            const frontPanel = new THREE.Mesh(frontPanelGeometry, panelMaterial);
+            frontPanel.name = 'PANNEAU-CONTAINER-NORD'; // Référence simple
+            frontPanel.position.set(0, 0, DIMENSIONS.width / 2 + 0.04);
+            frontPanel.castShadow = true;
+            parent.add(frontPanel);
+
+            // PANNEAU CÔTÉ ARRIÈRE (Sud) - Sur toute la LONGUEUR
+            const backPanelGeometry = new THREE.BoxGeometry(DIMENSIONS.length, doorHeight, 0.08);
+            const backPanel = new THREE.Mesh(backPanelGeometry, panelMaterial);
+            backPanel.name = 'PANNEAU-CONTAINER-SUD'; // Référence simple
+            backPanel.position.set(0, 0, -DIMENSIONS.width / 2 - 0.04);
+            backPanel.castShadow = true;
+            parent.add(backPanel);
+        }
+
+        function createLogos(parent) {
+            const logoMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.hearstGreen,
+                roughness: 0.3,
+                metalness: 0.7,
+                emissive: COLORS.hearstGreen,
+                emissiveIntensity: 0.3
+            });
+
+            // Logo côté gauche (Sud)
+            const logoGeometry = new THREE.PlaneGeometry(2.5, 1.2);
+            const logoLeft = new THREE.Mesh(logoGeometry, logoMaterial);
+            logoLeft.name = 'LOGO-HEARST-SUD'; // Référence simple
+            logoLeft.position.set(0, 0.3, -DIMENSIONS.width / 2 - 0.01);
+            logoLeft.rotation.x = Math.PI;
+            parent.add(logoLeft);
+
+            // Logo côté droit (Nord)
+            const logoRight = new THREE.Mesh(logoGeometry, logoMaterial);
+            logoRight.name = 'LOGO-HEARST-NORD'; // Référence simple
+            logoRight.position.set(0, 0.3, DIMENSIONS.width / 2 + 0.01);
+            parent.add(logoRight);
+        }
+
+        // ============================================
+        // 3. SYSTÈME DE REFROIDISSEMENT
+        // ============================================
+        
+        function createCoolingFrame(baseY) {
+            // Cadre structurel du cooling system - MÊMES dimensions que le container
+            const frameMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.blackMetal,
+                roughness: 0.3,
+                metalness: 0.9
+            });
+
+            const frameThickness = 0.15;
+            const coolingHeight = DIMENSIONS.height; // Même hauteur que le container
+
+            // 4 MONTANTS VERTICAUX aux coins
+            const verticalGeometry = new THREE.BoxGeometry(frameThickness, coolingHeight, frameThickness);
+            
+            const corners = [
+                { x: -DIMENSIONS.length / 2, z: -DIMENSIONS.width / 2 }, // Coin arrière-gauche
+                { x: -DIMENSIONS.length / 2, z: DIMENSIONS.width / 2 },  // Coin avant-gauche
+                { x: DIMENSIONS.length / 2, z: -DIMENSIONS.width / 2 },  // Coin arrière-droit
+                { x: DIMENSIONS.length / 2, z: DIMENSIONS.width / 2 }    // Coin avant-droit
+            ];
+
+            corners.forEach((corner, index) => {
+                const vertical = new THREE.Mesh(verticalGeometry, frameMaterial);
+                vertical.name = `MONTANT-COOLING-${index + 1}`; // Référence simple
+                vertical.position.set(corner.x, baseY + coolingHeight / 2, corner.z);
+                vertical.castShadow = true;
+                containerGroup.add(vertical);
+            });
+
+            // TRAVERSES HORIZONTALES EN HAUT (sur la longueur - axe X)
+            const topLongGeometry = new THREE.BoxGeometry(DIMENSIONS.length, frameThickness, frameThickness);
+            
+            // Traverse avant (Nord)
+            const topFront = new THREE.Mesh(topLongGeometry, frameMaterial);
+            topFront.position.set(0, baseY + coolingHeight, DIMENSIONS.width / 2);
+            topFront.castShadow = true;
+            containerGroup.add(topFront);
+            
+            // Traverse arrière (Sud)
+            const topBack = new THREE.Mesh(topLongGeometry, frameMaterial);
+            topBack.position.set(0, baseY + coolingHeight, -DIMENSIONS.width / 2);
+            topBack.castShadow = true;
+            containerGroup.add(topBack);
+
+            // TRAVERSES HORIZONTALES EN HAUT (sur la largeur - axe Z)
+            const topShortGeometry = new THREE.BoxGeometry(frameThickness, frameThickness, DIMENSIONS.width);
+            
+            // Traverse gauche (Ouest)
+            const topLeft = new THREE.Mesh(topShortGeometry, frameMaterial);
+            topLeft.position.set(-DIMENSIONS.length / 2, baseY + coolingHeight, 0);
+            topLeft.castShadow = true;
+            containerGroup.add(topLeft);
+            
+            // Traverse droite (Est)
+            const topRight = new THREE.Mesh(topShortGeometry, frameMaterial);
+            topRight.position.set(DIMENSIONS.length / 2, baseY + coolingHeight, 0);
+            topRight.castShadow = true;
+            containerGroup.add(topRight);
+
+            // TRAVERSES HORIZONTALES EN BAS (sur la longueur - axe X)
+            const bottomLongGeometry = new THREE.BoxGeometry(DIMENSIONS.length, frameThickness, frameThickness);
+            
+            // Traverse avant (Nord)
+            const bottomFront = new THREE.Mesh(bottomLongGeometry, frameMaterial);
+            bottomFront.position.set(0, baseY, DIMENSIONS.width / 2);
+            bottomFront.castShadow = true;
+            containerGroup.add(bottomFront);
+            
+            // Traverse arrière (Sud)
+            const bottomBack = new THREE.Mesh(bottomLongGeometry, frameMaterial);
+            bottomBack.position.set(0, baseY, -DIMENSIONS.width / 2);
+            bottomBack.castShadow = true;
+            containerGroup.add(bottomBack);
+
+            // TRAVERSES HORIZONTALES EN BAS (sur la largeur - axe Z)
+            const bottomShortGeometry = new THREE.BoxGeometry(frameThickness, frameThickness, DIMENSIONS.width);
+            
+            // Traverse gauche (Ouest)
+            const bottomLeft = new THREE.Mesh(bottomShortGeometry, frameMaterial);
+            bottomLeft.position.set(-DIMENSIONS.length / 2, baseY, 0);
+            bottomLeft.castShadow = true;
+            containerGroup.add(bottomLeft);
+            
+            // Traverse droite (Est)
+            const bottomRight = new THREE.Mesh(bottomShortGeometry, frameMaterial);
+            bottomRight.position.set(DIMENSIONS.length / 2, baseY, 0);
+            bottomRight.castShadow = true;
+            containerGroup.add(bottomRight);
+
+            // PLANCHER du cooling system (optionnel - grille métallique)
+            const floorGeometry = new THREE.BoxGeometry(DIMENSIONS.length - 0.3, 0.05, DIMENSIONS.width - 0.3);
+            const floorMaterial = new THREE.MeshStandardMaterial({
+                color: 0x2a2a2a,
+                roughness: 0.5,
+                metalness: 0.7,
+                transparent: true,
+                opacity: 0.8
+            });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.position.set(0, baseY + 0.025, 0);
+            floor.castShadow = true;
+            floor.receiveShadow = true;
+            containerGroup.add(floor);
+
+            // TOIT du cooling system (panneau noir qui intègre les ventilateurs)
+            const roofMaterial = new THREE.MeshStandardMaterial({
+                color: 0x0a0a0a,
+                roughness: 0.4,
+                metalness: 0.8
+            });
+            
+            const roofThickness = 0.1;
+            const ribDepthForRoof = 0.12; // Profondeur des rainures
+            const alignedWidthForRoof = DIMENSIONS.width + (ribDepthForRoof * 2); // Aligné avec les rainures
+            const roofGeometry = new THREE.BoxGeometry(DIMENSIONS.length, roofThickness, alignedWidthForRoof);
+            const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+            roof.name = 'TOIT-COOLING'; // Référence simple
+            roof.position.set(0, baseY + coolingHeight + roofThickness / 2, 0);
+            roof.castShadow = true;
+            roof.receiveShadow = true;
+            containerGroup.add(roof);
+
+            // CÔTÉS du cooling system - ALIGNÉS avec les rainures du container
+            const sidePanelMaterial = new THREE.MeshStandardMaterial({
+                color: 0x0a0a0a,
+                roughness: 0.4,
+                metalness: 0.8
+            });
+
+            const sidePanelThickness = 0.08;
+            const ribDepth = 0.12; // Profondeur des rainures
+            const alignedWidth = DIMENSIONS.width + (ribDepth * 2); // Largeur incluant les rainures
+            
+            // CÔTÉ GAUCHE (Ouest) du cooling - ALIGNÉ
+            const leftSideGeometry = new THREE.BoxGeometry(sidePanelThickness, coolingHeight, alignedWidth);
+            const leftSide = new THREE.Mesh(leftSideGeometry, sidePanelMaterial);
+            leftSide.name = 'PANNEAU-COOLING-OUEST'; // Référence simple
+            leftSide.position.set(-DIMENSIONS.length / 2 - sidePanelThickness / 2, baseY + coolingHeight / 2, 0);
+            leftSide.castShadow = true;
+            containerGroup.add(leftSide);
+
+            // CÔTÉ DROIT (Est) du cooling - ALIGNÉ
+            const rightSideGeometry = new THREE.BoxGeometry(sidePanelThickness, coolingHeight, alignedWidth);
+            const rightSide = new THREE.Mesh(rightSideGeometry, sidePanelMaterial);
+            rightSide.name = 'PANNEAU-COOLING-EST'; // Référence simple
+            rightSide.position.set(DIMENSIONS.length / 2 + sidePanelThickness / 2, baseY + coolingHeight / 2, 0);
+            rightSide.castShadow = true;
+            containerGroup.add(rightSide);
+
+            // POTEAUX DE SUPPORT VERTICAUX (3 poteaux symétriques sur la longueur)
+            const poleMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.blackMetal,
+                roughness: 0.3,
+                metalness: 0.9
+            });
+
+            const poleThickness = 0.15;
+            const poleGeometry = new THREE.BoxGeometry(poleThickness, coolingHeight, poleThickness);
+            
+            // 3 poteaux répartis symétriquement sur la longueur
+            const polePositions = [
+                -DIMENSIONS.length / 4,  // Poteau gauche
+                0,                        // Poteau central
+                DIMENSIONS.length / 4     // Poteau droit
+            ];
+
+            polePositions.forEach((xPos, index) => {
+                // Poteau côté Nord (avant)
+                const poleNorth = new THREE.Mesh(poleGeometry, poleMaterial);
+                poleNorth.name = `POTEAU-NORD-${index + 1}`; // Référence simple
+                poleNorth.position.set(xPos, baseY + coolingHeight / 2, DIMENSIONS.width / 2 - poleThickness);
+                poleNorth.castShadow = true;
+                containerGroup.add(poleNorth);
+
+                // Poteau côté Sud (arrière)
+                const poleSouth = new THREE.Mesh(poleGeometry, poleMaterial);
+                poleSouth.name = `POTEAU-SUD-${index + 1}`; // Référence simple
+                poleSouth.position.set(xPos, baseY + coolingHeight / 2, -DIMENSIONS.width / 2 + poleThickness);
+                poleSouth.castShadow = true;
+                containerGroup.add(poleSouth);
+            });
+
+            // PANNEAUX AVANT/ARRIÈRE du cooling - RÉDUITS de 75% vers le bas
+            const endPanelMaterial = new THREE.MeshStandardMaterial({
+                color: 0x0a0a0a,
+                roughness: 0.4,
+                metalness: 0.8
+            });
+
+            const endPanelThickness = 0.08;
+            // Position à l'extérieur des poteaux
+            const panelZPosition = DIMENSIONS.width / 2;
+            
+            // Hauteur réduite de 75% (seulement 25% de la hauteur totale)
+            const reducedPanelHeight = coolingHeight * 0.25;
+            // Position Y : en bas du cooling system
+            const panelYPosition = baseY + reducedPanelHeight / 2;
+
+            // PANNEAU AVANT (Nord) - RÉDUIT 75% vers le bas
+            const frontPanelGeometry = new THREE.BoxGeometry(DIMENSIONS.length, reducedPanelHeight, endPanelThickness);
+            const frontPanel = new THREE.Mesh(frontPanelGeometry, endPanelMaterial);
+            frontPanel.name = 'PANNEAU-COOLING-NORD'; // Référence simple
+            frontPanel.position.set(0, panelYPosition, panelZPosition);
+            frontPanel.castShadow = true;
+            containerGroup.add(frontPanel);
+
+            // PANNEAU ARRIÈRE (Sud) - RÉDUIT 75% vers le bas
+            const backPanelGeometry = new THREE.BoxGeometry(DIMENSIONS.length, reducedPanelHeight, endPanelThickness);
+            const backPanel = new THREE.Mesh(backPanelGeometry, endPanelMaterial);
+            backPanel.name = 'PANNEAU-COOLING-SUD'; // Référence simple
+            backPanel.position.set(0, panelYPosition, -panelZPosition);
+            backPanel.castShadow = true;
+            containerGroup.add(backPanel);
+        }
+        
+        function createCoolingSystem() {
+            const baseY = DIMENSIONS.concreteBase + DIMENSIONS.height;
+
+            // Structure frame du cooling system (mêmes dimensions que le container)
+            createCoolingFrame(baseY);
+
+            // Panneaux bleus inclinés sur le dessus
+            createBluePanels(baseY);
+
+            // 4 ventilateurs qui tournent
+            createNewFans(baseY);
+
+            // Grilles de ventilation latérales
+            createVentilationGrilles();
+        }
+
+        function createBluePanels(baseY) {
+            // SEULEMENT LES AILETTES - Elles forment le V directement
+            const coolingHeight = DIMENSIONS.height;
+            const vAngle = 35 * Math.PI / 180; // ANGLE PLUS OUVERT (35° au lieu de 18°)
+            const zOffset = Math.sin(vAngle) * (coolingHeight / 2);
+
+            // Créer les ailettes qui forment le V
+            createSimpleFins(baseY, coolingHeight, vAngle, zOffset);
+        }
+
+        function createSimpleFins(baseY, coolingHeight, vAngle, zOffset) {
+            // GROSSES AILETTES DE RADIATEUR INDUSTRIEL - ARGENT TRÈS CLAIR
+            const finMaterial = new THREE.MeshStandardMaterial({
+                color: 0xF8F8F8, // ARGENT TRÈS CLAIR (presque blanc)
+                roughness: 0.1, // Très brillant
+                metalness: 0.98,
+                envMapIntensity: 4.0, // Reflets très intenses
+                emissive: 0xF8F8F8,
+                emissiveIntensity: 0.2 // Lumineux
+            });
+
+            const finCount = 35; // MOINS d'ailettes mais PLUS GROSSES
+            const finThickness = 0.06; // ÉPAISSES (6cm)
+            const finLength = DIMENSIONS.length - 0.2;
+            const finDepth = 0.25; // TRÈS PROFONDES (25cm !)
+
+            // GROSSES AILETTES côté NORD - V INVERSÉ (sommet en bas)
+            for (let i = 0; i < finCount; i++) {
+                const yPosition = baseY + (i / finCount) * coolingHeight;
+                
+                // Le V s'OUVRE vers le haut : zOffset AUGMENTE
+                const progress = i / finCount; // 0 = bas, 1 = haut
+                const currentZ = zOffset * progress; // Part serré en bas, s'ouvre en haut
+                
+                // Ailette principale
+                const finGeometry = new THREE.BoxGeometry(finLength, finThickness, finDepth);
+                const fin = new THREE.Mesh(finGeometry, finMaterial);
+                fin.name = `AILETTE-NORD-${i + 1}`;
+                fin.position.set(0, yPosition, currentZ + finDepth / 2);
+                fin.rotation.x = vAngle;
+                fin.castShadow = true;
+                fin.receiveShadow = true;
+                containerGroup.add(fin);
+
+                // Bord avant de l'ailette (pour effet 3D)
+                const edgeMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xFFFFFF, // BLANC pur
+                    roughness: 0.05, // Ultra-brillant
+                    metalness: 0.98,
+                    emissive: 0xFFFFFF,
+                    emissiveIntensity: 0.3
+                });
+                const edgeGeometry = new THREE.BoxGeometry(finLength, finThickness * 0.5, 0.01);
+                const edge = new THREE.Mesh(edgeGeometry, edgeMaterial);
+                edge.position.set(0, yPosition, currentZ + finDepth + 0.005);
+                edge.rotation.x = vAngle;
+                containerGroup.add(edge);
+            }
+
+            // GROSSES AILETTES côté SUD - V INVERSÉ (sommet en bas)
+            for (let i = 0; i < finCount; i++) {
+                const yPosition = baseY + (i / finCount) * coolingHeight;
+                
+                const progress = i / finCount;
+                const currentZ = zOffset * progress;
+                
+                // Ailette principale
+                const finGeometry = new THREE.BoxGeometry(finLength, finThickness, finDepth);
+                const fin = new THREE.Mesh(finGeometry, finMaterial);
+                fin.name = `AILETTE-SUD-${i + 1}`;
+                fin.position.set(0, yPosition, -currentZ - finDepth / 2);
+                fin.rotation.x = -vAngle;
+                fin.castShadow = true;
+                fin.receiveShadow = true;
+                containerGroup.add(fin);
+
+                // Bord avant de l'ailette
+                const edgeMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xD0D0D0, // Argent métal clair
+                    roughness: 0.2,
+                    metalness: 0.96
+                });
+                const edgeGeometry = new THREE.BoxGeometry(finLength, finThickness * 0.5, 0.01);
+                const edge = new THREE.Mesh(edgeGeometry, edgeMaterial);
+                edge.position.set(0, yPosition, -currentZ - finDepth - 0.005);
+                edge.rotation.x = -vAngle;
+                containerGroup.add(edge);
+            }
+        }
+
+
+
+        function createNewFans(baseY) {
+            // 4 VENTILATEURS PLATS STYLE INDUSTRIEL - Avec cadre
+            const coolingHeight = DIMENSIONS.height;
+            const yPos = baseY + coolingHeight + 0.08; // À plat sur le toit
+
+            const fanPositions = [
+                { x: -4.5, z: 0 },
+                { x: -1.5, z: 0 },
+                { x: 1.5, z: 0 },
+                { x: 4.5, z: 0 }
+            ];
+
+            fanPositions.forEach((pos, index) => {
+                // CADRE/BORDURE autour du ventilateur (élément encastré)
+                const frameMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x1a1a1a,
+                    roughness: 0.4,
+                    metalness: 0.9
+                });
+
+                const frameSize = 1.1; // Taille du cadre
+                const frameThickness = 0.08;
+                
+                // Cadre carré avec trou circulaire au centre
+                const frameShape = new THREE.Shape();
+                frameShape.moveTo(-frameSize, -frameSize);
+                frameShape.lineTo(frameSize, -frameSize);
+                frameShape.lineTo(frameSize, frameSize);
+                frameShape.lineTo(-frameSize, frameSize);
+                frameShape.lineTo(-frameSize, -frameSize);
+                
+                // Trou circulaire
+                const hole = new THREE.Path();
+                const holeRadius = 0.95;
+                hole.absarc(0, 0, holeRadius, 0, Math.PI * 2, false);
+                frameShape.holes.push(hole);
+                
+                const frameGeometry = new THREE.ExtrudeGeometry(frameShape, {
+                    depth: frameThickness,
+                    bevelEnabled: false
+                });
+                
+                const frame = new THREE.Mesh(frameGeometry, frameMaterial);
+                frame.name = `CADRE-VENTILATEUR-${index + 1}`;
+                frame.position.set(pos.x, yPos - frameThickness / 2, pos.z);
+                frame.rotation.x = -Math.PI / 2; // À plat
+                frame.castShadow = true;
+                frame.receiveShadow = true;
+                containerGroup.add(frame);
+
+                // GROUPE DE PALES qui tourne
+                const fanGroup = new THREE.Group();
+                fanGroup.position.set(pos.x, yPos, pos.z);
+                fanGroup.name = `PALES-VENTILATEUR-${index + 1}`;
+
+                const bladeMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x2a2a2a,
+                    roughness: 0.3,
+                    metalness: 0.95
+                });
+
+                // 5 PALES PLATES INCURVÉES
+                const bladeCount = 5;
+                const bladeLength = 0.85;
+                
+                for (let j = 0; j < bladeCount; j++) {
+                    const angle = (j * Math.PI * 2) / bladeCount;
+                    
+                    // Pale incurvée (forme aérodynamique)
+                    const bladeShape = new THREE.Shape();
+                    bladeShape.moveTo(0, 0);
+                    bladeShape.quadraticCurveTo(bladeLength * 0.3, 0.08, bladeLength * 0.6, 0.12);
+                    bladeShape.quadraticCurveTo(bladeLength * 0.8, 0.1, bladeLength, 0.05);
+                    bladeShape.lineTo(bladeLength, -0.05);
+                    bladeShape.quadraticCurveTo(bladeLength * 0.8, -0.1, bladeLength * 0.6, -0.12);
+                    bladeShape.quadraticCurveTo(bladeLength * 0.3, -0.08, 0, 0);
+                    
+                    const bladeGeometry = new THREE.ExtrudeGeometry(bladeShape, {
+                        depth: 0.02,
+                        bevelEnabled: true,
+                        bevelThickness: 0.005,
+                        bevelSize: 0.005,
+                        bevelSegments: 2
+                    });
+                    
+                    const blade = new THREE.Mesh(bladeGeometry, bladeMaterial);
+                    blade.rotation.y = angle;
+                    blade.rotation.z = -Math.PI / 2; // À plat
+                    blade.castShadow = true;
+                    
+                    fanGroup.add(blade);
+                }
+
+                // Hub central plat
+                const hubGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.04, 16);
+                const hub = new THREE.Mesh(hubGeometry, new THREE.MeshStandardMaterial({
+                    color: 0x3a3a3a,
+                    roughness: 0.25,
+                    metalness: 0.96
+                }));
+                hub.position.set(0, 0, 0);
+                hub.castShadow = true;
+                fanGroup.add(hub);
+
+                // Stocker pour animation
+                fanGroup.userData = {
+                    isFan: true,
+                    speed: 0.08 + index * 0.01
+                };
+
+                containerGroup.add(fanGroup);
+            });
+        }
+
+        function createVentilationGrilles() {
+            const grilleMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.blackGrilles,
+                roughness: 0.5,
+                metalness: 0.5
+            });
+
+            const grilleWidth = 2.5;
+            const grilleHeight = 1.2;
+            const grilleDepth = 0.08;
+            const yPos = DIMENSIONS.concreteBase + DIMENSIONS.height / 2;
+
+            // Grille côté gauche
+            const grilleGeometry = new THREE.BoxGeometry(grilleWidth, grilleHeight, grilleDepth);
+            const grilleLeft = new THREE.Mesh(grilleGeometry, grilleMaterial);
+            grilleLeft.position.set(-DIMENSIONS.length / 2 + 2, yPos, -DIMENSIONS.width / 2 - 0.05);
+            grilleLeft.castShadow = true;
+            containerGroup.add(grilleLeft);
+
+            // Lignes horizontales de la grille
+            const lineGeometry = new THREE.BoxGeometry(grilleWidth - 0.1, 0.02, 0.02);
+            for (let i = 0; i < 12; i++) {
+                const line = new THREE.Mesh(lineGeometry, grilleMaterial);
+                line.position.set(
+                    -DIMENSIONS.length / 2 + 2,
+                    yPos - grilleHeight / 2 + (i + 0.5) * (grilleHeight / 12),
+                    -DIMENSIONS.width / 2 - 0.09
+                );
+                containerGroup.add(line);
+            }
+        }
+
+        // ============================================
+        // 4. DÉTAILS ET FINITIONS
+        // ============================================
+        
+        function createDetails() {
+            // Coins renforcés ISO
+            createCornerReinforcements();
+
+            // Rails de levage
+            createLiftingRails();
+
+            // Détails réalistes supplémentaires
+            createRivets();
+            createWelds();
+            createVentilationHoles();
+            createWarningLabels();
+            createLockingBars();
+        }
+
+        function createCornerReinforcements() {
+            const cornerMaterial = new THREE.MeshStandardMaterial({
+                color: 0x2a2a2a,
+                roughness: 0.4,
+                metalness: 0.95
+            });
+
+            // Ajouter texture métal aux coins
+            addMetalTexture(cornerMaterial);
+
+            const cornerSize = 0.15;
+            const cornerGeometry = new THREE.BoxGeometry(cornerSize, DIMENSIONS.height, cornerSize);
+            const yPos = DIMENSIONS.concreteBase + DIMENSIONS.height / 2;
+
+            const corners = [
+                { x: -DIMENSIONS.length / 2, z: -DIMENSIONS.width / 2 },
+                { x: -DIMENSIONS.length / 2, z: DIMENSIONS.width / 2 },
+                { x: DIMENSIONS.length / 2, z: -DIMENSIONS.width / 2 },
+                { x: DIMENSIONS.length / 2, z: DIMENSIONS.width / 2 }
+            ];
+
+            corners.forEach((pos, index) => {
+                const corner = new THREE.Mesh(cornerGeometry, cornerMaterial);
+                const cornerNames = ['COIN-CONTAINER-SO', 'COIN-CONTAINER-NO', 'COIN-CONTAINER-SE', 'COIN-CONTAINER-NE'];
+                corner.name = cornerNames[index]; // Référence simple
+                corner.position.set(pos.x, yPos, pos.z);
+                corner.castShadow = true;
+                containerGroup.add(corner);
+            });
+        }
+
+        function createLiftingRails() {
+            const railMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.silverPipes,
+                roughness: 0.3,
+                metalness: 0.9
+            });
+
+            const railGeometry = new THREE.BoxGeometry(DIMENSIONS.length - 0.3, 0.08, 0.08);
+            const yBottom = DIMENSIONS.concreteBase + 0.2;
+            const yTop = DIMENSIONS.concreteBase + DIMENSIONS.height - 0.2;
+
+            // Rails bas
+            [-DIMENSIONS.width / 2 + 0.1, DIMENSIONS.width / 2 - 0.1].forEach((z, index) => {
+                const rail = new THREE.Mesh(railGeometry, railMaterial);
+                rail.name = index === 0 ? 'RAIL-BAS-SUD' : 'RAIL-BAS-NORD'; // Référence simple
+                rail.position.set(0, yBottom, z);
+                rail.castShadow = true;
+                containerGroup.add(rail);
+            });
+
+            // Rails haut
+            [-DIMENSIONS.width / 2 + 0.1, DIMENSIONS.width / 2 - 0.1].forEach((z, index) => {
+                const rail = new THREE.Mesh(railGeometry, railMaterial);
+                rail.name = index === 0 ? 'RAIL-HAUT-SUD' : 'RAIL-HAUT-NORD'; // Référence simple
+                rail.position.set(0, yTop, z);
+                rail.castShadow = true;
+                containerGroup.add(rail);
+            });
+        }
+
+        // ============================================
+        // ANIMATION ET RENDU
+        // ============================================
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // ROTATION DES VENTILATEURS
+            containerGroup.traverse(child => {
+                if (child.userData && child.userData.isFan) {
+                    child.rotation.y += child.userData.speed;
+                }
+            });
+            
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // ============================================
+        // FONCTIONS DE CONTRÔLE UI
+        // ============================================
+        
+        function resetCamera() {
+            rotation = { x: 0.3, y: 0.5 };
+            zoom = 25;
+            camera.position.set(20, 12, 20);
+            camera.lookAt(0, 2, 0);
+        }
+
+        function toggleGrid() {
+            gridHelper.visible = !gridHelper.visible;
+        }
+
+        function toggleWireframe() {
+            wireframeMode = !wireframeMode;
+            scene.traverse((object) => {
+                if (object.isMesh && object.material) {
+                    object.material.wireframe = wireframeMode;
+                }
+            });
+        }
+
+        function toggleAxes() {
+            axesHelper.visible = !axesHelper.visible;
+        }
+
+        // ============================================
+        // SYSTÈME DE SÉLECTION
+        // ============================================
+        
+        function setupSelection() {
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            renderer.domElement.addEventListener('click', onObjectClick);
+        }
+
+        function onObjectClick(event) {
+            if (isDragging) return; // Ignore si on est en train de faire tourner la caméra
+
+            // Calculer la position de la souris en coordonnées normalisées
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            // Mettre à jour le raycaster
+            raycaster.setFromCamera(mouse, camera);
+
+            // Chercher les intersections
+            const intersects = raycaster.intersectObjects(containerGroup.children, true);
+
+            if (intersects.length > 0) {
+                const object = intersects[0].object;
+                selectObject(object);
+            }
+        }
+
+        function selectObject(object) {
+            // Désélectionner l'objet précédent
+            if (selectedObject && selectedObject.material) {
+                selectedObject.material.emissive.setHex(0x000000);
+            }
+
+            // Sélectionner le nouvel objet
+            selectedObject = object;
+            if (selectedObject.material) {
+                selectedObject.material.emissive.setHex(0x00A651);
+                selectedObject.material.emissiveIntensity = 0.3;
+            }
+
+            // Afficher les informations
+            displayObjectInfo(object);
+        }
+
+        function displayObjectInfo(object) {
+            const panel = document.getElementById('selectionPanel');
+            const info = document.getElementById('selectionInfo');
+
+            // Déterminer le type d'objet
+            let objectType = 'Élément inconnu';
+            let objectName = object.name || 'Sans nom';
+            
+            // Analyser la géométrie pour déterminer le type
+            const geometry = object.geometry;
+            const material = object.material;
+            
+            if (material.color) {
+                const colorHex = '#' + material.color.getHexString();
+                
+                if (colorHex === '#1a1a1a' || colorHex === '#0a0a0a') {
+                    objectType = 'Structure métal noir';
+                } else if (colorHex === '#1e3a8a') {
+                    objectType = 'Panneau radiateur (V)';
+                } else if (colorHex === '#c0c0c0' || colorHex === '#b0b0b0') {
+                    objectType = 'Béton / Structure';
+                } else if (colorHex === '#00a651') {
+                    objectType = 'Logo Hearst';
+                } else if (colorHex === '#000000') {
+                    objectType = 'Grille / Ventilateur';
+                }
+            }
+
+            // Calculer les dimensions
+            geometry.computeBoundingBox();
+            const bbox = geometry.boundingBox;
+            const width = (bbox.max.x - bbox.min.x).toFixed(2);
+            const height = (bbox.max.y - bbox.min.y).toFixed(2);
+            const depth = (bbox.max.z - bbox.min.z).toFixed(2);
+
+            // Position dans la scène
+            const position = object.position;
+            const worldPosition = new THREE.Vector3();
+            object.getWorldPosition(worldPosition);
+
+            // Afficher les informations
+            info.innerHTML = `
+                <div class="info-row">
+                    <span class="info-label">Type</span>
+                    <span class="info-value">${objectType}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Référence</span>
+                    <span class="info-value">${objectName || 'N/A'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Dimensions</span>
+                    <span class="info-value">${width}m × ${height}m × ${depth}m</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Position X</span>
+                    <span class="info-value">${worldPosition.x.toFixed(2)}m</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Position Y</span>
+                    <span class="info-value">${worldPosition.y.toFixed(2)}m</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Position Z</span>
+                    <span class="info-value">${worldPosition.z.toFixed(2)}m</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Couleur</span>
+                    <span class="info-value">#${material.color.getHexString()}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Matériau</span>
+                    <span class="info-value">Roughness: ${material.roughness}, Metalness: ${material.metalness}</span>
+                </div>
+            `;
+
+            panel.classList.add('active');
+        }
+
+        function closeSelection() {
+            const panel = document.getElementById('selectionPanel');
+            panel.classList.remove('active');
+
+            // Désélectionner l'objet
+            if (selectedObject && selectedObject.material) {
+                selectedObject.material.emissive.setHex(0x000000);
+            }
+            selectedObject = null;
+        }
+
+        // ============================================
+        // DÉTAILS RÉALISTES SUPPLÉMENTAIRES
+        // ============================================
+        
+        function createRivets() {
+            // Rivets métalliques sur les coins et rails (comme sur un vrai container)
+            const rivetMaterial = new THREE.MeshStandardMaterial({
+                color: 0x606060,
+                roughness: 0.4,
+                metalness: 0.9
+            });
+
+            const rivetGeometry = new THREE.CylinderGeometry(0.015, 0.015, 0.02, 8);
+            const yPos = DIMENSIONS.concreteBase + DIMENSIONS.height / 2;
+
+            // Rivets sur les coins (4 coins × 10 rivets verticaux)
+            const cornerPositions = [
+                { x: -DIMENSIONS.length / 2, z: -DIMENSIONS.width / 2 },
+                { x: -DIMENSIONS.length / 2, z: DIMENSIONS.width / 2 },
+                { x: DIMENSIONS.length / 2, z: -DIMENSIONS.width / 2 },
+                { x: DIMENSIONS.length / 2, z: DIMENSIONS.width / 2 }
+            ];
+
+            cornerPositions.forEach(corner => {
+                for (let i = 0; i < 10; i++) {
+                    const y = yPos - DIMENSIONS.height / 2 + 0.3 + i * 0.25;
+                    const rivet = new THREE.Mesh(rivetGeometry, rivetMaterial);
+                    rivet.position.set(corner.x, y, corner.z);
+                    rivet.rotation.x = Math.PI / 2;
+                    containerGroup.add(rivet);
+                }
+            });
+
+            // Rivets sur les rails (ligne de rivets)
+            for (let i = 0; i < 40; i++) {
+                const x = -DIMENSIONS.length / 2 + 0.3 + i * 0.28;
+                
+                // Rivets rail bas Nord
+                const rivetBN = new THREE.Mesh(rivetGeometry, rivetMaterial);
+                rivetBN.position.set(x, yPos - DIMENSIONS.height / 2 + 0.2, DIMENSIONS.width / 2 - 0.1);
+                containerGroup.add(rivetBN);
+
+                // Rivets rail bas Sud
+                const rivetBS = new THREE.Mesh(rivetGeometry, rivetMaterial);
+                rivetBS.position.set(x, yPos - DIMENSIONS.height / 2 + 0.2, -DIMENSIONS.width / 2 + 0.1);
+                containerGroup.add(rivetBS);
+            }
+        }
+
+        function createWelds() {
+            // Soudures visibles (lignes de soudure)
+            const weldMaterial = new THREE.MeshStandardMaterial({
+                color: 0x4a4a4a,
+                roughness: 0.7,
+                metalness: 0.8
+            });
+
+            const yPos = DIMENSIONS.concreteBase + DIMENSIONS.height / 2;
+
+            // Soudures verticales aux coins
+            const weldGeometry = new THREE.BoxGeometry(0.03, DIMENSIONS.height, 0.03);
+            
+            const cornerPositions = [
+                { x: -DIMENSIONS.length / 2 + 0.08, z: -DIMENSIONS.width / 2 + 0.08 },
+                { x: -DIMENSIONS.length / 2 + 0.08, z: DIMENSIONS.width / 2 - 0.08 },
+                { x: DIMENSIONS.length / 2 - 0.08, z: -DIMENSIONS.width / 2 + 0.08 },
+                { x: DIMENSIONS.length / 2 - 0.08, z: DIMENSIONS.width / 2 - 0.08 }
+            ];
+
+            cornerPositions.forEach(pos => {
+                const weld = new THREE.Mesh(weldGeometry, weldMaterial);
+                weld.position.set(pos.x, yPos, pos.z);
+                containerGroup.add(weld);
+            });
+        }
+
+        function createVentilationHoles() {
+            // Trous de ventilation en bas du container
+            const holeMaterial = new THREE.MeshStandardMaterial({
+                color: 0x000000,
+                roughness: 0.9,
+                metalness: 0.3
+            });
+
+            const holeGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.1, 8);
+            const yPos = DIMENSIONS.concreteBase + 0.3;
+
+            // Rangée de trous de ventilation (20 trous)
+            for (let i = 0; i < 20; i++) {
+                const x = -DIMENSIONS.length / 2 + 1 + i * 0.5;
+                
+                // Trous côté Nord
+                const holeN = new THREE.Mesh(holeGeometry, holeMaterial);
+                holeN.position.set(x, yPos, DIMENSIONS.width / 2);
+                holeN.rotation.z = Math.PI / 2;
+                containerGroup.add(holeN);
+
+                // Trous côté Sud
+                const holeS = new THREE.Mesh(holeGeometry, holeMaterial);
+                holeS.position.set(x, yPos, -DIMENSIONS.width / 2);
+                holeS.rotation.z = Math.PI / 2;
+                containerGroup.add(holeS);
+            }
+        }
+
+        function createWarningLabels() {
+            // Plaques d'avertissement et marquages (rectangles jaunes/orange)
+            const labelMaterial = new THREE.MeshStandardMaterial({
+                color: 0xFFAA00,
+                roughness: 0.6,
+                metalness: 0.2,
+                emissive: 0xFFAA00,
+                emissiveIntensity: 0.1
+            });
+
+            const labelGeometry = new THREE.PlaneGeometry(0.4, 0.3);
+            const yPos = DIMENSIONS.concreteBase + DIMENSIONS.height - 0.5;
+
+            // Labels de sécurité sur les côtés
+            const labelPositions = [
+                { x: -DIMENSIONS.length / 2 + 2, z: DIMENSIONS.width / 2 + 0.01, ry: 0 },
+                { x: DIMENSIONS.length / 2 - 2, z: DIMENSIONS.width / 2 + 0.01, ry: 0 },
+                { x: -DIMENSIONS.length / 2 + 2, z: -DIMENSIONS.width / 2 - 0.01, ry: Math.PI },
+                { x: DIMENSIONS.length / 2 - 2, z: -DIMENSIONS.width / 2 - 0.01, ry: Math.PI }
+            ];
+
+            labelPositions.forEach(pos => {
+                const label = new THREE.Mesh(labelGeometry, labelMaterial);
+                label.position.set(pos.x, yPos, pos.z);
+                label.rotation.y = pos.ry;
+                containerGroup.add(label);
+            });
+        }
+
+        function createLockingBars() {
+            // Barres de verrouillage sur les portes (détail réaliste)
+            const barMaterial = new THREE.MeshStandardMaterial({
+                color: 0x808080,
+                roughness: 0.3,
+                metalness: 0.95
+            });
+
+            const yPos = DIMENSIONS.concreteBase + DIMENSIONS.height / 2;
+
+            // 4 barres de verrouillage verticales
+            for (let i = 0; i < 4; i++) {
+                const barGeometry = new THREE.BoxGeometry(0.05, DIMENSIONS.height - 0.4, 0.08);
+                const z = -DIMENSIONS.width / 4 + i * (DIMENSIONS.width / 6);
+                
+                const bar = new THREE.Mesh(barGeometry, barMaterial);
+                bar.position.set(DIMENSIONS.length / 2 + 0.03, yPos, z);
+                bar.castShadow = true;
+                containerGroup.add(bar);
+            }
+
+            // Charnières des portes (6 charnières)
+            const hingeGeometry = new THREE.BoxGeometry(0.08, 0.15, 0.12);
+            
+            for (let i = 0; i < 3; i++) {
+                const y = yPos - DIMENSIONS.height / 2 + 0.5 + i * (DIMENSIONS.height - 1) / 2;
+                
+                // Charnières porte gauche
+                const hingeL = new THREE.Mesh(hingeGeometry, barMaterial);
+                hingeL.position.set(DIMENSIONS.length / 2 + 0.02, y, 0);
+                hingeL.castShadow = true;
+                containerGroup.add(hingeL);
+            }
+        }
+
+        // ============================================
+        // DÉMARRAGE
+        // ============================================
+        
+        init();
+        
+        console.log('🚀 Viewer 3D Container initialisé');
+        console.log('📐 Dimensions:', DIMENSIONS);
+        console.log('🎨 Palette:', COLORS);
+    </script>
+</body>
+</html>
+

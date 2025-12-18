@@ -1,0 +1,77 @@
+═══════════════════════════════════════════════════════════
+    🎉 PROJET PUBLIÉ SUR GITHUB AVEC SUCCÈS !
+═══════════════════════════════════════════════════════════
+
+🌐 Repository GitHub :
+https://github.com/adrien-debug/Dashbord-Qatar.git
+
+
+✅ Ce qui a été fait :
+
+1. ✓ Nouveau dépôt Git initialisé
+2. ✓ Fichiers .gitignore et README.md créés
+3. ✓ 42 fichiers ajoutés (6,608 lignes de code)
+4. ✓ Commit initial créé avec description détaillée
+5. ✓ Code poussé sur GitHub (branche main)
+
+
+📊 Contenu du Repository :
+
+• Components (charts, dashboard, layout)
+• Pages (index, mining-dashboard, infrastructure)
+• Mock data (mining, infrastructure)
+• Configuration (Next.js, TypeScript, Tailwind)
+• Documentation (README, guides d'accès réseau)
+
+
+🚀 Prochaines Étapes :
+
+1. Visitez : https://github.com/adrien-debug/Dashbord-Qatar
+
+2. Le repository contient :
+   - README.md complet avec instructions
+   - Code source du dashboard
+   - Configuration pour déploiement
+   - Documentation d'accès réseau
+
+3. Pour cloner sur un autre ordinateur :
+   git clone https://github.com/adrien-debug/Dashbord-Qatar.git
+   cd Dashbord-Qatar
+   npm install
+   npm run dev
+
+
+📝 Commit Message :
+
+"🎉 Initial commit - Dashboard Hearst Qatar
+
+✨ Features:
+- Vue d'ensemble avec métriques clés
+- Mining Dashboard avec production BTC et hashrate
+- Infrastructure monitoring (power & cooling)
+- Sidebar rétractable avec navigation fluide
+- Charts avancés (Area, Line, Bar, Pie, Gauge, Heatmap)
+- Design responsive et moderne
+- Configuration réseau local pour accès multi-appareils
+
+🛠️ Tech Stack:
+- Next.js 14 + TypeScript
+- Tailwind CSS
+- Recharts
+- Mock data pour démonstration"
+
+
+═══════════════════════════════════════════════════════════
+
+🎯 Repository Stats :
+
+• Fichiers : 42
+• Lignes de code : 6,608
+• Taille : 62.63 KB
+• Branche : main
+• Commits : 1
+
+
+═══════════════════════════════════════════════════════════
+
+

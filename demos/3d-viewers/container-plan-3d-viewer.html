@@ -1,0 +1,2473 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Container Bitmain/Antspace - Viewer 3D Premium</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .ui-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 166, 81, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 320px;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .ui-panel h2 {
+            color: #00A651;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .ui-panel .subtitle {
+            color: #888;
+            font-size: 11px;
+            margin-bottom: 15px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-group:last-child {
+            border-bottom: none;
+        }
+
+        .control-group h3 {
+            color: #00A651;
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 11px;
+        }
+
+        .spec-label {
+            color: #888;
+        }
+
+        .spec-value {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #00A651;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 6px;
+        }
+
+        button:hover {
+            background: #008040;
+            transform: translateY(-1px);
+        }
+
+        button.secondary {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        button.secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .highlight {
+            background: rgba(0, 166, 81, 0.1);
+            border: 1px solid #00A651;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 11px;
+            color: #00A651;
+            line-height: 1.6;
+        }
+
+        .selection-panel {
+            display: none; /* Panneau séparé masqué - fusionné dans ui-panel */
+        }
+
+        .selection-panel.active {
+            display: none; /* Toujours masqué */
+        }
+
+        /* Section de sélection discrète - Positionnée en haut à gauche */
+        .selection-section {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 166, 81, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 320px;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 100;
+            display: none; /* Masqué par défaut */
+            animation: fadeIn 0.2s ease-in;
+        }
+
+        .selection-section.active {
+            display: block; /* Affiché quand un élément est sélectionné */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .selection-section .control-group {
+            margin-bottom: 10px;
+        }
+
+        .selection-section .info-row {
+            font-size: 10px;
+            padding: 3px 0;
+        }
+
+        .selection-section .info-label {
+            font-size: 10px;
+        }
+
+        .selection-section .info-value {
+            font-size: 10px;
+        }
+
+        .selection-panel h3 {
+            color: #00A651;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .selection-info {
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .selection-info .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .selection-info .info-label {
+            color: #888;
+        }
+
+        .selection-info .info-value {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .close-selection {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            padding: 0;
+        }
+
+        .close-selection:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .color-legend {
+            display: grid;
+            gap: 8px;
+        }
+
+        .color-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-swatch {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 166, 81, 0.3);
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 166, 81, 0.3);
+            border-top-color: #00A651;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #00A651;
+            font-size: 14px;
+        }
+
+        /* Style pour le slider de vitesse des turbines */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #00A651;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #008040;
+            transform: scale(1.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #00A651;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            background: #008040;
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Chargement du container 3D...</p>
+    </div>
+
+    <!-- Panneau UI supprimé - Interface épurée -->
+    <!-- Section de sélection discrète (apparaît uniquement lors de la sélection) -->
+    <div class="selection-section" id="selectionSection">
+        <div class="control-group" style="margin-top: 0; padding-top: 0; border-top: none; padding-bottom: 0;">
+            <h3 style="margin-bottom: 8px; font-size: 11px; color: #00A651; text-transform: uppercase;">📋 Élément Sélectionné</h3>
+            <button onclick="closeSelection()" class="secondary" style="margin-bottom: 8px; font-size: 10px; padding: 5px 8px;">✕ Fermer</button>
+            <div class="selection-info" id="selectionInfo" style="max-height: 400px; overflow-y: auto;">
+                <p style="color: #888; text-align: center; font-size: 10px; margin: 0;">Cliquez sur un élément pour voir ses informations</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panneau de sélection séparé masqué (conservé pour compatibilité) -->
+    <div class="selection-panel" id="selectionPanel" style="display: none;">
+        <button class="close-selection" onclick="closeSelection()">×</button>
+        <h3>📋 Élément Sélectionné</h3>
+        <div class="selection-info" id="selectionInfoOld">
+            <p style="color: #888; text-align: center;">Cliquez sur un élément pour voir ses informations</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // ============================================
+        // CONFIGURATION ET CONSTANTES
+        // ============================================
+        
+        const COLORS = {
+            // Container et structure
+            blackMetal: 0x1a1a1a,
+            
+            // Béton et tuyauterie
+            concrete: 0xC0C0C0,
+            silverPipes: 0xC0C0C0,
+            
+            // Panneaux et détails
+            bluePanels: 0x1E3A8A,
+            blackGrilles: 0x000000,
+            
+            // Branding
+            hearstGreen: 0x00A651,
+            
+            // Environnement
+            ground: 0x5a6c7d, // Gris bleuté
+            sky: 0x87ceeb
+        };
+
+        // Dimensions exactes du container (en mètres)
+        const DIMENSIONS = {
+            length: 12.196,  // Longueur (axe X)
+            width: 2.438,    // Largeur (axe Z)
+            height: 2.896,   // Hauteur (axe Y)
+            concreteBase: 0.4 // Dalle béton 40cm
+        };
+
+        // ============================================
+        // VARIABLES GLOBALES
+        // ============================================
+        
+        let scene, camera, renderer;
+        let containerGroup;
+        let gridHelper, axesHelper;
+        let wireframeMode = false;
+        
+        // Contrôles caméra
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let rotation = { x: 0.3, y: 0.5 };
+        let zoom = 25;
+        let autoRotateEnabled = true; // Rotation automatique activée par défaut
+        let autoRotateSpeed = 0.3; // Vitesse de rotation automatique
+
+        // Sélection d'objets
+        let raycaster, mouse;
+        let selectedObject = null;
+        let selectableObjects = [];
+
+        // Animation des turbines
+        let turbineRotors = []; // Tableau pour stocker les rotors des turbines
+        let turbinesRunning = true; // État des turbines (marche/arrêt)
+        let turbineSpeed = 0.05; // Vitesse de rotation des turbines
+
+        // ============================================
+        // INITIALISATION
+        // ============================================
+        
+        function init() {
+            // Création de la scène
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0a0a);
+            scene.fog = new THREE.Fog(0x0a0a0a, 80, 200);
+
+            // Caméra
+            camera = new THREE.PerspectiveCamera(
+                50,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            camera.position.set(20, 12, 20);
+            camera.lookAt(0, 2, 0);
+
+            // Renderer - Configuration ULTRA RÉALISTE
+            renderer = new THREE.WebGLRenderer({ 
+                antialias: true,
+                alpha: false,
+                powerPreference: 'high-performance'
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            
+            // Ombres haute qualité
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.shadowMap.autoUpdate = true;
+            
+            // Rendu physiquement correct
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.3; // Légèrement plus lumineux
+            renderer.physicallyCorrectLights = true; // Éclairage physique
+            
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            // Setup
+            setupControls();
+            setupLights();
+            createGround();
+            createGrid();
+            createAxes();
+            createContainer();
+            setupSelection();
+
+            // Événements
+            window.addEventListener('resize', onWindowResize);
+
+            // Cacher le loading
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+            }, 500);
+
+            // Animation
+            animate();
+        }
+
+        // ============================================
+        // CONTRÔLES CAMÉRA
+        // ============================================
+        
+        // Fonction globale pour mettre à jour la position de la caméra
+        function updateCameraPosition() {
+            // Centre du container
+            const baseY = 2;
+            const containerY = containerGroup ? containerGroup.position.y : 0;
+            const targetY = baseY + containerY;
+            
+            camera.position.x = zoom * Math.sin(rotation.y) * Math.cos(rotation.x);
+            camera.position.y = targetY + zoom * Math.sin(rotation.x);
+            camera.position.z = zoom * Math.cos(rotation.y) * Math.cos(rotation.x);
+            camera.lookAt(0, targetY, 0);
+        }
+        
+        function setupControls() {
+            renderer.domElement.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            renderer.domElement.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+
+                rotation.y += deltaX * 0.005;
+                rotation.x += deltaY * 0.005;
+
+                // Limiter la rotation verticale
+                rotation.x = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, rotation.x));
+
+                updateCameraPosition();
+
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            renderer.domElement.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            renderer.domElement.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                zoom += e.deltaY * 0.02;
+                zoom = Math.max(10, Math.min(80, zoom));
+                updateCameraPosition();
+            });
+        }
+
+        // ============================================
+        // ÉCLAIRAGE
+        // ============================================
+        
+        function setupLights() {
+            // Lumière ambiante douce (environnement global)
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambientLight);
+
+            // SOLEIL - Lumière directionnelle principale (éclairage naturel)
+            const sunLight = new THREE.DirectionalLight(0xfff5e6, 1.8);
+            sunLight.position.set(30, 40, 25);
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.width = 4096;
+            sunLight.shadow.mapSize.height = 4096;
+            sunLight.shadow.camera.left = -50;
+            sunLight.shadow.camera.right = 50;
+            sunLight.shadow.camera.top = 50;
+            sunLight.shadow.camera.bottom = -50;
+            sunLight.shadow.camera.near = 0.5;
+            sunLight.shadow.camera.far = 150;
+            sunLight.shadow.bias = -0.00005;
+            sunLight.shadow.radius = 2; // Ombres douces
+            scene.add(sunLight);
+
+            // Fill Light (lumière de remplissage) - simule la lumière réfléchie
+            const fillLight = new THREE.DirectionalLight(0xb3d9ff, 0.6);
+            fillLight.position.set(-25, 20, -25);
+            scene.add(fillLight);
+
+            // Rim Light (lumière de contour) - pour faire ressortir le métal noir
+            const rimLight = new THREE.DirectionalLight(0xffffff, 0.7);
+            rimLight.position.set(0, 20, -35);
+            scene.add(rimLight);
+
+            // Back Light (contre-jour) - pour la profondeur
+            const backLight = new THREE.DirectionalLight(0xffffff, 0.4);
+            backLight.position.set(-15, 10, 30);
+            scene.add(backLight);
+
+            // Lumière hémisphérique (ciel/sol) - éclairage environnemental réaliste
+            const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x5a6c7d, 0.6);
+            hemiLight.position.set(0, 50, 0);
+            scene.add(hemiLight);
+
+            // Spot lights pour accentuer les détails (2 spots)
+            const spotLight1 = new THREE.SpotLight(0xffffff, 0.5);
+            spotLight1.position.set(15, 25, 15);
+            spotLight1.angle = Math.PI / 6;
+            spotLight1.penumbra = 0.3;
+            spotLight1.decay = 2;
+            spotLight1.distance = 100;
+            scene.add(spotLight1);
+
+            const spotLight2 = new THREE.SpotLight(0xffffff, 0.5);
+            spotLight2.position.set(-15, 25, -15);
+            spotLight2.angle = Math.PI / 6;
+            spotLight2.penumbra = 0.3;
+            spotLight2.decay = 2;
+            spotLight2.distance = 100;
+            scene.add(spotLight2);
+        }
+
+        // ============================================
+        // ENVIRONNEMENT
+        // ============================================
+        
+        function createGround() {
+            const groundGeometry = new THREE.PlaneGeometry(200, 200, 50, 50);
+            const groundMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.ground,
+                roughness: 0.95,
+                metalness: 0.05
+            });
+            
+            // Ajouter texture sol réaliste
+            addGroundTexture(groundMaterial);
+            
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+        }
+
+        function addGroundTexture(material) {
+            // Texture sol gris bleuté
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024;
+            canvas.height = 1024;
+            const ctx = canvas.getContext('2d');
+
+            // Fond gris bleuté
+            ctx.fillStyle = '#5a6c7d';
+            ctx.fillRect(0, 0, 1024, 1024);
+
+            // Bruit pour texture réaliste
+            const imageData = ctx.getImageData(0, 0, 1024, 1024);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const noise = Math.random() * 30 - 15;
+                data[i] = Math.max(0, Math.min(255, data[i] + noise));     // R
+                data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + noise)); // G
+                data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + noise)); // B
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+
+            // Petites variations de couleur gris bleuté
+            ctx.fillStyle = 'rgba(70, 85, 100, 0.2)';
+            for (let i = 0; i < 150; i++) {
+                const x = Math.random() * 1024;
+                const y = Math.random() * 1024;
+                const size = Math.random() * 4 + 1;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(20, 20);
+
+            material.map = texture;
+            material.needsUpdate = true;
+        }
+
+        function createGrid() {
+            gridHelper = new THREE.GridHelper(100, 100, COLORS.hearstGreen, 0x333333);
+            gridHelper.position.y = 0.01;
+            scene.add(gridHelper);
+        }
+
+        function createAxes() {
+            axesHelper = new THREE.AxesHelper(15);
+            axesHelper.visible = false;
+            scene.add(axesHelper);
+        }
+
+        // ============================================
+        // CRÉATION DU CONTAINER
+        // ============================================
+        
+        function createContainer() {
+            containerGroup = new THREE.Group();
+
+            // 1. DALLE BÉTON (40cm)
+            createConcreteBase();
+
+            // 2. CONTAINER PRINCIPAL (noir métal)
+            createMainContainer();
+
+            // 3. SYSTÈME DE REFROIDISSEMENT
+            createCoolingSystem();
+
+            // 4. DÉTAILS ET FINITIONS
+            createDetails();
+
+            scene.add(containerGroup);
+            
+            console.log('✅ Container 3D créé avec succès');
+        }
+
+        // ============================================
+        // 1. DALLE BÉTON
+        // ============================================
+        
+        function createConcreteBase() {
+            const baseWidth = DIMENSIONS.length + 0.5;
+            const baseDepth = DIMENSIONS.width + 0.5;
+            
+            const baseGeometry = new THREE.BoxGeometry(
+                baseWidth,
+                DIMENSIONS.concreteBase,
+                baseDepth
+            );
+            
+            const baseMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.concrete,
+                roughness: 0.9,
+                metalness: 0.1
+            });
+
+            // Ajouter texture béton
+            addConcreteTexture(baseMaterial);
+            
+            const base = new THREE.Mesh(baseGeometry, baseMaterial);
+            base.name = 'DALLE-BETON-01'; // Référence simple
+            base.position.y = DIMENSIONS.concreteBase / 2;
+            base.castShadow = true;
+            base.receiveShadow = true;
+            containerGroup.add(base);
+        }
+
+        // ============================================
+        // TEXTURES MÉTALLIQUES PROCÉDURALES
+        // ============================================
+        
+        function addMetalTexture(material) {
+            // Créer une texture TRÈS VISIBLE pour le métal container
+            const canvas = document.createElement('canvas');
+            canvas.width = 2048;
+            canvas.height = 2048;
+            const ctx = canvas.getContext('2d');
+
+            // Fond métal noir avec gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, 2048);
+            gradient.addColorStop(0, '#2a2a2a');
+            gradient.addColorStop(0.5, '#1a1a1a');
+            gradient.addColorStop(1, '#0a0a0a');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 2048, 2048);
+
+            // LIGNES HORIZONTALES TRÈS VISIBLES (style tôle ondulée)
+            const lineSpacing = 20; // Tous les 20 pixels
+            
+            for (let y = 0; y < 2048; y += lineSpacing) {
+                // Ligne claire (relief)
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+                ctx.fillRect(0, y, 2048, 3);
+                
+                // Ligne très sombre (creux)
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fillRect(0, y + 3, 2048, 2);
+                
+                // Ligne moyenne
+                ctx.fillStyle = 'rgba(80, 80, 80, 0.15)';
+                ctx.fillRect(0, y + 5, 2048, 8);
+            }
+
+            // Ajouter du bruit métallique VISIBLE
+            const imageData = ctx.getImageData(0, 0, 2048, 2048);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const noise = Math.random() * 60 - 30;
+                data[i] = Math.max(0, Math.min(255, data[i] + noise));
+                data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + noise));
+                data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + noise));
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+
+            // Ajouter des RAYURES et marques d'usure VISIBLES
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 100; i++) {
+                const x = Math.random() * 2048;
+                const y = Math.random() * 2048;
+                const length = Math.random() * 200 + 50;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + length, y);
+                ctx.stroke();
+            }
+
+            // Taches de rouille/usure
+            ctx.fillStyle = 'rgba(139, 69, 19, 0.1)';
+            for (let i = 0; i < 30; i++) {
+                const x = Math.random() * 2048;
+                const y = Math.random() * 2048;
+                const size = Math.random() * 80 + 20;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Créer la texture Three.js
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(3, 3);
+            texture.anisotropy = renderer.capabilities.getMaxAnisotropy(); // Qualité maximale
+
+            material.map = texture;
+            
+            // Créer aussi une normal map pour le relief
+            const normalCanvas = document.createElement('canvas');
+            normalCanvas.width = 2048;
+            normalCanvas.height = 2048;
+            const normalCtx = normalCanvas.getContext('2d');
+            
+            // Gradient pour simuler le relief
+            for (let y = 0; y < 2048; y += lineSpacing) {
+                const normalGradient = normalCtx.createLinearGradient(0, y, 0, y + lineSpacing);
+                normalGradient.addColorStop(0, '#8080ff');
+                normalGradient.addColorStop(0.3, '#8080c0');
+                normalGradient.addColorStop(0.7, '#808080');
+                normalGradient.addColorStop(1, '#8080ff');
+                normalCtx.fillStyle = normalGradient;
+                normalCtx.fillRect(0, y, 2048, lineSpacing);
+            }
+            
+            const normalTexture = new THREE.CanvasTexture(normalCanvas);
+            normalTexture.wrapS = THREE.RepeatWrapping;
+            normalTexture.wrapT = THREE.RepeatWrapping;
+            normalTexture.repeat.set(3, 3);
+            
+            material.normalMap = normalTexture;
+            material.normalScale = new THREE.Vector2(1.5, 1.5); // Relief prononcé
+            
+            material.needsUpdate = true;
+        }
+
+        function addConcreteTexture(material) {
+            // Créer une texture canvas pour le béton
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            // Fond béton gris
+            ctx.fillStyle = '#C0C0C0';
+            ctx.fillRect(0, 0, 512, 512);
+
+            // Ajouter du bruit pour texture béton
+            const imageData = ctx.getImageData(0, 0, 512, 512);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const noise = Math.random() * 40 - 20;
+                data[i] += noise;     // R
+                data[i + 1] += noise; // G
+                data[i + 2] += noise; // B
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+
+            // Créer la texture Three.js
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(2, 2);
+
+            material.map = texture;
+            material.needsUpdate = true;
+        }
+
+        // ============================================
+        // 2. CONTAINER PRINCIPAL
+        // ============================================
+        
+        function createMainContainer() {
+            // Matériau métal noir avec texture procédurale
+            const containerMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.blackMetal,
+                roughness: 0.4,
+                metalness: 0.95,
+                envMapIntensity: 1.5,
+                roughnessMap: null, // Sera ajouté avec texture procédurale
+                normalScale: new THREE.Vector2(0.5, 0.5)
+            });
+
+            // Ajouter une texture de bruit pour le métal
+            addMetalTexture(containerMaterial);
+
+            // Corps principal du container
+            const containerGeometry = new THREE.BoxGeometry(
+                DIMENSIONS.length,
+                DIMENSIONS.height,
+                DIMENSIONS.width
+            );
+            
+            const container = new THREE.Mesh(containerGeometry, containerMaterial);
+            container.name = 'CONTAINER-PRINCIPAL'; // Référence simple
+            container.position.y = DIMENSIONS.concreteBase + DIMENSIONS.height / 2;
+            container.castShadow = true;
+            container.receiveShadow = true;
+            containerGroup.add(container);
+
+            // Ondulations métalliques (côtés longs) - avec texture
+            const corrugationMaterial = containerMaterial.clone();
+            createCorrugations(container, corrugationMaterial);
+
+            // Portes arrière
+            createDoors(container);
+
+            // Porte latérale (côté ventilateurs)
+            createSideDoor(container);
+
+            // Logo Hearst sur les flancs
+            createLogos(container);
+        }
+
+        function createCorrugations(parent, material) {
+            // RAINURES 3D PHYSIQUES - SEULEMENT sur le bloc du BAS (container)
+            const ribCount = 50;
+            const ribWidth = 0.15;
+            const ribDepth = 0.12; // Relief 3D
+            const spacing = DIMENSIONS.length / ribCount;
+
+            // Matériau nervures
+            const ribMaterial = new THREE.MeshStandardMaterial({
+                color: 0x2a2a2a,
+                roughness: 0.3,
+                metalness: 0.95,
+                envMapIntensity: 2.0
+            });
+
+            // Hauteur = SEULEMENT le container (pas le cooling)
+            const ribHeight = DIMENSIONS.height;
+
+            for (let i = 0; i < ribCount; i++) {
+                const x = -DIMENSIONS.length / 2 + i * spacing;
+                
+                // Nervure NORD - seulement sur le container
+                const ribGeometry = new THREE.BoxGeometry(ribWidth, ribHeight, ribDepth);
+                const rib = new THREE.Mesh(ribGeometry, ribMaterial);
+                rib.name = `ONDULATION-${i + 1}`;
+                rib.position.set(x, 0, DIMENSIONS.width / 2 + ribDepth / 2);
+                rib.castShadow = true;
+                rib.receiveShadow = true;
+                parent.add(rib);
+
+                // Nervure SUD - seulement sur le container
+                const ribSouth = new THREE.Mesh(ribGeometry, ribMaterial);
+                ribSouth.name = `ONDULATION-SUD-${i + 1}`;
+                ribSouth.position.set(x, 0, -DIMENSIONS.width / 2 - ribDepth / 2);
+                ribSouth.castShadow = true;
+                ribSouth.receiveShadow = true;
+                parent.add(ribSouth);
+            }
+
+            // CREUX entre les nervures - seulement sur le container
+            const grooveCount = ribCount - 1;
+            const grooveWidth = spacing - ribWidth - 0.02;
+            const grooveDepth = 0.08;
+            
+            const grooveMaterial = new THREE.MeshStandardMaterial({
+                color: 0x0a0a0a,
+                roughness: 0.6,
+                metalness: 0.9
+            });
+
+            for (let i = 0; i < grooveCount; i++) {
+                const x = -DIMENSIONS.length / 2 + (i + 0.5) * spacing;
+                
+                // Creux NORD
+                const grooveGeometry = new THREE.BoxGeometry(grooveWidth, ribHeight - 0.2, grooveDepth);
+                const groove = new THREE.Mesh(grooveGeometry, grooveMaterial);
+                groove.position.set(x, 0, DIMENSIONS.width / 2 + grooveDepth / 2 - 0.02);
+                groove.receiveShadow = true;
+                parent.add(groove);
+
+                // Creux SUD
+                const grooveSouth = new THREE.Mesh(grooveGeometry, grooveMaterial);
+                grooveSouth.position.set(x, 0, -DIMENSIONS.width / 2 - grooveDepth / 2 + 0.02);
+                grooveSouth.receiveShadow = true;
+                parent.add(grooveSouth);
+            }
+
+            // ============================================
+            // ONDULATIONS SUR LES LONGUEURS (EST et OUEST)
+            // ============================================
+            
+            // Pour les longueurs, on crée des ondulations verticales
+            const ribCountLong = 20; // Nombre de nervures sur la longueur
+            const spacingLong = DIMENSIONS.width / ribCountLong;
+            
+            for (let i = 0; i < ribCountLong; i++) {
+                const z = -DIMENSIONS.width / 2 + i * spacingLong;
+                
+                // Nervure EST (devant)
+                const ribEastGeometry = new THREE.BoxGeometry(ribDepth, ribHeight, ribWidth);
+                const ribEast = new THREE.Mesh(ribEastGeometry, ribMaterial);
+                ribEast.name = `ONDULATION-EST-${i + 1}`;
+                ribEast.position.set(DIMENSIONS.length / 2 + ribDepth / 2, 0, z);
+                ribEast.castShadow = true;
+                ribEast.receiveShadow = true;
+                parent.add(ribEast);
+
+                // Nervure OUEST (arrière)
+                const ribWest = new THREE.Mesh(ribEastGeometry, ribMaterial);
+                ribWest.name = `ONDULATION-OUEST-${i + 1}`;
+                ribWest.position.set(-DIMENSIONS.length / 2 - ribDepth / 2, 0, z);
+                ribWest.castShadow = true;
+                ribWest.receiveShadow = true;
+                parent.add(ribWest);
+            }
+
+            // Creux entre les nervures sur les longueurs
+            const grooveCountLong = ribCountLong - 1;
+            const grooveWidthLong = spacingLong - ribWidth - 0.02;
+            
+            for (let i = 0; i < grooveCountLong; i++) {
+                const z = -DIMENSIONS.width / 2 + (i + 0.5) * spacingLong;
+                
+                // Creux EST (devant)
+                const grooveEastGeometry = new THREE.BoxGeometry(grooveDepth, ribHeight - 0.2, grooveWidthLong);
+                const grooveEast = new THREE.Mesh(grooveEastGeometry, grooveMaterial);
+                grooveEast.position.set(DIMENSIONS.length / 2 + grooveDepth / 2 - 0.02, 0, z);
+                grooveEast.receiveShadow = true;
+                parent.add(grooveEast);
+
+                // Creux OUEST (arrière)
+                const grooveWest = new THREE.Mesh(grooveEastGeometry, grooveMaterial);
+                grooveWest.position.set(-DIMENSIONS.length / 2 - grooveDepth / 2 + 0.02, 0, z);
+                grooveWest.receiveShadow = true;
+                parent.add(grooveWest);
+            }
+        }
+
+        function createDoors(parent) {
+            const doorMaterial = new THREE.MeshStandardMaterial({
+                color: 0x0a0a0a,
+                roughness: 0.4,
+                metalness: 0.95
+            });
+
+            // Ajouter texture métal container aux portes
+            addMetalTexture(doorMaterial);
+
+            const doorWidth = DIMENSIONS.width / 2 - 0.05;
+            const doorHeight = DIMENSIONS.height - 0.2;
+            const doorGeometry = new THREE.BoxGeometry(0.05, doorHeight, doorWidth);
+
+            // Porte gauche
+            const doorLeft = new THREE.Mesh(doorGeometry, doorMaterial);
+            doorLeft.name = 'PORTE-ARRIERE-GAUCHE'; // Référence simple
+            doorLeft.position.set(DIMENSIONS.length / 2, 0, -doorWidth / 2 - 0.025);
+            parent.add(doorLeft);
+
+            // Porte droite
+            const doorRight = new THREE.Mesh(doorGeometry, doorMaterial);
+            doorRight.name = 'PORTE-ARRIERE-DROITE'; // Référence simple
+            doorRight.position.set(DIMENSIONS.length / 2, 0, doorWidth / 2 + 0.025);
+            parent.add(doorRight);
+
+            // Poignées
+            const handleGeometry = new THREE.BoxGeometry(0.1, 0.15, 0.05);
+            const handleMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.silverPipes,
+                roughness: 0.3,
+                metalness: 0.9
+            });
+
+            const handleLeft = new THREE.Mesh(handleGeometry, handleMaterial);
+            handleLeft.name = 'POIGNEE-ARRIERE-GAUCHE'; // Référence simple
+            handleLeft.position.set(DIMENSIONS.length / 2 + 0.05, 0, -doorWidth / 2);
+            parent.add(handleLeft);
+
+            const handleRight = new THREE.Mesh(handleGeometry, handleMaterial);
+            handleRight.name = 'POIGNEE-ARRIERE-DROITE'; // Référence simple
+            handleRight.position.set(DIMENSIONS.length / 2 + 0.05, 0, doorWidth / 2);
+            parent.add(handleRight);
+        }
+
+        function createSideDoor(parent) {
+            // Panneaux noirs pour fermer complètement le container (longueur et largeur)
+            const panelMaterial = new THREE.MeshStandardMaterial({
+                color: 0x0a0a0a,
+                roughness: 0.4,
+                metalness: 0.95
+            });
+
+            // Ajouter texture métal container
+            addMetalTexture(panelMaterial);
+
+            const doorHeight = DIMENSIONS.height;
+            
+            // PANNEAU CÔTÉ GAUCHE (Ouest) - Sur toute la LARGEUR
+            const leftPanelGeometry = new THREE.BoxGeometry(0.08, doorHeight, DIMENSIONS.width);
+            const leftPanel = new THREE.Mesh(leftPanelGeometry, panelMaterial);
+            leftPanel.name = 'PANNEAU-CONTAINER-OUEST'; // Référence simple
+            leftPanel.position.set(-DIMENSIONS.length / 2 - 0.04, 0, 0);
+            leftPanel.castShadow = true;
+            parent.add(leftPanel);
+
+            // PANNEAU CÔTÉ AVANT (Nord) - Sur toute la LONGUEUR
+            const frontPanelGeometry = new THREE.BoxGeometry(DIMENSIONS.length, doorHeight, 0.08);
+            const frontPanel = new THREE.Mesh(frontPanelGeometry, panelMaterial);
+            frontPanel.name = 'PANNEAU-CONTAINER-NORD'; // Référence simple
+            frontPanel.position.set(0, 0, DIMENSIONS.width / 2 + 0.04);
+            frontPanel.castShadow = true;
+            parent.add(frontPanel);
+
+            // PANNEAU CÔTÉ ARRIÈRE (Sud) - Sur toute la LONGUEUR
+            const backPanelGeometry = new THREE.BoxGeometry(DIMENSIONS.length, doorHeight, 0.08);
+            const backPanel = new THREE.Mesh(backPanelGeometry, panelMaterial);
+            backPanel.name = 'PANNEAU-CONTAINER-SUD'; // Référence simple
+            backPanel.position.set(0, 0, -DIMENSIONS.width / 2 - 0.04);
+            backPanel.castShadow = true;
+            parent.add(backPanel);
+        }
+
+        function createLogos(parent) {
+            // Logo Hearst - base64 complet extrait du fichier PNG
+            const logoBase64 = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABDgAAAQ4CAYAAADsEGyPAAAACXBIWXMAAC4jAAAuIwF4pT92AAAFHGlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDUgNzkuMTYzNDk5LCAyMDE4LzA4LzEzLTE2OjQwOjIyICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ0MgMjAxOSAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDIyLTA0LTI0VDEzOjQxOjMxKzA0OjMwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyMi0wNC0yNFQxMzo0MjoyMCswNDozMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyMi0wNC0yNFQxMzo0MjoyMCswNDozMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiIHBob3Rvc2hvcDpJQ0NQcm9maWxlPSJzUkdCIElFQzYxOTY2LTIuMSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowMDY3YTE3Yi01ODVjLWIyNDUtODM5YS0yOWZlYjVlMTg2OGEiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MDA2N2ExN2ItNTg1Yy1iMjQ1LTgzOWEtMjlmZWI1ZTE4NjhhIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6MDA2N2ExN2ItNTg1Yy1iMjQ1LTgzOWEtMjlmZWI1ZTE4NjhhIj4gPHhtcE1NOkhpc3Rvcnk+IDxyZGY6U2VxPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iY3JlYXRlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDowMDY3YTE3Yi01ODVjLWIyNDUtODM5YS0yOWZlYjVlMTg2OGEiIHN0RXZ0OndoZW49IjIwMjItMDQtMjRUMTM6NDE6MzErMDQ6MzAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCBDQyAyMDE5IChXaW5kb3dzKSIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz6VlnzbAABDrUlEQVR4nO3dd5iuVX3v4e8GVBTsgBpFsaAGrNjFilEUVJoKFhRb7EBsR1NONMaoUWOwYoPYO6jRECvG2AAlCVERsaLYCyhIlX3+WLOPCLvN7PdZ6/3N3Pd1zbUR9jy/5S4z837medZatXr16gAAAABUttnoBQAAAABsKoEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIEDAAAAKE/gAAAAAMoTOAAAAIDyBA4AAACgPIED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AADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoDyBAwAAAChP4AAAAADKEzgAAACA8gQOAAAAoLz/B8KrjAuyTzMqAAAAAElFTkSuQmCC`;
+            
+            // Charger l'image depuis le base64
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            
+            img.onload = () => {
+                console.log(`📐 Image chargée: ${img.width}x${img.height}`);
+                
+                // Créer un canvas et y dessiner l'image
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                
+                // Dessiner l'image sur le canvas
+                ctx.drawImage(img, 0, 0);
+                
+                // Créer la texture depuis le canvas
+                const logoTexture = new THREE.CanvasTexture(canvas);
+                logoTexture.flipY = false;
+                logoTexture.needsUpdate = true;
+                logoTexture.minFilter = THREE.LinearFilter;
+                logoTexture.magFilter = THREE.LinearFilter;
+                logoTexture.generateMipmaps = false;
+                logoTexture.wrapS = THREE.ClampToEdgeWrapping;
+                logoTexture.wrapT = THREE.ClampToEdgeWrapping;
+                logoTexture.encoding = THREE.sRGBEncoding;
+                
+                // Matériau
+                const logoMaterial = new THREE.MeshBasicMaterial({
+                    map: logoTexture,
+                    transparent: true,
+                    opacity: 1.0,
+                    side: THREE.DoubleSide,
+                    alphaTest: 0.1
+                });
+                
+                const plateMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xffffff,
+                    metalness: 0.1,
+                    roughness: 0.3,
+                    side: THREE.DoubleSide
+                });
+                
+                // Dimensions et positions
+                const logoWidth = 2.5;
+                const logoHeight = 2.5;
+                const plateWidth = logoWidth + 0.4;
+                const plateHeight = logoHeight + 0.4;
+                const plateThickness = 0.05;
+                const ribDepth = 0.12;
+                const offset = ribDepth + 0.1;
+                const logoYPosition = DIMENSIONS.height / 2 - 0.2;
+                
+                // Fonction pour créer un logo (sans plaque blanche)
+                function createLogoPlate(x, y, z, rotationY, name) {
+                    const group = new THREE.Group();
+                    
+                    // Logo uniquement (pas de plaque blanche)
+                    const logo = new THREE.Mesh(
+                        new THREE.PlaneGeometry(logoWidth, logoHeight),
+                        logoMaterial
+                    );
+                    logo.position.z = 0;
+                    logo.rotation.x = Math.PI; // Rotation de 180° sur l'axe X (rouge)
+                    group.add(logo);
+                    
+                    group.position.set(x, y, z);
+                    group.rotation.y = rotationY;
+                    group.name = name;
+                    parent.add(group);
+                }
+                
+                // Logo côté SUD (z négatif) - INVERSE : position nord
+                createLogoPlate(
+                    0,
+                    logoYPosition,
+                    DIMENSIONS.width / 2 + offset,  // NORD (inversé)
+                    0,
+                    'LOGO-HEARST-SUD'
+                );
+                
+                // Logo côté NORD (z positif) - INVERSE : position sud
+                createLogoPlate(
+                    0,
+                    logoYPosition,
+                    -DIMENSIONS.width / 2 - offset,  // SUD (inversé)
+                    Math.PI,
+                    'LOGO-HEARST-NORD'
+                );
+                
+                const ptLight = new THREE.PointLight(0xffffff, 3, 50);
+                ptLight.position.set(0, 10, -7);
+                scene.add(ptLight);
+                
+                console.log('✅ Logo créé avec succès !');
+            };
+            
+            img.onerror = (error) => {
+                console.error('❌ Erreur chargement image:', error);
+            };
+            
+            img.src = logoBase64;
+        }
+
+
+        // ============================================
+        // 3. SYSTÈME DE REFROIDISSEMENT
+        // ============================================
+        
+        function createCoolingFrame(baseY) {
+            // Cadre structurel du cooling system - MÊMES dimensions que le container
+            const frameMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.blackMetal,
+                roughness: 0.3,
+                metalness: 0.9
+            });
+
+            const frameThickness = 0.15;
+            const coolingHeight = DIMENSIONS.height; // Même hauteur que le container
+
+            // 4 MONTANTS VERTICAUX aux coins
+            const verticalGeometry = new THREE.BoxGeometry(frameThickness, coolingHeight, frameThickness);
+            
+            const corners = [
+                { x: -DIMENSIONS.length / 2, z: -DIMENSIONS.width / 2 }, // Coin arrière-gauche
+                { x: -DIMENSIONS.length / 2, z: DIMENSIONS.width / 2 },  // Coin avant-gauche
+                { x: DIMENSIONS.length / 2, z: -DIMENSIONS.width / 2 },  // Coin arrière-droit
+                { x: DIMENSIONS.length / 2, z: DIMENSIONS.width / 2 }    // Coin avant-droit
+            ];
+
+            corners.forEach((corner, index) => {
+                const vertical = new THREE.Mesh(verticalGeometry, frameMaterial);
+                vertical.name = `MONTANT-COOLING-${index + 1}`; // Référence simple
+                vertical.position.set(corner.x, baseY + coolingHeight / 2, corner.z);
+                vertical.castShadow = true;
+                containerGroup.add(vertical);
+            });
+
+            // TRAVERSES HORIZONTALES EN HAUT (sur la longueur - axe X)
+            const topLongGeometry = new THREE.BoxGeometry(DIMENSIONS.length, frameThickness, frameThickness);
+            
+            // Traverse avant (Nord)
+            const topFront = new THREE.Mesh(topLongGeometry, frameMaterial);
+            topFront.position.set(0, baseY + coolingHeight, DIMENSIONS.width / 2);
+            topFront.castShadow = true;
+            containerGroup.add(topFront);
+            
+            // Traverse arrière (Sud)
+            const topBack = new THREE.Mesh(topLongGeometry, frameMaterial);
+            topBack.position.set(0, baseY + coolingHeight, -DIMENSIONS.width / 2);
+            topBack.castShadow = true;
+            containerGroup.add(topBack);
+
+            // TRAVERSES HORIZONTALES EN HAUT (sur la largeur - axe Z)
+            const topShortGeometry = new THREE.BoxGeometry(frameThickness, frameThickness, DIMENSIONS.width);
+            
+            // Traverse gauche (Ouest)
+            const topLeft = new THREE.Mesh(topShortGeometry, frameMaterial);
+            topLeft.position.set(-DIMENSIONS.length / 2, baseY + coolingHeight, 0);
+            topLeft.castShadow = true;
+            containerGroup.add(topLeft);
+            
+            // Traverse droite (Est)
+            const topRight = new THREE.Mesh(topShortGeometry, frameMaterial);
+            topRight.position.set(DIMENSIONS.length / 2, baseY + coolingHeight, 0);
+            topRight.castShadow = true;
+            containerGroup.add(topRight);
+
+            // TRAVERSES HORIZONTALES EN BAS (sur la longueur - axe X)
+            const bottomLongGeometry = new THREE.BoxGeometry(DIMENSIONS.length, frameThickness, frameThickness);
+            
+            // Traverse avant (Nord)
+            const bottomFront = new THREE.Mesh(bottomLongGeometry, frameMaterial);
+            bottomFront.position.set(0, baseY, DIMENSIONS.width / 2);
+            bottomFront.castShadow = true;
+            containerGroup.add(bottomFront);
+            
+            // Traverse arrière (Sud)
+            const bottomBack = new THREE.Mesh(bottomLongGeometry, frameMaterial);
+            bottomBack.position.set(0, baseY, -DIMENSIONS.width / 2);
+            bottomBack.castShadow = true;
+            containerGroup.add(bottomBack);
+
+            // TRAVERSES HORIZONTALES EN BAS (sur la largeur - axe Z)
+            const bottomShortGeometry = new THREE.BoxGeometry(frameThickness, frameThickness, DIMENSIONS.width);
+            
+            // Traverse gauche (Ouest)
+            const bottomLeft = new THREE.Mesh(bottomShortGeometry, frameMaterial);
+            bottomLeft.position.set(-DIMENSIONS.length / 2, baseY, 0);
+            bottomLeft.castShadow = true;
+            containerGroup.add(bottomLeft);
+            
+            // Traverse droite (Est)
+            const bottomRight = new THREE.Mesh(bottomShortGeometry, frameMaterial);
+            bottomRight.position.set(DIMENSIONS.length / 2, baseY, 0);
+            bottomRight.castShadow = true;
+            containerGroup.add(bottomRight);
+
+            // PLANCHER du cooling system (optionnel - grille métallique)
+            const floorGeometry = new THREE.BoxGeometry(DIMENSIONS.length - 0.3, 0.05, DIMENSIONS.width - 0.3);
+            const floorMaterial = new THREE.MeshStandardMaterial({
+                color: 0x2a2a2a,
+                roughness: 0.5,
+                metalness: 0.7,
+                transparent: true,
+                opacity: 0.8
+            });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.position.set(0, baseY + 0.025, 0);
+            floor.castShadow = true;
+            floor.receiveShadow = true;
+            containerGroup.add(floor);
+
+            // TOIT du cooling system AVEC TROUS pour les ventilateurs
+            const roofMaterial = new THREE.MeshStandardMaterial({
+                color: 0x0a0a0a,
+                roughness: 0.4,
+                metalness: 0.8,
+                side: THREE.DoubleSide
+            });
+            
+            const roofThickness = 0.1;
+            const ribDepthForRoof = 0.12;
+            const alignedWidthForRoof = DIMENSIONS.width + (ribDepthForRoof * 2);
+            
+            // Créer un Shape rectangulaire pour le toit
+            const roofShape = new THREE.Shape();
+            const halfLength = DIMENSIONS.length / 2;
+            const halfWidth = alignedWidthForRoof / 2;
+            
+            roofShape.moveTo(-halfLength, -halfWidth);
+            roofShape.lineTo(halfLength, -halfWidth);
+            roofShape.lineTo(halfLength, halfWidth);
+            roofShape.lineTo(-halfLength, halfWidth);
+            roofShape.lineTo(-halfLength, -halfWidth);
+            
+            // Ajouter 4 TROUS CIRCULAIRES pour les ventilateurs
+            const fanPositions = [
+                { x: -4.5, z: 0 },
+                { x: -1.5, z: 0 },
+                { x: 1.5, z: 0 },
+                { x: 4.5, z: 0 }
+            ];
+            
+            const holeRadius = 1.0; // Rayon du trou (légèrement plus grand que le ventilateur)
+            
+            fanPositions.forEach(pos => {
+                const hole = new THREE.Path();
+                hole.absarc(pos.x, pos.z, holeRadius, 0, Math.PI * 2, false);
+                roofShape.holes.push(hole);
+            });
+            
+            // Extruder le toit avec les trous
+            const roofGeometry = new THREE.ExtrudeGeometry(roofShape, {
+                depth: roofThickness,
+                bevelEnabled: false
+            });
+            
+            const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+            roof.name = 'TOIT-COOLING-AVEC-TROUS';
+            roof.position.set(0, baseY + coolingHeight, 0);
+            roof.rotation.x = -Math.PI / 2; // Rotation pour mettre à plat
+            roof.castShadow = true;
+            roof.receiveShadow = true;
+            containerGroup.add(roof);
+
+            // CÔTÉS du cooling system - ALIGNÉS avec les rainures du container
+            const sidePanelMaterial = new THREE.MeshStandardMaterial({
+                color: 0x0a0a0a,
+                roughness: 0.4,
+                metalness: 0.8
+            });
+
+            const sidePanelThickness = 0.08;
+            const ribDepth = 0.12; // Profondeur des rainures
+            const alignedWidth = DIMENSIONS.width + (ribDepth * 2); // Largeur incluant les rainures
+            
+            // CÔTÉ GAUCHE (Ouest) du cooling - ALIGNÉ
+            const leftSideGeometry = new THREE.BoxGeometry(sidePanelThickness, coolingHeight, alignedWidth);
+            const leftSide = new THREE.Mesh(leftSideGeometry, sidePanelMaterial);
+            leftSide.name = 'PANNEAU-COOLING-OUEST'; // Référence simple
+            leftSide.position.set(-DIMENSIONS.length / 2 - sidePanelThickness / 2, baseY + coolingHeight / 2, 0);
+            leftSide.castShadow = true;
+            containerGroup.add(leftSide);
+
+            // CÔTÉ DROIT (Est) du cooling - ALIGNÉ
+            const rightSideGeometry = new THREE.BoxGeometry(sidePanelThickness, coolingHeight, alignedWidth);
+            const rightSide = new THREE.Mesh(rightSideGeometry, sidePanelMaterial);
+            rightSide.name = 'PANNEAU-COOLING-EST'; // Référence simple
+            rightSide.position.set(DIMENSIONS.length / 2 + sidePanelThickness / 2, baseY + coolingHeight / 2, 0);
+            rightSide.castShadow = true;
+            containerGroup.add(rightSide);
+
+            // POTEAUX DE SUPPORT VERTICAUX (3 poteaux symétriques sur la longueur)
+            const poleMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.blackMetal,
+                roughness: 0.3,
+                metalness: 0.9
+            });
+
+            const poleThickness = 0.15;
+            const poleGeometry = new THREE.BoxGeometry(poleThickness, coolingHeight, poleThickness);
+            
+            // 3 poteaux répartis symétriquement sur la longueur
+            const polePositions = [
+                -DIMENSIONS.length / 4,  // Poteau gauche
+                0,                        // Poteau central
+                DIMENSIONS.length / 4     // Poteau droit
+            ];
+
+            polePositions.forEach((xPos, index) => {
+                // Poteau côté Nord (avant)
+                const poleNorth = new THREE.Mesh(poleGeometry, poleMaterial);
+                poleNorth.name = `POTEAU-NORD-${index + 1}`; // Référence simple
+                poleNorth.position.set(xPos, baseY + coolingHeight / 2, DIMENSIONS.width / 2 - poleThickness);
+                poleNorth.castShadow = true;
+                containerGroup.add(poleNorth);
+
+                // Poteau côté Sud (arrière)
+                const poleSouth = new THREE.Mesh(poleGeometry, poleMaterial);
+                poleSouth.name = `POTEAU-SUD-${index + 1}`; // Référence simple
+                poleSouth.position.set(xPos, baseY + coolingHeight / 2, -DIMENSIONS.width / 2 + poleThickness);
+                poleSouth.castShadow = true;
+                containerGroup.add(poleSouth);
+            });
+
+            // PANNEAUX AVANT/ARRIÈRE du cooling - RÉDUITS de 75% vers le bas
+            const endPanelMaterial = new THREE.MeshStandardMaterial({
+                color: 0x0a0a0a,
+                roughness: 0.4,
+                metalness: 0.8
+            });
+
+            const endPanelThickness = 0.08;
+            // Position à l'extérieur des poteaux
+            const panelZPosition = DIMENSIONS.width / 2;
+            
+            // Hauteur réduite de 75% (seulement 25% de la hauteur totale)
+            const reducedPanelHeight = coolingHeight * 0.25;
+            // Position Y : en bas du cooling system
+            const panelYPosition = baseY + reducedPanelHeight / 2;
+
+            // PANNEAU AVANT (Nord) - RÉDUIT 75% vers le bas
+            const frontPanelGeometry = new THREE.BoxGeometry(DIMENSIONS.length, reducedPanelHeight, endPanelThickness);
+            const frontPanel = new THREE.Mesh(frontPanelGeometry, endPanelMaterial);
+            frontPanel.name = 'PANNEAU-COOLING-NORD'; // Référence simple
+            frontPanel.position.set(0, panelYPosition, panelZPosition);
+            frontPanel.castShadow = true;
+            containerGroup.add(frontPanel);
+
+            // PANNEAU ARRIÈRE (Sud) - RÉDUIT 75% vers le bas
+            const backPanelGeometry = new THREE.BoxGeometry(DIMENSIONS.length, reducedPanelHeight, endPanelThickness);
+            const backPanel = new THREE.Mesh(backPanelGeometry, endPanelMaterial);
+            backPanel.name = 'PANNEAU-COOLING-SUD'; // Référence simple
+            backPanel.position.set(0, panelYPosition, -panelZPosition);
+            backPanel.castShadow = true;
+            containerGroup.add(backPanel);
+        }
+        
+        function createCoolingSystem() {
+            const baseY = DIMENSIONS.concreteBase + DIMENSIONS.height;
+
+            // Structure frame du cooling system (mêmes dimensions que le container)
+            createCoolingFrame(baseY);
+
+            // Panneaux bleus inclinés sur le dessus
+            createBluePanels(baseY);
+
+            // Système d'aspiration sur le toit
+            createAspirationSystem(baseY);
+
+            // Grilles de ventilation latérales
+            createVentilationGrilles();
+        }
+
+        function createBluePanels(baseY) {
+            // SEULEMENT LES AILETTES - Elles forment le V directement
+            const coolingHeight = DIMENSIONS.height;
+            const vAngle = 35 * Math.PI / 180; // ANGLE PLUS OUVERT (35° au lieu de 18°)
+            const zOffset = Math.sin(vAngle) * (coolingHeight / 2);
+
+            // Créer les ailettes qui forment le V
+            createSimpleFins(baseY, coolingHeight, vAngle, zOffset);
+        }
+
+        function createSimpleFins(baseY, coolingHeight, vAngle, zOffset) {
+            // GROSSES AILETTES DE RADIATEUR INDUSTRIEL - ARGENT TRÈS CLAIR
+            const finMaterial = new THREE.MeshStandardMaterial({
+                color: 0xF8F8F8, // ARGENT TRÈS CLAIR (presque blanc)
+                roughness: 0.1, // Très brillant
+                metalness: 0.98,
+                envMapIntensity: 4.0, // Reflets très intenses
+                emissive: 0xF8F8F8,
+                emissiveIntensity: 0.2 // Lumineux
+            });
+
+            const finCount = 35; // MOINS d'ailettes mais PLUS GROSSES
+            const finThickness = 0.06; // ÉPAISSES (6cm)
+            const finLength = DIMENSIONS.length - 0.2;
+            const finDepth = 0.25; // TRÈS PROFONDES (25cm !)
+
+            // GROSSES AILETTES côté NORD - V INVERSÉ (sommet en bas)
+            for (let i = 0; i < finCount; i++) {
+                const yPosition = baseY + (i / finCount) * coolingHeight;
+                
+                // Le V s'OUVRE vers le haut : zOffset AUGMENTE
+                const progress = i / finCount; // 0 = bas, 1 = haut
+                const currentZ = zOffset * progress; // Part serré en bas, s'ouvre en haut
+                
+                // Ailette principale
+                const finGeometry = new THREE.BoxGeometry(finLength, finThickness, finDepth);
+                const fin = new THREE.Mesh(finGeometry, finMaterial);
+                fin.name = `AILETTE-NORD-${i + 1}`;
+                fin.position.set(0, yPosition, currentZ + finDepth / 2);
+                fin.rotation.x = vAngle;
+                fin.castShadow = true;
+                fin.receiveShadow = true;
+                containerGroup.add(fin);
+
+                // Bord avant de l'ailette (pour effet 3D)
+                const edgeMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xFFFFFF, // BLANC pur
+                    roughness: 0.05, // Ultra-brillant
+                    metalness: 0.98,
+                    emissive: 0xFFFFFF,
+                    emissiveIntensity: 0.3
+                });
+                const edgeGeometry = new THREE.BoxGeometry(finLength, finThickness * 0.5, 0.01);
+                const edge = new THREE.Mesh(edgeGeometry, edgeMaterial);
+                edge.position.set(0, yPosition, currentZ + finDepth + 0.005);
+                edge.rotation.x = vAngle;
+                containerGroup.add(edge);
+            }
+
+            // GROSSES AILETTES côté SUD - V INVERSÉ (sommet en bas)
+            for (let i = 0; i < finCount; i++) {
+                const yPosition = baseY + (i / finCount) * coolingHeight;
+                
+                const progress = i / finCount;
+                const currentZ = zOffset * progress;
+                
+                // Ailette principale
+                const finGeometry = new THREE.BoxGeometry(finLength, finThickness, finDepth);
+                const fin = new THREE.Mesh(finGeometry, finMaterial);
+                fin.name = `AILETTE-SUD-${i + 1}`;
+                fin.position.set(0, yPosition, -currentZ - finDepth / 2);
+                fin.rotation.x = -vAngle;
+                fin.castShadow = true;
+                fin.receiveShadow = true;
+                containerGroup.add(fin);
+
+                // Bord avant de l'ailette
+                const edgeMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xD0D0D0, // Argent métal clair
+                    roughness: 0.2,
+                    metalness: 0.96
+                });
+                const edgeGeometry = new THREE.BoxGeometry(finLength, finThickness * 0.5, 0.01);
+                const edge = new THREE.Mesh(edgeGeometry, edgeMaterial);
+                edge.position.set(0, yPosition, -currentZ - finDepth - 0.005);
+                edge.rotation.x = -vAngle;
+                containerGroup.add(edge);
+            }
+        }
+
+
+        function createAspirationSystem(baseY) {
+            // SYSTÈME D'EXTRACTEURS INDUSTRIELS - 4 extracteurs dans les trous du toit
+            const coolingHeight = DIMENSIONS.height;
+            const roofY = baseY + coolingHeight;
+            
+            // Positions des 4 extracteurs (alignées avec les trous du toit)
+            const extractorPositions = [
+                { x: -4.5, z: 0 },
+                { x: -1.5, z: 0 },
+                { x: 1.5, z: 0 },
+                { x: 4.5, z: 0 }
+            ];
+            
+            extractorPositions.forEach((pos, index) => {
+                createIndustrialExtractor(pos.x, roofY, pos.z, `EXTRACTEUR-${index + 1}`);
+            });
+        }
+        
+        function createIndustrialExtractor(x, y, z, name) {
+            // EXTRACTEUR À TURBINE INDUSTRIEL - Type turbine centrifuge
+            
+            // 1. BASE CIRCULAIRE (fixation au toit)
+            const baseMaterial = new THREE.MeshStandardMaterial({
+                color: 0x2a2a2a,
+                roughness: 0.3,
+                metalness: 0.9
+            });
+            
+            const baseRadius = 1.0;
+            const baseHeight = 0.15;
+            const baseGeometry = new THREE.CylinderGeometry(baseRadius, baseRadius, baseHeight, 32);
+            const base = new THREE.Mesh(baseGeometry, baseMaterial);
+            base.name = `${name}-BASE`;
+            base.position.set(x, y + baseHeight / 2, z);
+            base.castShadow = true;
+            base.receiveShadow = true;
+            containerGroup.add(base);
+            
+            // 2. CARTER DE TURBINE (boîtier spirale - volute)
+            const voluteMaterial = new THREE.MeshStandardMaterial({
+                color: 0x1a1a1a,
+                roughness: 0.3,
+                metalness: 0.9
+            });
+            
+            // Corps principal de la turbine (forme cylindrique avec sortie)
+            const voluteRadius = 0.9;
+            const voluteHeight = 0.6;
+            const voluteGeometry = new THREE.CylinderGeometry(voluteRadius, voluteRadius * 0.95, voluteHeight, 32);
+            const volute = new THREE.Mesh(voluteGeometry, voluteMaterial);
+            volute.name = `${name}-CARTER`;
+            volute.position.set(x, y + baseHeight + voluteHeight / 2, z);
+            volute.castShadow = true;
+            volute.receiveShadow = true;
+            containerGroup.add(volute);
+            
+            // 3. SORTIE D'AIR RECTANGULAIRE (conduit de sortie tangentiel)
+            const outletMaterial = new THREE.MeshStandardMaterial({
+                color: 0x2a2a2a,
+                roughness: 0.4,
+                metalness: 0.85
+            });
+            
+            const outletWidth = 0.5;
+            const outletHeight = 0.4;
+            const outletDepth = 0.8;
+            const outletGeometry = new THREE.BoxGeometry(outletDepth, outletHeight, outletWidth);
+            const outlet = new THREE.Mesh(outletGeometry, outletMaterial);
+            outlet.name = `${name}-SORTIE-AIR`;
+            outlet.position.set(x + voluteRadius * 0.7, y + baseHeight + voluteHeight / 2, z);
+            outlet.castShadow = true;
+            containerGroup.add(outlet);
+            
+            // 4. GRILLE D'ENTRÉE D'AIR (au-dessus de la turbine)
+            const grilleMaterial = new THREE.MeshStandardMaterial({
+                color: 0x0a0a0a,
+                roughness: 0.5,
+                metalness: 0.8,
+                side: THREE.DoubleSide
+            });
+            
+            const grilleRadius = 0.7;
+            const grilleGeometry = new THREE.CylinderGeometry(grilleRadius, grilleRadius, 0.05, 32);
+            const grille = new THREE.Mesh(grilleGeometry, grilleMaterial);
+            grille.name = `${name}-GRILLE-ENTREE`;
+            grille.position.set(x, y + baseHeight + voluteHeight + 0.025, z);
+            grille.castShadow = true;
+            containerGroup.add(grille);
+            
+            // 5. BARRES DE PROTECTION DE LA GRILLE (6 barres radiales)
+            const barMaterial = new THREE.MeshStandardMaterial({
+                color: 0x1a1a1a,
+                roughness: 0.4,
+                metalness: 0.85
+            });
+            
+            const barCount = 6;
+            for (let i = 0; i < barCount; i++) {
+                const angle = (i / barCount) * Math.PI * 2;
+                const barLength = grilleRadius * 2;
+                const barGeometry = new THREE.BoxGeometry(0.04, 0.06, barLength);
+                const bar = new THREE.Mesh(barGeometry, barMaterial);
+                bar.position.set(x, y + baseHeight + voluteHeight + 0.06, z);
+                bar.rotation.y = angle;
+                bar.castShadow = true;
+                containerGroup.add(bar);
+            }
+            
+            // 6. ROUE À AUBES DE LA TURBINE (impeller centrifuge) - GROUPE ROTATIF
+            const impellerMaterial = new THREE.MeshStandardMaterial({
+                color: 0x505050,
+                roughness: 0.2,
+                metalness: 0.95,
+                side: THREE.DoubleSide
+            });
+            
+            // CRÉER UN GROUPE POUR LE ROTOR (pour l'animation)
+            const rotorGroup = new THREE.Group();
+            rotorGroup.position.set(x, y + baseHeight + 0.3, z);
+            rotorGroup.name = `${name}-ROTOR`;
+            containerGroup.add(rotorGroup);
+            
+            // Ajouter le rotor au tableau pour l'animation
+            turbineRotors.push(rotorGroup);
+            
+            // Disque arrière de la turbine
+            const backPlateRadius = 0.65;
+            const backPlateGeometry = new THREE.CylinderGeometry(backPlateRadius, backPlateRadius, 0.05, 32);
+            const backPlate = new THREE.Mesh(backPlateGeometry, impellerMaterial);
+            backPlate.position.set(0, -0.15, 0);
+            backPlate.castShadow = true;
+            rotorGroup.add(backPlate);
+            
+            // Disque avant de la turbine
+            const frontPlateRadius = 0.6;
+            const frontPlateGeometry = new THREE.CylinderGeometry(frontPlateRadius, frontPlateRadius, 0.05, 32);
+            const frontPlate = new THREE.Mesh(frontPlateGeometry, impellerMaterial);
+            frontPlate.position.set(0, 0.15, 0);
+            frontPlate.castShadow = true;
+            rotorGroup.add(frontPlate);
+            
+            // 7. AUBES RADIALES DE LA TURBINE (12 aubes courbées)
+            const bladeCount = 12;
+            const bladeInnerRadius = 0.15;
+            const bladeOuterRadius = 0.6;
+            const bladeHeight = 0.3;
+            
+            for (let i = 0; i < bladeCount; i++) {
+                const angle = (i / bladeCount) * Math.PI * 2;
+                
+                // Forme d'aube courbée (backward curved blade)
+                const bladeShape = new THREE.Shape();
+                const curveAngle = Math.PI / 6; // Courbure de 30°
+                
+                // Créer une aube courbée
+                bladeShape.moveTo(bladeInnerRadius, 0);
+                bladeShape.quadraticCurveTo(
+                    (bladeInnerRadius + bladeOuterRadius) / 2, 
+                    -0.1,
+                    bladeOuterRadius, 
+                    -0.15
+                );
+                bladeShape.lineTo(bladeOuterRadius, -0.05);
+                bladeShape.quadraticCurveTo(
+                    (bladeInnerRadius + bladeOuterRadius) / 2, 
+                    0.05,
+                    bladeInnerRadius, 
+                    0
+                );
+                
+                const bladeGeometry = new THREE.ExtrudeGeometry(bladeShape, {
+                    depth: bladeHeight,
+                    bevelEnabled: false
+                });
+                
+                const blade = new THREE.Mesh(bladeGeometry, impellerMaterial);
+                blade.name = `${name}-AUBE-${i + 1}`;
+                blade.position.set(0, -0.15, 0);
+                blade.rotation.x = Math.PI / 2;
+                blade.rotation.z = angle;
+                blade.castShadow = true;
+                rotorGroup.add(blade);
+            }
+            
+            // 8. MOYEU CENTRAL DE LA TURBINE
+            const hubMaterial = new THREE.MeshStandardMaterial({
+                color: 0x3a3a3a,
+                roughness: 0.2,
+                metalness: 0.95
+            });
+            
+            const hubGeometry = new THREE.CylinderGeometry(0.15, 0.12, 0.4, 16);
+            const hub = new THREE.Mesh(hubGeometry, hubMaterial);
+            hub.name = `${name}-MOYEU`;
+            hub.position.set(0, 0, 0);
+            hub.castShadow = true;
+            rotorGroup.add(hub);
+            
+            // 9. MOTEUR ÉLECTRIQUE (visible sur le côté)
+            const motorMaterial = new THREE.MeshStandardMaterial({
+                color: 0x2a2a2a,
+                roughness: 0.4,
+                metalness: 0.85
+            });
+            
+            const motorGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.4, 16);
+            const motor = new THREE.Mesh(motorGeometry, motorMaterial);
+            motor.name = `${name}-MOTEUR`;
+            motor.position.set(x, y + baseHeight + voluteHeight / 2, z + voluteRadius * 0.8);
+            motor.rotation.x = Math.PI / 2;
+            motor.castShadow = true;
+            containerGroup.add(motor);
+            
+            // 10. BOULONS DE FIXATION (8 boulons autour de la base)
+            const boltMaterial = new THREE.MeshStandardMaterial({
+                color: 0x505050,
+                roughness: 0.3,
+                metalness: 0.95
+            });
+            
+            const boltCount = 8;
+            const boltRadius = baseRadius - 0.1;
+            for (let i = 0; i < boltCount; i++) {
+                const angle = (i / boltCount) * Math.PI * 2;
+                const boltX = x + Math.cos(angle) * boltRadius;
+                const boltZ = z + Math.sin(angle) * boltRadius;
+                
+                const boltGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.06, 8);
+                const bolt = new THREE.Mesh(boltGeometry, boltMaterial);
+                bolt.position.set(boltX, y + baseHeight / 2, boltZ);
+                bolt.castShadow = true;
+                containerGroup.add(bolt);
+                
+                // Tête hexagonale du boulon
+                const hexGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.02, 6);
+                const hex = new THREE.Mesh(hexGeometry, boltMaterial);
+                hex.position.set(boltX, y + baseHeight + 0.01, boltZ);
+                containerGroup.add(hex);
+            }
+            
+            // 11. CONDUIT D'ASPIRATION (tube qui descend dans le trou)
+            const ductMaterial = new THREE.MeshStandardMaterial({
+                color: 0x1a1a1a,
+                roughness: 0.4,
+                metalness: 0.85,
+                side: THREE.DoubleSide
+            });
+            
+            const ductRadius = 0.95;
+            const ductHeight = 0.3;
+            const ductGeometry = new THREE.CylinderGeometry(ductRadius, ductRadius - 0.05, ductHeight, 32, 1, true);
+            const duct = new THREE.Mesh(ductGeometry, ductMaterial);
+            duct.name = `${name}-CONDUIT-ASPIRATION`;
+            duct.position.set(x, y - ductHeight / 2, z);
+            duct.castShadow = true;
+            duct.receiveShadow = true;
+            containerGroup.add(duct);
+            
+            // 12. PLAQUE SIGNALÉTIQUE (informations techniques)
+            const plateMaterial = new THREE.MeshStandardMaterial({
+                color: 0xC0C0C0,
+                roughness: 0.5,
+                metalness: 0.6
+            });
+            
+            const plateGeometry = new THREE.PlaneGeometry(0.25, 0.15);
+            const plate = new THREE.Mesh(plateGeometry, plateMaterial);
+            plate.position.set(x - voluteRadius * 0.5, y + baseHeight + voluteHeight * 0.7, z);
+            plate.rotation.y = Math.PI / 2;
+            containerGroup.add(plate);
+            
+            // 13. LABEL DE SÉCURITÉ (plaque jaune)
+            const labelMaterial = new THREE.MeshStandardMaterial({
+                color: 0xFFAA00,
+                roughness: 0.6,
+                metalness: 0.2,
+                emissive: 0xFFAA00,
+                emissiveIntensity: 0.2
+            });
+            
+            const labelGeometry = new THREE.PlaneGeometry(0.3, 0.15);
+            const label = new THREE.Mesh(labelGeometry, labelMaterial);
+            label.position.set(x + voluteRadius * 0.5, y + baseHeight + voluteHeight * 0.3, z);
+            label.rotation.y = -Math.PI / 4;
+            containerGroup.add(label);
+            
+            // 14. NERVURES DE REFROIDISSEMENT sur le carter
+            const ribMaterial = new THREE.MeshStandardMaterial({
+                color: 0x0a0a0a,
+                roughness: 0.4,
+                metalness: 0.85
+            });
+            
+            const ribCount = 8;
+            for (let i = 0; i < ribCount; i++) {
+                const angle = (i / ribCount) * Math.PI * 2;
+                const ribGeometry = new THREE.BoxGeometry(0.02, voluteHeight * 0.8, 0.05);
+                const rib = new THREE.Mesh(ribGeometry, ribMaterial);
+                const ribX = x + Math.cos(angle) * voluteRadius * 0.95;
+                const ribZ = z + Math.sin(angle) * voluteRadius * 0.95;
+                rib.position.set(ribX, y + baseHeight + voluteHeight / 2, ribZ);
+                rib.rotation.y = angle;
+                containerGroup.add(rib);
+            }
+            
+            // Ajouter l'extracteur à la liste des objets sélectionnables
+            selectableObjects.push(base, volute, grille, hub, duct, motor, outlet);
+        }
+
+
+        function createVentilationGrilles() {
+            const grilleMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.blackGrilles,
+                roughness: 0.5,
+                metalness: 0.5
+            });
+
+            const grilleWidth = 2.5;
+            const grilleHeight = 1.2;
+            const grilleDepth = 0.08;
+            const yPos = DIMENSIONS.concreteBase + DIMENSIONS.height / 2;
+
+            // Grille côté gauche
+            const grilleGeometry = new THREE.BoxGeometry(grilleWidth, grilleHeight, grilleDepth);
+            const grilleLeft = new THREE.Mesh(grilleGeometry, grilleMaterial);
+            grilleLeft.position.set(-DIMENSIONS.length / 2 + 2, yPos, -DIMENSIONS.width / 2 - 0.05);
+            grilleLeft.castShadow = true;
+            containerGroup.add(grilleLeft);
+
+            // Lignes horizontales de la grille
+            const lineGeometry = new THREE.BoxGeometry(grilleWidth - 0.1, 0.02, 0.02);
+            for (let i = 0; i < 12; i++) {
+                const line = new THREE.Mesh(lineGeometry, grilleMaterial);
+                line.position.set(
+                    -DIMENSIONS.length / 2 + 2,
+                    yPos - grilleHeight / 2 + (i + 0.5) * (grilleHeight / 12),
+                    -DIMENSIONS.width / 2 - 0.09
+                );
+                containerGroup.add(line);
+            }
+        }
+
+        // ============================================
+        // 4. DÉTAILS ET FINITIONS
+        // ============================================
+        
+        function createDetails() {
+            // Coins renforcés ISO
+            createCornerReinforcements();
+
+            // Rails de levage
+            createLiftingRails();
+
+            // Détails réalistes supplémentaires
+            createRivets();
+            createWelds();
+            createVentilationHoles();
+            createWarningLabels();
+            createLockingBars();
+        }
+
+        function createCornerReinforcements() {
+            const cornerMaterial = new THREE.MeshStandardMaterial({
+                color: 0x2a2a2a,
+                roughness: 0.4,
+                metalness: 0.95
+            });
+
+            // Ajouter texture métal aux coins
+            addMetalTexture(cornerMaterial);
+
+            const cornerSize = 0.15;
+            const cornerGeometry = new THREE.BoxGeometry(cornerSize, DIMENSIONS.height, cornerSize);
+            const yPos = DIMENSIONS.concreteBase + DIMENSIONS.height / 2;
+
+            const corners = [
+                { x: -DIMENSIONS.length / 2, z: -DIMENSIONS.width / 2 },
+                { x: -DIMENSIONS.length / 2, z: DIMENSIONS.width / 2 },
+                { x: DIMENSIONS.length / 2, z: -DIMENSIONS.width / 2 },
+                { x: DIMENSIONS.length / 2, z: DIMENSIONS.width / 2 }
+            ];
+
+            corners.forEach((pos, index) => {
+                const corner = new THREE.Mesh(cornerGeometry, cornerMaterial);
+                const cornerNames = ['COIN-CONTAINER-SO', 'COIN-CONTAINER-NO', 'COIN-CONTAINER-SE', 'COIN-CONTAINER-NE'];
+                corner.name = cornerNames[index]; // Référence simple
+                corner.position.set(pos.x, yPos, pos.z);
+                corner.castShadow = true;
+                containerGroup.add(corner);
+            });
+        }
+
+        function createLiftingRails() {
+            const railMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.silverPipes,
+                roughness: 0.3,
+                metalness: 0.9
+            });
+
+            const railGeometry = new THREE.BoxGeometry(DIMENSIONS.length - 0.3, 0.08, 0.08);
+            const yBottom = DIMENSIONS.concreteBase + 0.2;
+            const yTop = DIMENSIONS.concreteBase + DIMENSIONS.height - 0.2;
+
+            // Rails bas
+            [-DIMENSIONS.width / 2 + 0.1, DIMENSIONS.width / 2 - 0.1].forEach((z, index) => {
+                const rail = new THREE.Mesh(railGeometry, railMaterial);
+                rail.name = index === 0 ? 'RAIL-BAS-SUD' : 'RAIL-BAS-NORD'; // Référence simple
+                rail.position.set(0, yBottom, z);
+                rail.castShadow = true;
+                containerGroup.add(rail);
+            });
+
+            // Rails haut
+            [-DIMENSIONS.width / 2 + 0.1, DIMENSIONS.width / 2 - 0.1].forEach((z, index) => {
+                const rail = new THREE.Mesh(railGeometry, railMaterial);
+                rail.name = index === 0 ? 'RAIL-HAUT-SUD' : 'RAIL-HAUT-NORD'; // Référence simple
+                rail.position.set(0, yTop, z);
+                rail.castShadow = true;
+                containerGroup.add(rail);
+            });
+        }
+
+        // ============================================
+        // ANIMATION ET RENDU
+        // ============================================
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Rotation automatique de la caméra autour du container
+            if (autoRotateEnabled && !isDragging) {
+                rotation.y += autoRotateSpeed * 0.01;
+                updateCameraPosition();
+            }
+            
+            // Container fixe (levitation désactivée)
+            if (containerGroup) {
+                containerGroup.position.y = 0;
+            }
+            
+            // Animer les rotors des turbines (rotation continue)
+            if (turbinesRunning) {
+                turbineRotors.forEach((rotor, index) => {
+                    // Vitesse de rotation différente pour chaque turbine (effet réaliste)
+                    const speed = turbineSpeed + (index * 0.01); // Vitesses légèrement différentes
+                    rotor.rotation.y += speed;
+                });
+            }
+            
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // ============================================
+        // FONCTIONS DE CONTRÔLE UI
+        // ============================================
+        
+        function resetCamera() {
+            rotation = { x: 0.3, y: 0.5 };
+            zoom = 25;
+            camera.position.set(20, 12, 20);
+            camera.lookAt(0, 2, 0);
+        }
+
+        function toggleGrid() {
+            gridHelper.visible = !gridHelper.visible;
+        }
+
+        function toggleWireframe() {
+            wireframeMode = !wireframeMode;
+            scene.traverse((object) => {
+                if (object.isMesh && object.material) {
+                    object.material.wireframe = wireframeMode;
+                }
+            });
+        }
+
+        function toggleAxes() {
+            axesHelper.visible = !axesHelper.visible;
+        }
+
+        function toggleTurbines() {
+            turbinesRunning = !turbinesRunning;
+            const btn = document.getElementById('turbineBtn');
+            if (turbinesRunning) {
+                btn.innerHTML = '⏸️ Arrêter Turbines';
+                btn.style.background = '#00A651';
+            } else {
+                btn.innerHTML = '▶️ Démarrer Turbines';
+                btn.style.background = '#FF6B6B';
+            }
+        }
+
+        function updateTurbineSpeed(value) {
+            // Convertir la valeur 0-100 en vitesse de rotation 0-0.15
+            turbineSpeed = (value / 100) * 0.15;
+            document.getElementById('speedValue').textContent = value + '%';
+        }
+
+        // ============================================
+        // SYSTÈME DE SÉLECTION
+        // ============================================
+        
+        function setupSelection() {
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            renderer.domElement.addEventListener('click', onObjectClick);
+        }
+
+        function onObjectClick(event) {
+            if (isDragging) return; // Ignore si on est en train de faire tourner la caméra
+
+            // Calculer la position de la souris en coordonnées normalisées
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            // Mettre à jour le raycaster
+            raycaster.setFromCamera(mouse, camera);
+
+            // Chercher les intersections
+            const intersects = raycaster.intersectObjects(containerGroup.children, true);
+
+            if (intersects.length > 0) {
+                const object = intersects[0].object;
+                selectObject(object);
+            }
+        }
+
+        function selectObject(object) {
+            // Désélectionner l'objet précédent
+            if (selectedObject && selectedObject.material) {
+                selectedObject.material.emissive.setHex(0x000000);
+            }
+
+            // Sélectionner le nouvel objet
+            selectedObject = object;
+            if (selectedObject.material) {
+                selectedObject.material.emissive.setHex(0x00A651);
+                selectedObject.material.emissiveIntensity = 0.3;
+            }
+
+            // Afficher les informations
+            displayObjectInfo(object);
+        }
+
+        function displayObjectInfo(object) {
+            const section = document.getElementById('selectionSection');
+            const info = document.getElementById('selectionInfo');
+
+            // Déterminer le type d'objet
+            let objectType = 'Élément inconnu';
+            let objectName = object.name || 'Sans nom';
+            
+            // Analyser la géométrie pour déterminer le type
+            const geometry = object.geometry;
+            const material = object.material;
+            
+            if (material.color) {
+                const colorHex = '#' + material.color.getHexString();
+                
+                if (colorHex === '#1a1a1a' || colorHex === '#0a0a0a') {
+                    objectType = 'Structure métal noir';
+                } else if (colorHex === '#1e3a8a') {
+                    objectType = 'Panneau radiateur (V)';
+                } else if (colorHex === '#c0c0c0' || colorHex === '#b0b0b0') {
+                    objectType = 'Béton / Structure';
+                } else if (colorHex === '#00a651') {
+                    objectType = 'Logo Hearst';
+                } else if (colorHex === '#000000') {
+                    objectType = 'Grille / Ventilateur';
+                }
+            }
+
+            // Calculer les dimensions
+            geometry.computeBoundingBox();
+            const bbox = geometry.boundingBox;
+            const width = (bbox.max.x - bbox.min.x).toFixed(2);
+            const height = (bbox.max.y - bbox.min.y).toFixed(2);
+            const depth = (bbox.max.z - bbox.min.z).toFixed(2);
+
+            // Position dans la scène
+            const position = object.position;
+            const worldPosition = new THREE.Vector3();
+            object.getWorldPosition(worldPosition);
+
+            // Afficher les informations
+            info.innerHTML = `
+                <div class="info-row">
+                    <span class="info-label">Type</span>
+                    <span class="info-value">${objectType}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Référence</span>
+                    <span class="info-value">${objectName || 'N/A'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Dimensions</span>
+                    <span class="info-value">${width}m × ${height}m × ${depth}m</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Position X</span>
+                    <span class="info-value">${worldPosition.x.toFixed(2)}m</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Position Y</span>
+                    <span class="info-value">${worldPosition.y.toFixed(2)}m</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Position Z</span>
+                    <span class="info-value">${worldPosition.z.toFixed(2)}m</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Rotation X</span>
+                    <span class="info-value">${(object.rotation.x * 180 / Math.PI).toFixed(1)}°</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Rotation Y</span>
+                    <span class="info-value">${(object.rotation.y * 180 / Math.PI).toFixed(1)}°</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Rotation Z</span>
+                    <span class="info-value">${(object.rotation.z * 180 / Math.PI).toFixed(1)}°</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Couleur</span>
+                    <span class="info-value">#${material.color.getHexString()}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Matériau</span>
+                    <span class="info-value">Roughness: ${material.roughness}, Metalness: ${material.metalness}</span>
+                </div>
+                
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
+                    <div style="font-weight: bold; margin-bottom: 8px; color: #00A651; font-size: 10px; text-transform: uppercase;">Contrôles de Rotation</div>
+                    
+                    <div style="margin-bottom: 8px;">
+                        <label style="display: block; margin-bottom: 3px; font-size: 10px; color: #888;">Rotation X: <span id="rotX" style="color: #00A651; font-weight: 600;">${(object.rotation.x * 180 / Math.PI).toFixed(1)}°</span></label>
+                        <input type="range" id="rotationX" min="-180" max="180" value="${object.rotation.x * 180 / Math.PI}" step="1" style="width: 100%;">
+                    </div>
+                    
+                    <div style="margin-bottom: 8px;">
+                        <label style="display: block; margin-bottom: 3px; font-size: 10px; color: #888;">Rotation Y: <span id="rotY" style="color: #00A651; font-weight: 600;">${(object.rotation.y * 180 / Math.PI).toFixed(1)}°</span></label>
+                        <input type="range" id="rotationY" min="-180" max="180" value="${object.rotation.y * 180 / Math.PI}" step="1" style="width: 100%;">
+                    </div>
+                    
+                    <div style="margin-bottom: 8px;">
+                        <label style="display: block; margin-bottom: 3px; font-size: 10px; color: #888;">Rotation Z: <span id="rotZ" style="color: #00A651; font-weight: 600;">${(object.rotation.z * 180 / Math.PI).toFixed(1)}°</span></label>
+                        <input type="range" id="rotationZ" min="-180" max="180" value="${object.rotation.z * 180 / Math.PI}" step="1" style="width: 100%;">
+                    </div>
+                    
+                    <button onclick="resetRotation()" style="width: 100%; padding: 6px; background: #00A651; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 8px; font-size: 10px;">
+                        Réinitialiser Rotation
+                    </button>
+                </div>
+            `;
+
+            // Ajouter les event listeners pour les sliders
+            document.getElementById('rotationX').addEventListener('input', (e) => {
+                const deg = parseFloat(e.target.value);
+                object.rotation.x = deg * Math.PI / 180;
+                document.getElementById('rotX').textContent = deg.toFixed(1) + '°';
+            });
+            
+            document.getElementById('rotationY').addEventListener('input', (e) => {
+                const deg = parseFloat(e.target.value);
+                object.rotation.y = deg * Math.PI / 180;
+                document.getElementById('rotY').textContent = deg.toFixed(1) + '°';
+            });
+            
+            document.getElementById('rotationZ').addEventListener('input', (e) => {
+                const deg = parseFloat(e.target.value);
+                object.rotation.z = deg * Math.PI / 180;
+                document.getElementById('rotZ').textContent = deg.toFixed(1) + '°';
+            });
+
+            // Afficher la section intégrée dans le panneau principal
+            section.classList.add('active');
+            
+            // Masquer le panneau séparé (pour compatibilité)
+            const panel = document.getElementById('selectionPanel');
+            if (panel) panel.classList.remove('active');
+        }
+        
+        function resetRotation() {
+            if (selectedObject) {
+                selectedObject.rotation.set(0, 0, 0);
+                // Rafraîchir l'affichage
+                displayObjectInfo(selectedObject);
+            }
+        }
+
+        function closeSelection() {
+            const section = document.getElementById('selectionSection');
+            section.classList.remove('active');
+            
+            // Masquer aussi le panneau séparé (pour compatibilité)
+            const panel = document.getElementById('selectionPanel');
+            if (panel) panel.classList.remove('active');
+
+            // Désélectionner l'objet
+            if (selectedObject && selectedObject.material) {
+                selectedObject.material.emissive.setHex(0x000000);
+            }
+            selectedObject = null;
+        }
+
+        // ============================================
+        // DÉTAILS RÉALISTES SUPPLÉMENTAIRES
+        // ============================================
+        
+        function createRivets() {
+            // Rivets métalliques sur les coins et rails (comme sur un vrai container)
+            const rivetMaterial = new THREE.MeshStandardMaterial({
+                color: 0x606060,
+                roughness: 0.4,
+                metalness: 0.9
+            });
+
+            const rivetGeometry = new THREE.CylinderGeometry(0.015, 0.015, 0.02, 8);
+            const yPos = DIMENSIONS.concreteBase + DIMENSIONS.height / 2;
+
+            // Rivets sur les coins (4 coins × 10 rivets verticaux)
+            const cornerPositions = [
+                { x: -DIMENSIONS.length / 2, z: -DIMENSIONS.width / 2 },
+                { x: -DIMENSIONS.length / 2, z: DIMENSIONS.width / 2 },
+                { x: DIMENSIONS.length / 2, z: -DIMENSIONS.width / 2 },
+                { x: DIMENSIONS.length / 2, z: DIMENSIONS.width / 2 }
+            ];
+
+            cornerPositions.forEach(corner => {
+                for (let i = 0; i < 10; i++) {
+                    const y = yPos - DIMENSIONS.height / 2 + 0.3 + i * 0.25;
+                    const rivet = new THREE.Mesh(rivetGeometry, rivetMaterial);
+                    rivet.position.set(corner.x, y, corner.z);
+                    rivet.rotation.x = Math.PI / 2;
+                    containerGroup.add(rivet);
+                }
+            });
+
+            // Rivets sur les rails (ligne de rivets)
+            for (let i = 0; i < 40; i++) {
+                const x = -DIMENSIONS.length / 2 + 0.3 + i * 0.28;
+                
+                // Rivets rail bas Nord
+                const rivetBN = new THREE.Mesh(rivetGeometry, rivetMaterial);
+                rivetBN.position.set(x, yPos - DIMENSIONS.height / 2 + 0.2, DIMENSIONS.width / 2 - 0.1);
+                containerGroup.add(rivetBN);
+
+                // Rivets rail bas Sud
+                const rivetBS = new THREE.Mesh(rivetGeometry, rivetMaterial);
+                rivetBS.position.set(x, yPos - DIMENSIONS.height / 2 + 0.2, -DIMENSIONS.width / 2 + 0.1);
+                containerGroup.add(rivetBS);
+            }
+        }
+
+        function createWelds() {
+            // Soudures visibles (lignes de soudure)
+            const weldMaterial = new THREE.MeshStandardMaterial({
+                color: 0x4a4a4a,
+                roughness: 0.7,
+                metalness: 0.8
+            });
+
+            const yPos = DIMENSIONS.concreteBase + DIMENSIONS.height / 2;
+
+            // Soudures verticales aux coins
+            const weldGeometry = new THREE.BoxGeometry(0.03, DIMENSIONS.height, 0.03);
+            
+            const cornerPositions = [
+                { x: -DIMENSIONS.length / 2 + 0.08, z: -DIMENSIONS.width / 2 + 0.08 },
+                { x: -DIMENSIONS.length / 2 + 0.08, z: DIMENSIONS.width / 2 - 0.08 },
+                { x: DIMENSIONS.length / 2 - 0.08, z: -DIMENSIONS.width / 2 + 0.08 },
+                { x: DIMENSIONS.length / 2 - 0.08, z: DIMENSIONS.width / 2 - 0.08 }
+            ];
+
+            cornerPositions.forEach(pos => {
+                const weld = new THREE.Mesh(weldGeometry, weldMaterial);
+                weld.position.set(pos.x, yPos, pos.z);
+                containerGroup.add(weld);
+            });
+        }
+
+        function createVentilationHoles() {
+            // Trous de ventilation en bas du container
+            const holeMaterial = new THREE.MeshStandardMaterial({
+                color: 0x000000,
+                roughness: 0.9,
+                metalness: 0.3
+            });
+
+            const holeGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.1, 8);
+            const yPos = DIMENSIONS.concreteBase + 0.3;
+
+            // Rangée de trous de ventilation (20 trous)
+            for (let i = 0; i < 20; i++) {
+                const x = -DIMENSIONS.length / 2 + 1 + i * 0.5;
+                
+                // Trous côté Nord
+                const holeN = new THREE.Mesh(holeGeometry, holeMaterial);
+                holeN.position.set(x, yPos, DIMENSIONS.width / 2);
+                holeN.rotation.z = Math.PI / 2;
+                containerGroup.add(holeN);
+
+                // Trous côté Sud
+                const holeS = new THREE.Mesh(holeGeometry, holeMaterial);
+                holeS.position.set(x, yPos, -DIMENSIONS.width / 2);
+                holeS.rotation.z = Math.PI / 2;
+                containerGroup.add(holeS);
+            }
+        }
+
+        function createWarningLabels() {
+            // Plaques d'avertissement et marquages (rectangles jaunes/orange)
+            const labelMaterial = new THREE.MeshStandardMaterial({
+                color: 0xFFAA00,
+                roughness: 0.6,
+                metalness: 0.2,
+                emissive: 0xFFAA00,
+                emissiveIntensity: 0.1
+            });
+
+            const labelGeometry = new THREE.PlaneGeometry(0.4, 0.3);
+            const yPos = DIMENSIONS.concreteBase + DIMENSIONS.height - 0.5;
+
+            // Labels de sécurité sur les côtés
+            const labelPositions = [
+                { x: -DIMENSIONS.length / 2 + 2, z: DIMENSIONS.width / 2 + 0.01, ry: 0 },
+                { x: DIMENSIONS.length / 2 - 2, z: DIMENSIONS.width / 2 + 0.01, ry: 0 },
+                { x: -DIMENSIONS.length / 2 + 2, z: -DIMENSIONS.width / 2 - 0.01, ry: Math.PI },
+                { x: DIMENSIONS.length / 2 - 2, z: -DIMENSIONS.width / 2 - 0.01, ry: Math.PI }
+            ];
+
+            labelPositions.forEach(pos => {
+                const label = new THREE.Mesh(labelGeometry, labelMaterial);
+                label.position.set(pos.x, yPos, pos.z);
+                label.rotation.y = pos.ry;
+                containerGroup.add(label);
+            });
+        }
+
+        function createLockingBars() {
+            // Barres de verrouillage sur les portes (détail réaliste)
+            const barMaterial = new THREE.MeshStandardMaterial({
+                color: 0x808080,
+                roughness: 0.3,
+                metalness: 0.95
+            });
+
+            const yPos = DIMENSIONS.concreteBase + DIMENSIONS.height / 2;
+
+            // 4 barres de verrouillage verticales
+            for (let i = 0; i < 4; i++) {
+                const barGeometry = new THREE.BoxGeometry(0.05, DIMENSIONS.height - 0.4, 0.08);
+                const z = -DIMENSIONS.width / 4 + i * (DIMENSIONS.width / 6);
+                
+                const bar = new THREE.Mesh(barGeometry, barMaterial);
+                bar.position.set(DIMENSIONS.length / 2 + 0.03, yPos, z);
+                bar.castShadow = true;
+                containerGroup.add(bar);
+            }
+
+            // Charnières des portes (6 charnières)
+            const hingeGeometry = new THREE.BoxGeometry(0.08, 0.15, 0.12);
+            
+            for (let i = 0; i < 3; i++) {
+                const y = yPos - DIMENSIONS.height / 2 + 0.5 + i * (DIMENSIONS.height - 1) / 2;
+                
+                // Charnières porte gauche
+                const hingeL = new THREE.Mesh(hingeGeometry, barMaterial);
+                hingeL.position.set(DIMENSIONS.length / 2 + 0.02, y, 0);
+                hingeL.castShadow = true;
+                containerGroup.add(hingeL);
+            }
+        }
+
+        // ============================================
+        // DÉMARRAGE
+        // ============================================
+        
+        init();
+        
+        console.log('🚀 Viewer 3D Container initialisé');
+        console.log('📐 Dimensions:', JSON.stringify(DIMENSIONS, null, 2));
+        console.log('🎨 Palette:', JSON.stringify(COLORS, null, 2));
+    </script>
+</body>
+</html>
+

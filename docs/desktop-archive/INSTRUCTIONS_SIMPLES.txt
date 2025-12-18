@@ -1,0 +1,50 @@
+═══════════════════════════════════════════════════════════
+    ✅ SERVEUR DASHBOARD QATAR - PRÊT !
+═══════════════════════════════════════════════════════════
+
+🌐 ADRESSE :  http://192.168.1.65:1111
+
+
+📱 POUR SE CONNECTER :
+
+1. Ouvrez le fichier sur votre Bureau :
+   CONNEXION_DASHBOARD.html
+
+2. Cliquez sur le bouton vert
+   OU
+   Scannez le QR code avec votre téléphone
+
+
+🔧 SI ERREUR "ERR_ADDRESS_UNREACHABLE" :
+
+→ Le problème vient du PARE-FEU de votre Mac
+
+SOLUTION (2 minutes) :
+1. Préférences Système
+2. Sécurité et confidentialité
+3. Pare-feu
+4. Cliquez sur le cadenas 🔒
+5. Options du pare-feu
+6. DÉCOCHEZ "Bloquer toutes les connexions entrantes"
+7. OK
+
+
+✅ LE SERVEUR FONCTIONNE :
+
+• IP : 192.168.1.65
+• Port : 1111
+• Status : ✓ EN LIGNE
+• Connexions : ✓ ACCEPTÉES
+
+
+═══════════════════════════════════════════════════════════
+
+💡 Le serveur de test est actuellement actif.
+   Il répond correctement aux connexions.
+   
+   Si vous voyez ERR_ADDRESS_UNREACHABLE depuis un autre
+   appareil, c'est le pare-feu qui bloque.
+
+═══════════════════════════════════════════════════════════
+
+

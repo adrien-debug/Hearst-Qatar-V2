@@ -1,0 +1,311 @@
+{
+  "module_25mw": {
+    "power": 25,
+    "description": "Module de référence 25MW - Configuration standard",
+    "equipment": {
+      "transformers": {
+        "modelId": "pt-substation-ultra",
+        "count": 6,
+        "power": "10-50 MVA",
+        "spacing": 20,
+        "dimensions": {
+          "length": 4.5,
+          "width": 3.5,
+          "height": 5.5
+        }
+      },
+      "containers": {
+        "modelId": "antspace-hd5",
+        "count": 12,
+        "power": "6 MW",
+        "layout": "paired",
+        "dimensions": {
+          "length": 12.196,
+          "width": 2.438,
+          "height": 2.896
+        },
+        "pairingOffset": 12
+      },
+      "cooling": {
+        "modelId": "hydro-cooling-system",
+        "count": 3,
+        "power": "2-5 MW",
+        "dimensions": {
+          "length": 15,
+          "width": 3,
+          "height": 3
+        }
+      },
+      "switchgear": {
+        "modelId": "switchgear-standard",
+        "count": 12,
+        "perTransformer": 2,
+        "dimensions": {
+          "length": 2,
+          "width": 2,
+          "height": 1.5
+        },
+        "offset": 4.5
+      }
+    },
+    "layout": {
+      "type": "power-block",
+      "width": 50,
+      "depth": 120,
+      "centerPosition": [0, 0, -95],
+      "transformerStartZ": -55,
+      "transformerSpacing": 20
+    }
+  },
+  "vrd_infrastructure": {
+    "perimeter_wall": {
+      "material": "concrete",
+      "height": 4,
+      "thickness": 0.3,
+      "color": "#2d3436",
+      "description": "Mur d'enceinte en béton gris foncé"
+    },
+    "entrance": {
+      "gate": {
+        "type": "sliding",
+        "width": 8,
+        "height": 4,
+        "position": [0, 0, 10],
+        "color": "#2d3436",
+        "description": "Portail coulissant principal"
+      },
+      "guard_house": {
+        "position": [5, 0, 10],
+        "dimensions": [4, 3, 3],
+        "color": "#34495e",
+        "description": "Poste de garde avec 2 gardiens",
+        "guards": 2
+      },
+      "barriers": {
+        "count": 2,
+        "positions": [
+          [-3, 0, 8],
+          [3, 0, 8]
+        ],
+        "type": "automatic",
+        "color": "#e74c3c",
+        "description": "Barrières de sécurité automatiques"
+      }
+    },
+    "hearst_logo": {
+      "type": "3d-sign",
+      "position": [0, 3, 12],
+      "scale": 2,
+      "color": "#ffffff",
+      "material": "metal",
+      "illuminated": true,
+      "description": "Logo Hearst 3D illuminé"
+    },
+    "roads": {
+      "main_road": {
+        "material": "asphalt",
+        "width": 7,
+        "color": "#1a1a1a",
+        "markings": true,
+        "markingColor": "#ffffff",
+        "centerLine": true,
+        "edgeLines": true,
+        "description": "Route principale asphaltée avec marquages"
+      },
+      "internal_roads": {
+        "material": "concrete",
+        "width": 6,
+        "color": "#95a5a6",
+        "markings": false,
+        "description": "Routes internes en béton"
+      },
+      "layout": {
+        "external": {
+          "position": [0, 0, 35],
+          "length": 50,
+          "orientation": "vertical"
+        },
+        "internal": {
+          "position": [0, 0, -37.5],
+          "length": 95,
+          "orientation": "vertical"
+        },
+        "parking_access": {
+          "position": [-85, 0, -20],
+          "length": 15,
+          "orientation": "horizontal"
+        }
+      }
+    },
+    "maintenance_hangar": {
+      "position": [-100, 0, -20],
+      "dimensions": [30, 20, 8],
+      "type": "repair-center",
+      "color": "#34495e",
+      "roofColor": "#2c3e50",
+      "doors": 3,
+      "description": "Hangar de maintenance et réparation",
+      "equipment": [
+        "Atelier mécanique",
+        "Zone de stockage pièces",
+        "Bureau technique"
+      ]
+    },
+    "parking": {
+      "position": [-100, 0, -20],
+      "dimensions": [30, 20],
+      "spots": 40,
+      "material": "concrete",
+      "color": "#95a5a6",
+      "markingColor": "#ffffff",
+      "rows": 2,
+      "spotsPerRow": 20,
+      "spotWidth": 2.5,
+      "spotDepth": 5,
+      "description": "Zone de parking 40 places"
+    },
+    "signage": [
+      {
+        "type": "entrance",
+        "position": [0, 0, 12],
+        "text": "ZONE INDUSTRIELLE",
+        "size": "large"
+      },
+      {
+        "type": "speed",
+        "position": [8, 0, 5],
+        "text": "30 km/h",
+        "size": "medium"
+      },
+      {
+        "type": "direction",
+        "position": [-8, 0, 0],
+        "text": "Parking",
+        "direction": "left",
+        "size": "medium"
+      },
+      {
+        "type": "direction",
+        "position": [8, 0, 0],
+        "text": "Maintenance",
+        "direction": "right",
+        "size": "medium"
+      },
+      {
+        "type": "safety",
+        "position": [-110, 0, -40],
+        "text": "DANGER HAUTE TENSION",
+        "size": "large",
+        "color": "#e74c3c"
+      },
+      {
+        "type": "evacuation",
+        "position": [110, 0, -40],
+        "text": "SORTIE DE SECOURS",
+        "size": "large",
+        "color": "#27ae60"
+      }
+    ],
+    "lighting": {
+      "perimeter": {
+        "spacing": 25,
+        "height": 8,
+        "type": "led-floodlight",
+        "power": "150W"
+      },
+      "roads": {
+        "spacing": 15,
+        "height": 6,
+        "type": "street-light",
+        "power": "100W"
+      },
+      "entrance": {
+        "count": 4,
+        "type": "security-light",
+        "power": "200W"
+      }
+    }
+  },
+  "power_configurations": {
+    "5": {
+      "modules": 0.2,
+      "description": "Configuration 5MW - Module réduit",
+      "transformers": 2,
+      "containers": 4,
+      "cooling": 1,
+      "groundSize": 400
+    },
+    "10": {
+      "modules": 0.4,
+      "description": "Configuration 10MW - Module réduit",
+      "transformers": 4,
+      "containers": 8,
+      "cooling": 2,
+      "groundSize": 500
+    },
+    "25": {
+      "modules": 1,
+      "description": "Configuration 25MW - 1 module complet",
+      "transformers": 6,
+      "containers": 12,
+      "cooling": 3,
+      "groundSize": 600
+    },
+    "50": {
+      "modules": 2,
+      "description": "Configuration 50MW - 2 modules",
+      "transformers": 12,
+      "containers": 24,
+      "cooling": 6,
+      "groundSize": 800
+    },
+    "75": {
+      "modules": 3,
+      "description": "Configuration 75MW - 3 modules",
+      "transformers": 18,
+      "containers": 36,
+      "cooling": 9,
+      "groundSize": 900
+    },
+    "100": {
+      "modules": 4,
+      "description": "Configuration 100MW - 4 modules",
+      "transformers": 24,
+      "containers": 48,
+      "cooling": 12,
+      "groundSize": 1000
+    },
+    "125": {
+      "modules": 5,
+      "description": "Configuration 125MW - 5 modules",
+      "transformers": 30,
+      "containers": 60,
+      "cooling": 15,
+      "groundSize": 1100
+    },
+    "150": {
+      "modules": 6,
+      "description": "Configuration 150MW - 6 modules",
+      "transformers": 36,
+      "containers": 72,
+      "cooling": 18,
+      "groundSize": 1200
+    },
+    "175": {
+      "modules": 7,
+      "description": "Configuration 175MW - 7 modules",
+      "transformers": 42,
+      "containers": 84,
+      "cooling": 21,
+      "groundSize": 1300
+    },
+    "200": {
+      "modules": 8,
+      "description": "Configuration 200MW - 8 modules",
+      "transformers": 48,
+      "containers": 96,
+      "cooling": 24,
+      "groundSize": 1400
+    }
+  }
+}

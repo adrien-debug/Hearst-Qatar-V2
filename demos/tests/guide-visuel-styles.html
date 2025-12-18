@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide Visuel - Styles Harmonisés</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0a0b0d 0%, #0f1114 50%, #0a0b0d 100%);
+            color: #e2e8f0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Navigation fixe */
+        .nav-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 11, 13, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(138, 253, 129, 0.2);
+            z-index: 1000;
+            padding: 15px 40px;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #8AFD81;
+            background: rgba(138, 253, 129, 0.1);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 100px 40px 40px;
+        }
+
+        /* Titre principal */
+        .main-title {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #8AFD81 0%, #6FD96A 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: bold;
+            letter-spacing: 0.05em;
+        }
+
+        .main-subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 60px;
+            font-size: 1.2rem;
+        }
+
+        /* Sections */
+        .section {
+            margin-bottom: 100px;
+            scroll-margin-top: 100px;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 40px;
+            color: #8AFD81;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: bold;
+            letter-spacing: 0.05em;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 40px;
+            background: linear-gradient(135deg, #8AFD81, #6FD96A);
+            border-radius: 2px;
+        }
+
+        /* Cards */
+        .style-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(138, 253, 129, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .style-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #8AFD81, #6FD96A);
+        }
+
+        .style-card h3 {
+            color: #8AFD81;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .style-card h4 {
+            color: #cbd5e1;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            margin-top: 25px;
+            font-weight: 600;
+        }
+
+        /* Exemples visuels */
+        .example-box {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(138, 253, 129, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        .example-box.white-bg {
+            background: white;
+            color: #0b1120;
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(138, 253, 129, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #8AFD81;
+        }
+
+        .code-block code {
+            color: #8AFD81;
+        }
+
+        /* Grid layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Color swatches */
+        .color-swatch {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .color-box {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            border: 2px solid rgba(138, 253, 129, 0.3);
+            box-shadow: 0 0 20px rgba(138, 253, 129, 0.2);
+        }
+
+        .color-info {
+            flex: 1;
+        }
+
+        .color-name {
+            color: #8AFD81;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .color-code {
+            color: #94a3b8;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9rem;
+        }
+
+        /* Typography examples */
+        .typography-example {
+            margin-bottom: 30px;
+        }
+
+        .typography-label {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Module examples */
+        .module-example {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #0b1120;
+        }
+
+        .kpi-banner {
+            background: #0a0b0d;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 24px;
+            display: flex;
+            gap: 24px;
+            overflow-x: auto;
+        }
+
+        .kpi-item {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .kpi-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #8AFD81;
+            letter-spacing: -0.02em;
+        }
+
+        .kpi-unit {
+            font-size: 1.125rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        /* Separator line */
+        .separator {
+            height: 0.5px;
+            width: 96px;
+            background: linear-gradient(90deg, #8AFD81, #6FD96A);
+            border-radius: 2px;
+            margin: 10px 0;
+        }
+
+        .separator-wide {
+            height: 1px;
+            width: 100%;
+            background: linear-gradient(90deg, #8AFD81, #6FD96A, #5BC550);
+            border-radius: 2px;
+            margin: 15px 0;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-page {
+            background: rgba(138, 253, 129, 0.2);
+            color: #8AFD81;
+            border: 1px solid rgba(138, 253, 129, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation fixe -->
+    <nav class="nav-fixed">
+        <div class="nav-container">
+            <a href="#titles" class="nav-link">Titres</a>
+            <a href="#pages" class="nav-link">Pages</a>
+            <a href="#components" class="nav-link">Composants</a>
+            <a href="#colors" class="nav-link">Couleurs</a>
+            <a href="#typography" class="nav-link">Typographie</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="main-title">Guide Visuel - Styles Harmonisés</h1>
+        <p class="main-subtitle">Référence complète des titres, modules et sections du site</p>
+
+        <!-- Section : Styles de Titres -->
+        <section id="titles" class="section">
+            <h2 class="section-title">1. Styles de Titres</h2>
+
+            <!-- H1 Styles -->
+            <div class="style-card">
+                <h3>Titres H1 - Principaux</h3>
+                <h4>Style standardisé :</h4>
+                <div class="code-block">
+                    <code>text-[1.75rem] font-bold text-[#0b1120] tracking-wide</code>
+                </div>
+
+                <h4>Exemples :</h4>
+                <div class="example-box white-bg">
+                    <h1 style="font-size: 1.75rem; font-weight: bold; color: #0b1120; letter-spacing: 0.05em; margin-bottom: 20px;">
+                        Dashboard
+                    </h1>
+                    <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 30px;">
+                        Page Dashboard - Titre principal
+                    </p>
+
+                    <h1 style="font-size: 1.75rem; font-weight: bold; color: #0b1120; letter-spacing: 0.05em; margin-bottom: 20px;">
+                        Electrical Layout 100+ MW
+                    </h1>
+                    <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 30px;">
+                        Page Electrical - Titre principal avec fond blanc
+                    </p>
+
+                    <h1 style="font-size: 2rem; font-weight: bold; color: #0b1120; letter-spacing: -0.02em; margin-bottom: 20px;">
+                        Hardware Inventory
+                    </h1>
+                    <p style="color: #64748b; font-size: 0.875rem;">
+                        Page Hardware - Titre principal (tracking-tight)
+                    </p>
+                </div>
+
+                <h4>Exception - Page Index :</h4>
+                <div class="code-block">
+                    <code>text-3xl font-bold text-[#0b1120] mb-2 tracking-wide</code>
+                </div>
+                <div class="example-box white-bg">
+                    <h1 style="font-size: 1.875rem; font-weight: bold; color: #0b1120; margin-bottom: 8px; letter-spacing: 0.05em;">
+                        QATAR
+                    </h1>
+                    <p style="font-size: 1.125rem; color: #64748b; font-weight: 500; letter-spacing: 0.05em;">
+                        Bitcoin Strategic Reserve
+                    </p>
+                </div>
+            </div>
+
+            <!-- H2 Styles -->
+            <div class="style-card">
+                <h3>Titres H2 - Sections principales</h3>
+                <h4>Style standardisé :</h4>
+                <div class="code-block">
+                    <code>text-[1.25rem] font-bold text-[#0b1120] tracking-wide</code>
+                </div>
+
+                <h4>Exemples :</h4>
+                <div class="example-box white-bg">
+                    <h2 style="font-size: 1.25rem; font-weight: bold; color: #0b1120; letter-spacing: 0.05em; margin-bottom: 24px;">
+                        Key Figures Summary
+                    </h2>
+                    <h2 style="font-size: 1.25rem; font-weight: bold; color: #0b1120; letter-spacing: 0.05em; margin-bottom: 24px;">
+                        Project Overview
+                    </h2>
+                    <h2 style="font-size: 1.25rem; font-weight: bold; color: #0b1120; letter-spacing: 0.05em; margin-bottom: 24px;">
+                        Bitcoin Strategic Reserve
+                    </h2>
+                </div>
+
+                <h4>Variantes pour Hardware :</h4>
+                <div class="code-block">
+                    <code>text-3xl font-extrabold text-[#0b1120] tracking-tight mb-2</code><br>
+                    <code>text-2xl font-extrabold text-[#0b1120] tracking-tight mb-2</code>
+                </div>
+                <div class="example-box white-bg">
+                    <h2 style="font-size: 1.875rem; font-weight: 800; color: #0b1120; letter-spacing: -0.02em; margin-bottom: 8px;">
+                        Poste principal
+                    </h2>
+                    <div class="separator-wide" style="margin: 8px 0 16px;"></div>
+
+                    <h2 style="font-size: 1.5rem; font-weight: 800; color: #0b1120; letter-spacing: -0.02em; margin-bottom: 8px;">
+                        Conteneurs miniers
+                    </h2>
+                    <div class="separator-wide" style="margin: 8px 0 16px;"></div>
+                </div>
+            </div>
+
+            <!-- H3 Styles -->
+            <div class="style-card">
+                <h3>Titres H3 - Sous-sections</h3>
+                <h4>Style standardisé :</h4>
+                <div class="code-block">
+                    <code>text-base font-semibold text-[#0b1120] tracking-wide</code>
+                </div>
+
+                <h4>Exemples :</h4>
+                <div class="example-box white-bg">
+                    <h3 style="font-size: 1rem; font-weight: 600; color: #0b1120; letter-spacing: 0.05em; margin-bottom: 16px;">
+                        Wallet Growth (Last 30 Days)
+                    </h3>
+                    <h3 style="font-size: 1rem; font-weight: 600; color: #0b1120; letter-spacing: 0.05em; margin-bottom: 16px;">
+                        Recent Mining Production
+                    </h3>
+                    <h3 style="font-size: 1rem; font-weight: 600; color: #0b1120; letter-spacing: 0.05em; margin-bottom: 16px;">
+                        Electrical Architecture
+                    </h3>
+                </div>
+
+                <h4>Variante pour Container Detail :</h4>
+                <div class="code-block">
+                    <code>text-xl font-bold text-[#0b1120] tracking-tight</code>
+                </div>
+                <div class="example-box white-bg">
+                    <h3 style="font-size: 1.25rem; font-weight: bold; color: #0b1120; letter-spacing: -0.02em; margin-bottom: 24px;">
+                        Production & Hashrate
+                    </h3>
+                    <h3 style="font-size: 1.25rem; font-weight: bold; color: #0b1120; letter-spacing: -0.02em; margin-bottom: 24px;">
+                        Machines ASIC
+                    </h3>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section : Modules par Page -->
+        <section id="pages" class="section">
+            <h2 class="section-title">2. Modules par Page</h2>
+
+            <!-- Page Index -->
+            <div class="style-card">
+                <h3><span class="badge badge-page">Page Index</span> Overview (/)</h3>
+                <h4>Structure :</h4>
+                <div class="code-block">
+                    <code>
+                        1. En-tête principal (H1: "QATAR")<br>
+                        2. Section: Key Figures Summary (H2)<br>
+                        3. Section: Description du projet<br>
+                        4. Section: Image du site<br>
+                        5. Section: Project Overview (H2)<br>
+                        6. Section: Partners & Suppliers (H2)
+                    </code>
+                </div>
+
+                <h4>Module : Key Figures Summary</h4>
+                <div class="example-box">
+                    <div class="kpi-banner">
+                        <div class="kpi-item">
+                            <div class="kpi-label">Total Installed Power</div>
+                            <div>
+                                <span class="kpi-value">100+</span>
+                                <span class="kpi-unit">MW</span>
+                            </div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-label">Number of Containers</div>
+                            <div>
+                                <span class="kpi-value">32</span>
+                            </div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-label">Total Machines</div>
+                            <div>
+                                <span class="kpi-value">5760</span>
+                                <span class="kpi-unit">ASICs</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Dashboard -->
+            <div class="style-card">
+                <h3><span class="badge badge-page">Page Dashboard</span> (/dashboard)</h3>
+                <h4>Structure :</h4>
+                <div class="code-block">
+                    <code>
+                        1. En-tête (H1: "Dashboard") + Bouton Refresh<br>
+                        2. Onglets (Overview / Bitcoin Mining / Electricity)<br>
+                        3. Module: KPI Box (selon onglet)<br>
+                        4. Module: Bitcoin Strategic Reserve (Overview)<br>
+                        5. Module: Graphiques (selon onglet)<br>
+                        6. Module: Tableaux (selon onglet)
+                    </code>
+                </div>
+
+                <h4>Module : KPI Box</h4>
+                <div class="example-box">
+                    <div class="kpi-banner">
+                        <div class="kpi-item">
+                            <div class="kpi-label">Total Power</div>
+                            <div>
+                                <span class="kpi-value">102.5</span>
+                                <span class="kpi-unit">MW</span>
+                            </div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-label">Total Hashrate</div>
+                            <div>
+                                <span class="kpi-value">1020</span>
+                                <span class="kpi-unit">PH/s</span>
+                            </div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-label">Daily BTC Production</div>
+                            <div>
+                                <span class="kpi-value">2.45</span>
+                                <span class="kpi-unit">BTC</span>
+                            </div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-label">Global Uptime</div>
+                            <div>
+                                <span class="kpi-value">99.2</span>
+                                <span class="kpi-unit">%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Electrical -->
+            <div class="style-card">
+                <h3><span class="badge badge-page">Page Electrical</span> (/electrical)</h3>
+                <h4>Structure :</h4>
+                <div class="code-block">
+                    <code>
+                        1. En-tête (H1: "Electrical Layout 100+ MW")<br>
+                        2. Module: Tip Box<br>
+                        3. Module: Legend (H2)<br>
+                        4. Module: Diagramme électrique interactif<br>
+                        5. Module: Informations (H3: "Electrical Architecture", "Electrical Flow")
+                    </code>
+                </div>
+            </div>
+
+            <!-- Page Hardware -->
+            <div class="style-card">
+                <h3><span class="badge badge-page">Page Hardware</span> (/hardware)</h3>
+                <h4>Structure :</h4>
+                <div class="code-block">
+                    <code>
+                        1. En-tête (H1: "Hardware Inventory")<br>
+                        2. Module: Vue d'ensemble (statistiques globales)<br>
+                        3. Section: Poste principal (H2: "Poste principal")<br>
+                        4. Section: Conteneurs miniers (H2: "Conteneurs miniers")<br>
+                        5. Section: Machines ASIC (H2: "Machines ASIC")<br>
+                        6. Section: Transformateurs (H2: "Transformateurs")
+                    </code>
+                </div>
+            </div>
+
+            <!-- Page Container Detail -->
+            <div class="style-card">
+                <h3><span class="badge badge-page">Page Container Detail</span> (/containers/[id])</h3>
+                <h4>Structure :</h4>
+                <div class="code-block">
+                    <code>
+                        1. En-tête (H1: "{container.name}")<br>
+                        2. Module: Bandeau statistiques (4 KPI)<br>
+                        3. Module: Graphiques temps réel (H2: "Hashrate Live", "Production Live")<br>
+                        4. Section: Puissance & Consommation (H2)<br>
+                        5. Section: Production & Hashrate (H2: text-xl)<br>
+                        6. Section: Machines ASIC (H2: text-xl)<br>
+                        7. Section: Module de Refroidissement (H2: text-xl)<br>
+                        8. Section: Informations Générales (H2: text-xl)
+                    </code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section : Composants Réutilisables -->
+        <section id="components" class="section">
+            <h2 class="section-title">3. Composants Réutilisables</h2>
+
+            <!-- Bandeau KPI -->
+            <div class="style-card">
+                <h3>Bandeau KPI</h3>
+                <h4>Style :</h4>
+                <div class="code-block">
+                    <code>bg-[#0a0b0d] rounded-[8px] p-6 border border-white/5 hover:border-[#8AFD81]/20</code>
+                </div>
+                <div class="example-box">
+                    <div class="kpi-banner">
+                        <div class="kpi-item">
+                            <div class="kpi-label">Total Power</div>
+                            <div>
+                                <span class="kpi-value">102.5</span>
+                                <span class="kpi-unit">MW</span>
+                            </div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-label">Hashrate</div>
+                            <div>
+                                <span class="kpi-value">1020</span>
+                                <span class="kpi-unit">PH/s</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carte standard -->
+            <div class="style-card">
+                <h3>Carte Standard</h3>
+                <h4>Style :</h4>
+                <div class="code-block">
+                    <code>bg-white rounded-[8px] border border-[#e2e8f0] shadow-sm p-6</code>
+                </div>
+                <div class="example-box white-bg">
+                    <div style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 24px;">
+                        <h3 style="font-size: 1rem; font-weight: 600; color: #0b1120; margin-bottom: 16px;">Titre de la carte</h3>
+                        <p style="color: #64748b; font-size: 0.875rem; line-height: 1.6;">
+                            Contenu de la carte avec texte descriptif.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Séparateur -->
+            <div class="style-card">
+                <h3>Séparateur</h3>
+                <h4>Style standard :</h4>
+                <div class="code-block">
+                    <code>h-0.5 w-24 bg-gradient-to-r from-[#8AFD81] to-[#6FD96A] rounded-full</code>
+                </div>
+                <div class="example-box white-bg">
+                    <div class="separator"></div>
+                </div>
+
+                <h4>Style large (Hardware) :</h4>
+                <div class="code-block">
+                    <code>h-px bg-gradient-to-r from-[#8AFD81] via-[#6FD96A] to-[#5BC550]</code>
+                </div>
+                <div class="example-box white-bg">
+                    <div class="separator-wide"></div>
+                </div>
+            </div>
+
+            <!-- Bouton -->
+            <div class="style-card">
+                <h3>Bouton Standard</h3>
+                <h4>Style :</h4>
+                <div class="code-block">
+                    <code>bg-[#8AFD81] hover:bg-[#6FD96A] text-black font-semibold py-3 px-8 rounded-[8px]</code>
+                </div>
+                <div class="example-box white-bg">
+                    <button style="background: #8AFD81; color: black; font-weight: 600; padding: 12px 32px; border-radius: 8px; border: none; cursor: pointer; transition: background 0.3s;">
+                        View Dashboard
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section : Palette de Couleurs -->
+        <section id="colors" class="section">
+            <h2 class="section-title">4. Palette de Couleurs</h2>
+
+            <div class="style-card">
+                <h3>Couleurs Principales</h3>
+                
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #8AFD81;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Vert Principal</div>
+                        <div class="color-code">#8AFD81</div>
+                        <div style="color: #94a3b8; font-size: 0.85rem; margin-top: 5px;">Couleur principale, accents, liens actifs</div>
+                    </div>
+                </div>
+
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #6FD96A;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Vert Secondaire</div>
+                        <div class="color-code">#6FD96A</div>
+                        <div style="color: #94a3b8; font-size: 0.85rem; margin-top: 5px;">Hover states, dégradés</div>
+                    </div>
+                </div>
+
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #5BC550;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Vert Tertiaire</div>
+                        <div class="color-code">#5BC550</div>
+                        <div style="color: #94a3b8; font-size: 0.85rem; margin-top: 5px;">Dégradés, séparateurs</div>
+                    </div>
+                </div>
+
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #0b1120;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Noir Texte</div>
+                        <div class="color-code">#0b1120</div>
+                        <div style="color: #94a3b8; font-size: 0.85rem; margin-top: 5px;">Texte principal sur fond clair</div>
+                    </div>
+                </div>
+
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #64748b;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Gris Texte</div>
+                        <div class="color-code">#64748b</div>
+                        <div style="color: #94a3b8; font-size: 0.85rem; margin-top: 5px;">Texte secondaire, labels</div>
+                    </div>
+                </div>
+
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #0a0b0d;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Fond Sombre</div>
+                        <div class="color-code">#0a0b0d</div>
+                        <div style="color: #94a3b8; font-size: 0.85rem; margin-top: 5px;">Fond des bandeaux KPI, cartes sombres</div>
+                    </div>
+                </div>
+
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #e2e8f0;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Bordure Claire</div>
+                        <div class="color-code">#e2e8f0</div>
+                        <div style="color: #94a3b8; font-size: 0.85rem; margin-top: 5px;">Bordures des cartes blanches</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section : Typographie -->
+        <section id="typography" class="section">
+            <h2 class="section-title">5. Typographie</h2>
+
+            <div class="style-card">
+                <h3>Famille de Police</h3>
+                <div class="code-block">
+                    <code>font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;</code>
+                </div>
+            </div>
+
+            <div class="style-card">
+                <h3>Tailles de Police</h3>
+                
+                <div class="typography-example">
+                    <div class="typography-label">H1 - 1.75rem (28px)</div>
+                    <div class="example-box white-bg">
+                        <h1 style="font-size: 1.75rem; font-weight: bold; color: #0b1120; letter-spacing: 0.05em;">
+                            Titre Principal
+                        </h1>
+                    </div>
+                </div>
+
+                <div class="typography-example">
+                    <div class="typography-label">H2 - 1.25rem (20px)</div>
+                    <div class="example-box white-bg">
+                        <h2 style="font-size: 1.25rem; font-weight: bold; color: #0b1120; letter-spacing: 0.05em;">
+                            Titre de Section
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="typography-example">
+                    <div class="typography-label">H3 - 1rem (16px)</div>
+                    <div class="example-box white-bg">
+                        <h3 style="font-size: 1rem; font-weight: 600; color: #0b1120; letter-spacing: 0.05em;">
+                            Sous-section
+                        </h3>
+                    </div>
+                </div>
+
+                <div class="typography-example">
+                    <div class="typography-label">Texte normal - 0.875rem (14px)</div>
+                    <div class="example-box white-bg">
+                        <p style="font-size: 0.875rem; color: #64748b; line-height: 1.6;">
+                            Texte normal avec couleur grise pour le contenu secondaire.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="typography-example">
+                    <div class="typography-label">Petit texte - 0.75rem (12px)</div>
+                    <div class="example-box white-bg">
+                        <p style="font-size: 0.75rem; color: #64748b;">
+                            Petit texte pour les labels, badges, métadonnées.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="style-card">
+                <h3>Poids de Police</h3>
+                <div class="example-box white-bg">
+                    <div style="margin-bottom: 15px;">
+                        <strong style="font-weight: 800; color: #0b1120;">Extrabold (800)</strong> - Pour les titres Hardware
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong style="font-weight: bold; color: #0b1120;">Bold (700)</strong> - Pour les titres principaux
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong style="font-weight: 600; color: #0b1120;">Semibold (600)</strong> - Pour les sous-titres
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <span style="font-weight: 500; color: #0b1120;">Medium (500)</span> - Pour le texte important
+                    </div>
+                    <div>
+                        <span style="font-weight: normal; color: #0b1120;">Normal (400)</span> - Pour le texte standard
+                    </div>
+                </div>
+            </div>
+
+            <div class="style-card">
+                <h3>Letter Spacing (Tracking)</h3>
+                <div class="example-box white-bg">
+                    <div style="margin-bottom: 15px;">
+                        <div style="color: #64748b; font-size: 0.85rem; margin-bottom: 5px;">tracking-wide (0.05em)</div>
+                        <div style="letter-spacing: 0.05em; color: #0b1120; font-weight: bold;">
+                            Titres principaux et sections
+                        </div>
+                    </div>
+                    <div>
+                        <div style="color: #64748b; font-size: 0.85rem; margin-bottom: 5px;">tracking-tight (-0.02em)</div>
+                        <div style="letter-spacing: -0.02em; color: #0b1120; font-weight: bold;">
+                            Titres Hardware et Container Detail
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <div style="text-align: center; padding: 60px 0 40px; color: #94a3b8; border-top: 1px solid rgba(138, 253, 129, 0.1);">
+            <p>Guide de référence des styles harmonisés - Hearst Qatar Platform</p>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scroll pour la navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

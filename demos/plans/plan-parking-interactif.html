@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan Interactif - Sélection Parking</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #1a1a1a;
+      color: white;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #8AFD81;
+    }
+    
+    .subtitle {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #888;
+      font-size: 14px;
+    }
+    
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      background: #2a2a2a;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    }
+    
+    .plan-wrapper {
+      position: relative;
+      width: 100%;
+      margin-bottom: 30px;
+    }
+    
+    .plan {
+      width: 100%;
+      height: 900px;
+      background: linear-gradient(135deg, #e8e8e8 0%, #d5d5d5 100%);
+      position: relative;
+      border: 4px solid #333;
+      cursor: crosshair;
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.1);
+    }
+    
+    /* Grille de fond */
+    .plan::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+    }
+    
+    /* Éléments sur le plan */
+    .element {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+      text-align: center;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    
+    .element .label {
+      text-shadow: 0px 0px 3px rgba(255,255,255,0.9);
+      pointer-events: none;
+    }
+    
+    /* Types d'éléments */
+    .substation {
+      background: rgba(76, 175, 80, 0.6);
+      border: 3px solid #4CAF50;
+      z-index: 5;
+    }
+    
+    .powerblock {
+      background: rgba(255, 152, 0, 0.5);
+      border: 2px solid #FF9800;
+      z-index: 4;
+    }
+    
+    .transformer {
+      background: rgba(33, 150, 243, 0.4);
+      border: 2px solid #2196F3;
+      z-index: 3;
+    }
+    
+    .container-hd5 {
+      background: rgba(96, 125, 139, 0.5);
+      border: 2px solid #607D8B;
+      z-index: 3;
+    }
+    
+    .building {
+      background: rgba(156, 39, 176, 0.6);
+      border: 3px solid #9C27B0;
+      z-index: 5;
+    }
+    
+    .occupied-zone {
+      background: rgba(244, 67, 54, 0.15);
+      border: 2px dashed #F44336;
+      z-index: 1;
+    }
+    
+    /* Rectangle de sélection */
+    .selection-rect {
+      position: absolute;
+      border: 3px solid #FFD700;
+      background: rgba(255, 215, 0, 0.3);
+      pointer-events: none;
+      display: none;
+      z-index: 100;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    }
+    
+    .selection-rect.valid {
+      border-color: #4CAF50;
+      background: rgba(76, 175, 80, 0.3);
+      box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
+    }
+    
+    .selection-rect.invalid {
+      border-color: #F44336;
+      background: rgba(244, 67, 54, 0.3);
+      box-shadow: 0 0 20px rgba(244, 67, 54, 0.6);
+    }
+    
+    /* Panneau d'information */
+    .info-panel {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      width: 350px;
+      background: rgba(0, 0, 0, 0.95);
+      padding: 20px;
+      border-radius: 10px;
+      border: 2px solid #8AFD81;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      z-index: 2000;
+    }
+    
+    .info-panel h3 {
+      color: #8AFD81;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    
+    .info-item {
+      margin: 10px 0;
+      padding: 8px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 5px;
+      font-size: 13px;
+    }
+    
+    .info-item label {
+      color: #888;
+      display: block;
+      font-size: 11px;
+      margin-bottom: 3px;
+    }
+    
+    .info-item .value {
+      color: #FFD700;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    
+    .validation {
+      margin-top: 15px;
+      padding: 15px;
+      border-radius: 8px;
+      font-weight: bold;
+      text-align: center;
+    }
+    
+    .validation.valid {
+      background: rgba(76, 175, 80, 0.2);
+      border: 2px solid #4CAF50;
+      color: #4CAF50;
+    }
+    
+    .validation.invalid {
+      background: rgba(244, 67, 54, 0.2);
+      border: 2px solid #F44336;
+      color: #F44336;
+    }
+    
+    .conflict-list {
+      margin-top: 10px;
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 12px;
+    }
+    
+    .conflict-item {
+      padding: 5px;
+      margin: 5px 0;
+      background: rgba(244, 67, 54, 0.1);
+      border-left: 3px solid #F44336;
+      border-radius: 3px;
+    }
+    
+    .btn-confirm {
+      width: 100%;
+      padding: 15px;
+      margin-top: 15px;
+      background: #8AFD81;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn-confirm:hover {
+      background: #6FD96A;
+      transform: scale(1.02);
+    }
+    
+    .btn-confirm:disabled {
+      background: #555;
+      color: #888;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .instructions {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.95);
+      color: #8AFD81;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 14px;
+      border: 2px solid #8AFD81;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      max-width: 90%;
+      z-index: 1999;
+    }
+    
+    .coordinates {
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      color: #000;
+      background: rgba(255,255,255,0.9);
+      padding: 2px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+      font-weight: bold;
+      pointer-events: none;
+    }
+    
+    /* Axes */
+    .axis {
+      position: absolute;
+      background: #000;
+      pointer-events: none;
+      z-index: 10;
+    }
+    
+    .axis-x {
+      height: 2px;
+      width: 100%;
+      top: 50%;
+    }
+    
+    .axis-z {
+      width: 2px;
+      height: 100%;
+      left: 50%;
+    }
+    
+    .axis-label {
+      position: absolute;
+      background: #000;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      pointer-events: none;
+      z-index: 11;
+    }
+    
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      background: #333;
+      border-radius: 5px;
+      font-size: 12px;
+    }
+    
+    .legend-color {
+      width: 25px;
+      height: 25px;
+      border: 2px solid white;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🗺️ PLAN INTERACTIF - SÉLECTION PARKING</h1>
+  <p class="subtitle">Dessinez un rectangle pour définir l'emplacement du parking</p>
+  
+  <div class="container">
+    <!-- Panneau d'information -->
+    <div class="info-panel" id="infoPanel">
+      <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,193,7,0.2); border: 2px solid #FFC107; border-radius: 5px;">
+        <strong style="color: #FFC107;">⚠️ CORRECTION BÂTIMENTS</strong><br>
+        <span style="font-size: 11px;">Si les bâtiments ne sont pas au bon endroit,<br>cliquez sur eux pour les repositionner</span>
+      </div>
+      <h3>📍 Sélection Parking</h3>
+      
+      <div class="info-item">
+        <label>Position Centre (X, Z)</label>
+        <div class="value" id="centerCoords">Cliquez et glissez</div>
+      </div>
+      
+      <div class="info-item">
+        <label>Dimensions (L × P)</label>
+        <div class="value" id="dimensions">0m × 0m</div>
+      </div>
+      
+      <div class="info-item">
+        <label>Capacité estimée</label>
+        <div class="value" id="capacity">0 places</div>
+      </div>
+      
+      <div class="validation" id="validation" style="display: none;">
+        <div id="validationText"></div>
+        <div class="conflict-list" id="conflictList"></div>
+      </div>
+      
+      <button class="btn-confirm" id="confirmBtn" disabled>
+        ✅ CONFIRMER CETTE POSITION
+      </button>
+    </div>
+    
+    <div class="plan-wrapper">
+      <div class="plan" id="plan">
+        <!-- Rectangle de sélection -->
+        <div class="selection-rect" id="selectionRect"></div>
+        
+        <!-- Axes -->
+        <div class="axis axis-x"></div>
+        <div class="axis axis-z"></div>
+        <div class="axis-label" style="top: 48%; left: 98%;">+X (Est) →</div>
+        <div class="axis-label" style="top: 48%; left: 1%;">← -X (Ouest)</div>
+        <div class="axis-label" style="top: 98%; left: 51%;">+Z (Nord) ↓</div>
+        <div class="axis-label" style="top: 1%; left: 51%;">↑ -Z (Sud)</div>
+        <div class="axis-label" style="top: 48%; left: 48%; background: red;">0,0</div>
+        
+        <!-- Éléments seront ajoutés par JS -->
+      </div>
+    </div>
+    
+    <!-- Légende -->
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color substation"></div>
+        <span>Substation 200MW</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color powerblock"></div>
+        <span>Power Blocks (4)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color transformer"></div>
+        <span>Transformateurs</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color container-hd5"></div>
+        <span>Containers HD5 (48)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color building"></div>
+        <span>Bâtiments Industriels</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(255,215,0,0.3); border-color: #FFD700;"></div>
+        <span>Nouvelle Sélection</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Instructions -->
+  <div class="instructions">
+    🖱️ <strong>CLIQUEZ et GLISSEZ</strong> sur le plan pour dessiner le parking • 
+    <span style="color: #4CAF50;">■ VERT</span> = Zone libre • 
+    <span style="color: #F44336;">■ ROUGE</span> = Conflit
+  </div>
+  
+  <script>
+    // Configuration du site (en mètres)
+    const SITE_CONFIG = {
+      width: 220,  // X: -110 à +110
+      depth: 200,  // Z: -100 à +100
+      
+      // Positions exactes depuis splineSceneData.ts
+      substation: { x: 0, z: 60, width: 40, depth: 15 },
+      
+      powerBlocks: [
+        { x: -75, z: 35, width: 15, depth: 10 },
+        { x: -25, z: 35, width: 15, depth: 10 },
+        { x: 25, z: 35, width: 15, depth: 10 },
+        { x: 75, z: 35, width: 15, depth: 10 }
+      ],
+      
+      containers: [],  // Sera rempli dynamiquement
+      
+      // Bâtiments : positions locales dans groupe rotation -90°
+      // Personnel: position locale [-45, 0, -110] → après rotation: X=-110, Z=45
+      // Maintenance: position locale [-45, 0, 110] → après rotation: X=110, Z=45
+      // MAIS dimensions: width=54.8m (4 lignes containers), depth=15m
+      // Après rotation, width et depth sont inversés visuellement
+      buildings: [
+        { x: -110, z: 45, width: 54.8, depth: 15, name: 'Personnel', localPos: '[-45, 0, -110]' },
+        { x: 110, z: 45, width: 54.8, depth: 15, name: 'Maintenance', localPos: '[-45, 0, 110]' }
+      ]
+    };
+    
+    // Générer toutes les positions de containers
+    const CONTAINER_OFFSET = 12;
+    const TRANSFORMER_START_Z = -15;
+    const TRANSFORMER_SPACING = 20;
+    const PB_POSITIONS = [-75, -25, 25, 75];
+    
+    PB_POSITIONS.forEach(pbX => {
+      for (let tr = 0; tr < 4; tr++) {
+        const trZ = TRANSFORMER_START_Z - (tr * TRANSFORMER_SPACING);
+        // Container A (gauche)
+        SITE_CONFIG.containers.push({
+          x: pbX - CONTAINER_OFFSET,
+          z: trZ,
+          width: 12.196,
+          depth: 2.896
+        });
+        // Container B (droite)
+        SITE_CONFIG.containers.push({
+          x: pbX + CONTAINER_OFFSET,
+          z: trZ,
+          width: 12.196,
+          depth: 2.896
+        });
+      }
+    });
+    
+    // Variables globales
+    const plan = document.getElementById('plan');
+    const selectionRect = document.getElementById('selectionRect');
+    const infoPanel = document.getElementById('infoPanel');
+    const confirmBtn = document.getElementById('confirmBtn');
+    
+    let isDrawing = false;
+    let isMovingBuilding = false;
+    let currentMovingBuilding = null;
+    let startX, startY;
+    let currentSelection = null;
+    
+    // Conversion pixel ↔ coordonnées 3D
+    function pixelTo3D(px, py) {
+      const rect = plan.getBoundingClientRect();
+      const normalizedX = px / rect.width;
+      const normalizedZ = py / rect.height;
+      
+      const x = (normalizedX * SITE_CONFIG.width) - (SITE_CONFIG.width / 2);
+      const z = (normalizedZ * SITE_CONFIG.depth) - (SITE_CONFIG.depth / 2);
+      
+      return { x: Math.round(x), z: Math.round(z) };
+    }
+    
+    function coordTo3DPixel(x, z) {
+      const rect = plan.getBoundingClientRect();
+      const normalizedX = (x + SITE_CONFIG.width / 2) / SITE_CONFIG.width;
+      const normalizedZ = (z + SITE_CONFIG.depth / 2) / SITE_CONFIG.depth;
+      
+      return {
+        px: normalizedX * rect.width,
+        py: normalizedZ * rect.height
+      };
+    }
+    
+    // Dessiner les éléments existants
+    function drawExistingElements() {
+      // Substation
+      drawElement(SITE_CONFIG.substation, 'substation', 'SUBSTATION<br>200MW');
+      
+      // Power Blocks
+      SITE_CONFIG.powerBlocks.forEach((pb, i) => {
+        drawElement(pb, 'powerblock', `PB${i+1}`);
+      });
+      
+      // Containers (simplifié - dessiner des zones)
+      SITE_CONFIG.containers.forEach((cont, i) => {
+        drawElement(cont, 'container-hd5', '');
+      });
+      
+      // Buildings (avec indication de position locale) - DRAGGABLE
+      SITE_CONFIG.buildings.forEach((building, idx) => {
+        const el = document.createElement('div');
+        const { px, py } = coordTo3DPixel(building.x, building.z);
+        const rect = plan.getBoundingClientRect();
+        const pxWidth = (building.width / SITE_CONFIG.width) * rect.width;
+        const pxDepth = (building.depth / SITE_CONFIG.depth) * rect.height;
+        
+        el.className = 'element building';
+        el.style.left = (px - pxWidth/2) + 'px';
+        el.style.top = (py - pxDepth/2) + 'px';
+        el.style.width = pxWidth + 'px';
+        el.style.height = pxDepth + 'px';
+        el.style.cursor = 'move';
+        el.style.pointerEvents = 'auto';
+        el.dataset.buildingIndex = idx;
+        el.innerHTML = `
+          <div class="coordinates">GLOBAL: [${building.x}, ${building.z}]<br>LOCAL: ${building.localPos}<br>🖱️ Cliquez pour déplacer</div>
+          <div class="label">🏢 ${building.name}</div>
+        `;
+        
+        // Permettre de déplacer les bâtiments
+        el.addEventListener('mousedown', (e) => {
+          e.stopPropagation();
+          isMovingBuilding = true;
+          currentMovingBuilding = idx;
+          const rect = plan.getBoundingClientRect();
+          startX = e.clientX - rect.left;
+          startY = e.clientY - rect.top;
+        });
+        
+        plan.appendChild(el);
+      });
+    }
+    
+    function drawElement(obj, className, label) {
+      const { px, py } = coordTo3DPixel(obj.x, obj.z);
+      const rect = plan.getBoundingClientRect();
+      const pxWidth = (obj.width / SITE_CONFIG.width) * rect.width;
+      const pxDepth = (obj.depth / SITE_CONFIG.depth) * rect.height;
+      
+      const el = document.createElement('div');
+      el.className = `element ${className}`;
+      el.style.left = (px - pxWidth/2) + 'px';
+      el.style.top = (py - pxDepth/2) + 'px';
+      el.style.width = pxWidth + 'px';
+      el.style.height = pxDepth + 'px';
+      
+      if (label) {
+        el.innerHTML = `
+          <div class="coordinates">[${obj.x}, ${obj.z}]</div>
+          <div class="label">${label}</div>
+        `;
+      }
+      
+      plan.appendChild(el);
+    }
+    
+    // Vérifier les conflits
+    function checkConflicts(x, z, width, depth) {
+      const conflicts = [];
+      const halfW = width / 2;
+      const halfD = depth / 2;
+      
+      // Fonction pour vérifier intersection
+      function intersects(obj) {
+        const objHalfW = obj.width / 2;
+        const objHalfD = obj.depth / 2;
+        
+        return !(
+          x + halfW < obj.x - objHalfW ||
+          x - halfW > obj.x + objHalfW ||
+          z + halfD < obj.z - objHalfD ||
+          z - halfD > obj.z + objHalfD
+        );
+      }
+      
+      // Vérifier substation
+      if (intersects(SITE_CONFIG.substation)) {
+        conflicts.push('Substation 200MW');
+      }
+      
+      // Vérifier power blocks
+      SITE_CONFIG.powerBlocks.forEach((pb, i) => {
+        if (intersects(pb)) {
+          conflicts.push(`Power Block ${i+1}`);
+        }
+      });
+      
+      // Vérifier containers
+      SITE_CONFIG.containers.forEach((cont, i) => {
+        if (intersects(cont)) {
+          conflicts.push(`Container HD5 #${i+1}`);
+        }
+      });
+      
+      // Vérifier buildings (avec dimensions après rotation)
+      SITE_CONFIG.buildings.forEach(building => {
+        if (intersects(building)) {
+          conflicts.push(`Bâtiment ${building.name} (${building.localPos})`);
+        }
+      });
+      
+      return conflicts;
+    }
+    
+    // Gestionnaires d'événements
+    plan.addEventListener('mousedown', (e) => {
+      // Si on clique sur un bâtiment, on ne dessine pas
+      if (e.target.classList.contains('building')) {
+        return;
+      }
+      
+      const rect = plan.getBoundingClientRect();
+      startX = e.clientX - rect.left;
+      startY = e.clientY - rect.top;
+      isDrawing = true;
+      
+      selectionRect.style.display = 'block';
+      selectionRect.style.left = startX + 'px';
+      selectionRect.style.top = startY + 'px';
+      selectionRect.style.width = '0px';
+      selectionRect.style.height = '0px';
+    });
+    
+    plan.addEventListener('mousemove', (e) => {
+      // Déplacer un bâtiment
+      if (isMovingBuilding && currentMovingBuilding !== null) {
+        const rect = plan.getBoundingClientRect();
+        const currentX = e.clientX - rect.left;
+        const currentY = e.clientY - rect.top;
+        
+        const newPos = pixelTo3D(currentX, currentY);
+        const building = SITE_CONFIG.buildings[currentMovingBuilding];
+        building.x = newPos.x;
+        building.z = newPos.z;
+        
+        // Redessiner
+        plan.innerHTML = '';
+        drawExistingElements();
+        return;
+      }
+      
+      if (!isDrawing) return;
+      
+      const rect = plan.getBoundingClientRect();
+      const currentX = e.clientX - rect.left;
+      const currentY = e.clientY - rect.top;
+      
+      const width = currentX - startX;
+      const height = currentY - startY;
+      
+      if (width < 0) {
+        selectionRect.style.left = currentX + 'px';
+        selectionRect.style.width = Math.abs(width) + 'px';
+      } else {
+        selectionRect.style.width = width + 'px';
+      }
+      
+      if (height < 0) {
+        selectionRect.style.top = currentY + 'px';
+        selectionRect.style.height = Math.abs(height) + 'px';
+      } else {
+        selectionRect.style.height = height + 'px';
+      }
+      
+      updateSelection();
+    });
+    
+    plan.addEventListener('mouseup', () => {
+      if (isDrawing) {
+        isDrawing = false;
+        updateSelection();
+      }
+      if (isMovingBuilding) {
+        isMovingBuilding = false;
+        currentMovingBuilding = null;
+        // Redessiner pour mettre à jour les positions
+        plan.innerHTML = '';
+        drawExistingElements();
+      }
+    });
+    
+    plan.addEventListener('mouseleave', () => {
+      if (isDrawing) {
+        isDrawing = false;
+      }
+      if (isMovingBuilding) {
+        isMovingBuilding = false;
+        currentMovingBuilding = null;
+      }
+    });
+    
+    function updateSelection() {
+      const rect = plan.getBoundingClientRect();
+      const rectLeft = parseFloat(selectionRect.style.left);
+      const rectTop = parseFloat(selectionRect.style.top);
+      const rectWidth = parseFloat(selectionRect.style.width);
+      const rectHeight = parseFloat(selectionRect.style.height);
+      
+      if (rectWidth < 10 || rectHeight < 10) return;
+      
+      // Centre en pixels
+      const centerPx = rectLeft + rectWidth / 2;
+      const centerPy = rectTop + rectHeight / 2;
+      
+      // Convertir en 3D
+      const center = pixelTo3D(centerPx, centerPy);
+      const width3D = Math.round((rectWidth / rect.width) * SITE_CONFIG.width);
+      const depth3D = Math.round((rectHeight / rect.height) * SITE_CONFIG.depth);
+      
+      currentSelection = {
+        x: center.x,
+        z: center.z,
+        width: width3D,
+        depth: depth3D
+      };
+      
+      // Vérifier conflits
+      const conflicts = checkConflicts(center.x, center.z, width3D, depth3D);
+      const isValid = conflicts.length === 0 && width3D >= 15 && depth3D >= 10;
+      
+      // Mettre à jour l'affichage
+      document.getElementById('centerCoords').textContent = `[${center.x}, 0, ${center.z}]`;
+      document.getElementById('dimensions').textContent = `${width3D}m × ${depth3D}m`;
+      
+      const spotSize = 2.5 * 5; // 2.5m × 5m par place
+      const capacity = Math.floor((width3D * depth3D) / spotSize);
+      document.getElementById('capacity').textContent = `${capacity} places`;
+      
+      const validation = document.getElementById('validation');
+      const validationText = document.getElementById('validationText');
+      const conflictList = document.getElementById('conflictList');
+      
+      validation.style.display = 'block';
+      
+      if (isValid) {
+        selectionRect.className = 'selection-rect valid';
+        validation.className = 'validation valid';
+        validationText.textContent = '✅ ZONE VALIDE - Aucun conflit';
+        conflictList.innerHTML = '';
+        confirmBtn.disabled = false;
+      } else {
+        selectionRect.className = 'selection-rect invalid';
+        validation.className = 'validation invalid';
+        validationText.textContent = '❌ ZONE INVALIDE';
+        
+        if (conflicts.length > 0) {
+          conflictList.innerHTML = '<strong>Conflits détectés :</strong>' +
+            conflicts.slice(0, 5).map(c => `<div class="conflict-item">⚠️ ${c}</div>`).join('') +
+            (conflicts.length > 5 ? `<div class="conflict-item">... et ${conflicts.length - 5} autres</div>` : '');
+        } else {
+          conflictList.innerHTML = '<div class="conflict-item">⚠️ Dimensions trop petites (min 15m × 10m)</div>';
+        }
+        
+        confirmBtn.disabled = true;
+      }
+    }
+    
+    // Bouton de confirmation
+    confirmBtn.addEventListener('click', () => {
+      if (!currentSelection) return;
+      
+      const codeText = `[${currentSelection.x}, 0, ${currentSelection.z}]`;
+      
+      alert(`✅ POSITION CONFIRMÉE !\n\nPosition à utiliser dans le code :\n${codeText}\n\nDimensions : ${currentSelection.width}m × ${currentSelection.depth}m\n\nJe vais maintenant placer le parking à cette position.`);
+      
+      console.log('Position confirmée:', currentSelection);
+      console.log('Code:', `position={${codeText}}`);
+      console.log('Dimensions:', `width={${currentSelection.width}} depth={${currentSelection.depth}}`);
+    });
+    
+    // Initialisation
+    drawExistingElements();
+  </script>
+</body>
+</html>
+

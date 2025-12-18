@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan Circulation et Maintenance - Hearst Qatar</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%231a1a1a'/%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5' stroke='%238AFD81' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #1a1a1a;
+      color: white;
+      padding: 20px;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    h1 {
+      color: #8AFD81;
+      margin-bottom: 10px;
+      font-size: 2.5em;
+    }
+    
+    .subtitle {
+      color: #888;
+      font-size: 16px;
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      background: #2a2a2a;
+      border: 2px solid #8AFD81;
+      color: #8AFD81;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+    
+    .btn:hover {
+      background: #8AFD81;
+      color: #1a1a1a;
+    }
+    
+    .btn.active {
+      background: #8AFD81;
+      color: #1a1a1a;
+    }
+    
+    .container {
+      max-width: 1800px;
+      margin: 0 auto;
+      background: #2a2a2a;
+      padding: 40px;
+      border-radius: 10px;
+    }
+    
+    .plan-wrapper {
+      position: relative;
+      width: 100%;
+      height: 800px;
+      background: #1a1a1a;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+    
+    canvas {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      padding: 20px;
+      background: #1a1a1a;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+    
+    .legend-color {
+      width: 30px;
+      height: 30px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    
+    .metric-card {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 5px;
+      border: 2px solid #333;
+    }
+    
+    .metric-card h3 {
+      color: #8AFD81;
+      margin-bottom: 10px;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    
+    .metric-value {
+      font-size: 2em;
+      font-weight: bold;
+      color: white;
+    }
+    
+    .metric-label {
+      color: #888;
+      font-size: 11px;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Plan Circulation et Maintenance</h1>
+    <p class="subtitle">Disposition réelle de votre site - 6 transformateurs + 12 containers avec allées béton</p>
+  </div>
+  
+  <div class="controls">
+    <button class="btn active" onclick="toggleCirculation()">Sans Allées</button>
+    <button class="btn" onclick="toggleCirculation()">Avec Allées Béton</button>
+  </div>
+  
+  <div class="container">
+    <div class="plan-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+    
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color" style="background: #2196F3; border: 2px solid #1976D2;"></div>
+        <span>Transformateur PT-Substation</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #8AFD81; border: 2px solid #4CAF50;"></div>
+        <span>Container ANTSPACE HD5</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #9E9E9E; border: 2px solid #757575;"></div>
+        <span>Dalle Béton 40cm</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #FFA726; border: 2px solid #FF9800;"></div>
+        <span>Allée Principale (6m)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #FFD54F; border: 2px solid #FFC107;"></div>
+        <span>Allée Périmétrique (3m)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: transparent; border: 4px solid #FF5722;"></div>
+        <span>Périmètre Sécurité</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #4CAF50; border: 2px solid #388E3C;"></div>
+        <span>Zone d'Entrée</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #FFC107; border: 2px solid #FFA000;"></div>
+        <span>Portail</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #2196F3; border: 2px solid #1565C0;"></div>
+        <span>Poste de Garde</span>
+      </div>
+    </div>
+    
+    <div class="metrics" id="metrics"></div>
+  </div>
+  
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    let showCirculation = false;
+    
+    // Dimensions du canvas
+    canvas.width = 1600;
+    canvas.height = 700;
+    
+    // Échelle : 1 mètre = 10 pixels
+    const SCALE = 10;
+    const ORIGIN_X = 50;
+    const ORIGIN_Y = 350;
+    
+    // Dimensions réelles (mètres)
+    const DIMS = {
+      transformer: { w: 2.5, h: 2.5 },
+      container: { w: 12.196, h: 2.896 },
+      slab: { w: 13, h: 3.5 },
+      guard: { w: 4, h: 4 },
+      gate: { w: 6, h: 1 }
+    };
+    
+    // DISPOSITION EXACTE : 6 transformateurs + 12 containers (2 par transfo)
+    // 3 LIGNES HORIZONTALES : Transfo | Container A | Container B | Transfo
+    
+    // 2 CONTAINERS PAR TRANSFORMATEUR = 12 containers au total
+    // Configuration: Transfo_gauche | Container_A | Container_B | Transfo_droite
+    
+    // A et B EN PARALLÈLE (côte à côte verticalement)
+    // LIGNE 1 (HAUT) : TT1 et TT4
+    const line1 = {
+      transformers: [
+        { id: 'TT1', x: 10, y: 20 },   // Transfo gauche
+        { id: 'TT4', x: 70, y: 20 }    // Transfo droite
+      ],
+      containers: [
+        { id: 'TT1_A', x: 30, y: 24, type: 'A' },  // Container A (en haut)
+        { id: 'TT1_B', x: 30, y: 16, type: 'B' },  // Container B (en bas) - EN PARALLÈLE
+        { id: 'TT4_A', x: 50, y: 24, type: 'A' },
+        { id: 'TT4_B', x: 50, y: 16, type: 'B' }
+      ]
+    };
+    
+    // LIGNE 2 (MILIEU) : TT2 et TT5
+    const line2 = {
+      transformers: [
+        { id: 'TT2', x: 10, y: 0 },
+        { id: 'TT5', x: 70, y: 0 }
+      ],
+      containers: [
+        { id: 'TT2_A', x: 30, y: 4, type: 'A' },
+        { id: 'TT2_B', x: 30, y: -4, type: 'B' },
+        { id: 'TT5_A', x: 50, y: 4, type: 'A' },
+        { id: 'TT5_B', x: 50, y: -4, type: 'B' }
+      ]
+    };
+    
+    // LIGNE 3 (BAS) : TT3 et TT6
+    const line3 = {
+      transformers: [
+        { id: 'TT3', x: 10, y: -20 },
+        { id: 'TT6', x: 70, y: -20 }
+      ],
+      containers: [
+        { id: 'TT3_A', x: 30, y: -16, type: 'A' },
+        { id: 'TT3_B', x: 30, y: -24, type: 'B' },
+        { id: 'TT6_A', x: 50, y: -16, type: 'A' },
+        { id: 'TT6_B', x: 50, y: -24, type: 'B' }
+      ]
+    };
+    
+    // Total : 6 transformateurs + 12 containers
+    const transformers = [...line1.transformers, ...line2.transformers, ...line3.transformers];
+    const containers = [...line1.containers, ...line2.containers, ...line3.containers];
+    
+    function toCanvas(x, y) {
+      return {
+        x: ORIGIN_X + (x * SCALE),
+        y: ORIGIN_Y - (y * SCALE)
+      };
+    }
+    
+    function drawRect(x, y, w, h, fillColor, strokeColor, strokeWidth = 2, label = '') {
+      const pos = toCanvas(x, y);
+      const width = w * SCALE;
+      const height = h * SCALE;
+      
+      ctx.fillStyle = fillColor;
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = strokeWidth;
+      
+      ctx.fillRect(pos.x - width/2, pos.y - height/2, width, height);
+      ctx.strokeRect(pos.x - width/2, pos.y - height/2, width, height);
+      
+      if (label) {
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 11px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(label, pos.x, pos.y);
+      }
+    }
+    
+    function drawPerimeter() {
+      if (!showCirculation) return;
+      
+      // Périmètre de sécurité - rectangle qui englobe les 3 lignes
+      ctx.strokeStyle = '#FF5722';
+      ctx.lineWidth = 4;
+      ctx.setLineDash([]);
+      const perimPos = toCanvas(40, 0);
+      ctx.strokeRect(perimPos.x - 75*SCALE/2, perimPos.y - 50*SCALE/2, 75*SCALE, 50*SCALE);
+    }
+    
+    function drawEntrance() {
+      if (!showCirculation) return;
+      
+      // 3 petits rectangles verticaux EN HAUT (selon votre schéma)
+      drawRect(30, 30, 2, 5, '#FFC107', '#FF9800', 2, '');
+      drawRect(40, 30, 2, 5, '#FFC107', '#FF9800', 2, '');
+      drawRect(50, 30, 2, 5, '#FFC107', '#FF9800', 2, '');
+      
+      // Poste de garde à gauche
+      drawRect(5, 25, 5, 5, '#2196F3', '#1565C0', 2, 'GARDE');
+    }
+    
+    function drawCirculation() {
+      if (!showCirculation) return;
+      
+      // Allée principale VERTICALE au centre (entre containers gauche et droite)
+      drawRect(40, 0, 6, 50, 'rgba(255, 152, 0, 0.4)', '#FF9800', 3);
+      
+      // Allées horizontales entre les 3 lignes
+      drawRect(40, 10, 70, 4, 'rgba(255, 152, 0, 0.3)', '#FFA726', 2);  // Entre ligne 1 et 2
+      drawRect(40, -10, 70, 4, 'rgba(255, 152, 0, 0.3)', '#FFA726', 2); // Entre ligne 2 et 3
+      
+      // Allées périmétriques autour de chaque container (6 containers)
+      containers.forEach(cont => {
+        const w = DIMS.container.w + 6;
+        const h = DIMS.container.h + 6;
+        drawRect(cont.x, cont.y, w, h, 'rgba(255, 213, 79, 0.25)', '#FFD54F', 2);
+      });
+    }
+    
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Fond
+      ctx.fillStyle = '#2a2a2a';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Grille
+      ctx.strokeStyle = 'rgba(138, 253, 129, 0.1)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < canvas.width; x += SCALE * 5) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += SCALE * 5) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+      
+      // 1. Périmètre de sécurité
+      drawPerimeter();
+      
+      // 2. Zone d'entrée
+      drawEntrance();
+      
+      // 3. Allées de circulation
+      drawCirculation();
+      
+      // 4. Dalles béton
+      containers.forEach(cont => {
+        drawRect(cont.x, cont.y, DIMS.slab.w, DIMS.slab.h, 'rgba(158, 158, 158, 0.5)', '#757575', 2);
+      });
+      
+      // 5. Containers
+      containers.forEach(cont => {
+        drawRect(cont.x, cont.y, DIMS.container.w, DIMS.container.h, '#8AFD81', '#4CAF50', 2, cont.type);
+      });
+      
+      // 6. Transformateurs
+      transformers.forEach(tr => {
+        drawRect(tr.x, tr.y, DIMS.transformer.w, DIMS.transformer.h, '#2196F3', '#1976D2', 2, tr.id);
+      });
+      
+      updateMetrics();
+    }
+    
+    function toggleCirculation() {
+      showCirculation = !showCirculation;
+      const btns = document.querySelectorAll('.btn');
+      btns.forEach(btn => btn.classList.toggle('active'));
+      draw();
+    }
+    
+    function updateMetrics() {
+      let circulationArea = 0;
+      let concreteVolume = 0;
+      
+      if (showCirculation) {
+        // Allée principale
+        circulationArea += 6 * 40;
+        
+        // Allées périmétriques (12 containers)
+        const perimPerimeter = 2 * (DIMS.container.w + DIMS.container.h + 12);
+        circulationArea += 3 * perimPerimeter * 12;
+        
+        concreteVolume = circulationArea * 0.25;
+      }
+      
+      document.getElementById('metrics').innerHTML = `
+        <div class="metric-card">
+          <h3>Transformateurs</h3>
+          <div class="metric-value">6</div>
+          <div class="metric-label">PT-Substation Ultra</div>
+        </div>
+        <div class="metric-card">
+          <h3>Containers</h3>
+          <div class="metric-value">12</div>
+          <div class="metric-label">ANTSPACE HD5</div>
+        </div>
+        <div class="metric-card">
+          <h3>Surface Béton</h3>
+          <div class="metric-value">${circulationArea.toFixed(0)} m²</div>
+          <div class="metric-label">${showCirculation ? 'Allées complètes' : 'Sans allées'}</div>
+        </div>
+        <div class="metric-card">
+          <h3>Volume Béton</h3>
+          <div class="metric-value">${concreteVolume.toFixed(0)} m³</div>
+          <div class="metric-label">Épaisseur 25cm</div>
+        </div>
+        <div class="metric-card">
+          <h3>Accès Maintenance</h3>
+          <div class="metric-value">${showCirculation ? 'Complet' : 'Limité'}</div>
+          <div class="metric-label">${showCirculation ? 'Accès 360°' : 'Sans allées'}</div>
+        </div>
+      `;
+    }
+    
+    // Initialisation
+    draw();
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+

@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitmain HD5 - Haute Précision Métal Noir</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .ui-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 166, 81, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 320px;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .ui-panel h2 {
+            color: #00A651;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .ui-panel .subtitle {
+            color: #888;
+            font-size: 11px;
+            margin-bottom: 15px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-group h3 {
+            color: #00A651;
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 11px;
+        }
+
+        .spec-label {
+            color: #888;
+        }
+
+        .spec-value {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #00A651;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 6px;
+        }
+
+        button:hover {
+            background: #008040;
+        }
+
+        button.secondary {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .highlight {
+            background: rgba(0, 166, 81, 0.1);
+            border: 1px solid #00A651;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 11px;
+            color: #00A651;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <div class="ui-panel">
+        <h2>⚡ Bitmain HD5 - Haute Précision</h2>
+        <div class="subtitle">Métal Noir + Logo Hearst</div>
+        
+        <div class="control-group">
+            <h3>Actions</h3>
+            <button onclick="resetCamera()">🎯 Réinitialiser</button>
+            <button onclick="toggleGrid()" class="secondary">📐 Grille</button>
+            <button onclick="toggleWireframe()" class="secondary">🔲 Wireframe</button>
+        </div>
+
+        <div class="control-group">
+            <h3>Structure Empilée</h3>
+            <div class="spec-item">
+                <span class="spec-label">Container HDS-R</span>
+                <span class="spec-value">12.196m × 2.438m × 2.896m</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Dry Cooler</span>
+                <span class="spec-value">Même taille</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Hauteur totale</span>
+                <span class="spec-value">~6.0 m</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>Matériaux</h3>
+            <div class="spec-item">
+                <span class="spec-label">Container</span>
+                <span class="spec-value">Métal noir #1a1a1a</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Tuyauterie</span>
+                <span class="spec-value">Argenté #C0C0C0</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Panneaux</span>
+                <span class="spec-value">Bleu foncé #1E3A8A</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Logo</span>
+                <span class="spec-value">Vert Hearst #00A651</span>
+            </div>
+        </div>
+
+        <div class="highlight">
+            ✅ Précision pixel-perfect<br>
+            ✅ Tous les détails de l'image<br>
+            ✅ Matériau métal noir<br>
+            ✅ Logo Hearst appliqué
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Couleurs exactes basées sur l'analyse
+        const COLORS = {
+            // Métal noir principal
+            blackMetal: 0x1a1a1a,
+            
+            // Tuyauterie argentée
+            silverPipes: 0xC0C0C0,
+            
+            // Panneaux bleus
+            bluePanels: 0x1E3A8A,
+            
+            // Logo Hearst
+            hearstGreen: 0x00A651,
+            
+            // Grilles et détails
+            blackGrilles: 0x000000,
+            
+            // Environnement
+            ground: 0x8B7355
+        };
+
+        // Dimensions exactes
+        const DIMENSIONS = {
+            length: 12.196,  // X-axis (Est/Ouest) - Flancs longs
+            width: 2.438,    // Z-axis (Nord/Sud) - Côtés courts
+            height: 2.896    // Y-axis (Vertical) - Hauteur totale
+        };
+        
+        // Hauteur divisée en 2 sections égales (50% chacune)
+        const SECTION_HEIGHT = DIMENSIONS.height / 2; // 1.448m par section
+
+        // Système de coordonnées GPS/Cardinal
+        // X = Est/Ouest (Est = +X, Ouest = -X)
+        // Z = Nord/Sud (Nord = +Z, Sud = -Z)
+        // Y = Hauteur (toujours vertical, positif vers le haut)
+        
+        // Positions de référence
+        const CONTAINER_CENTER = {
+            x: 0,                                    // Centré sur X
+            y: 0.4 + SECTION_HEIGHT / 2,            // Au-dessus de la dalle (0.4m) + moitié section basse
+            z: 0                                     // Centré sur Z
+        };
+        
+        const COOLING_SYSTEM_CENTER = {
+            x: 0,
+            y: 0.4 + SECTION_HEIGHT + SECTION_HEIGHT / 2,  // Au-dessus du container bas
+            z: 0
+        };
+        
+        // Flancs du container (côtés longs de 12.196m)
+        const FLANCS = {
+            SUD: -DIMENSIONS.width / 2,   // Z négatif = Sud
+            NORD: DIMENSIONS.width / 2,   // Z positif = Nord
+            OUEST: -DIMENSIONS.length / 2, // X négatif = Ouest
+            EST: DIMENSIONS.length / 2     // X positif = Est
+        };
+
+        let scene, camera, renderer, gridHelper;
+        let containerGroup;
+        let wireframeMode = false;
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a1a1a);
+            scene.fog = new THREE.Fog(0x1a1a1a, 80, 200);
+
+            camera = new THREE.PerspectiveCamera(
+                50,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            // Positionner la caméra pour voir le container centré
+            // Container centre approximatif: y = 0.4 + 2.896/2 = ~1.85
+            // Dry cooler centre: y = 0.4 + 2.896 + 2.896/2 = ~4.34
+            // Centre total: ~3.1
+            camera.position.set(15, 10, 15);
+            camera.lookAt(0, 3, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            setupControls();
+            setupLights();
+            createGround();
+            createGrid();
+            createPrecisionModel();
+
+            window.addEventListener('resize', onWindowResize);
+            animate();
+        }
+
+        function setupControls() {
+            let isDragging = false;
+            let previousMousePosition = { x: 0, y: 0 };
+            let rotation = { x: 0.3, y: 0.5 };
+            let zoom = 20;
+
+            renderer.domElement.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            renderer.domElement.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+                rotation.y += deltaX * 0.005;
+                rotation.x += deltaY * 0.005;
+                rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, rotation.x));
+                updateCameraPosition();
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            renderer.domElement.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            renderer.domElement.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                zoom += e.deltaY * 0.02;
+                zoom = Math.max(15, Math.min(100, zoom));
+                updateCameraPosition();
+            });
+
+            function updateCameraPosition() {
+                camera.position.x = zoom * Math.sin(rotation.y) * Math.cos(rotation.x);
+                camera.position.y = zoom * Math.sin(rotation.x);
+                camera.position.z = zoom * Math.cos(rotation.y) * Math.cos(rotation.x);
+                camera.lookAt(0, 3, 0);
+            }
+        }
+
+        function setupLights() {
+            // Lumière ambiante plus forte pour voir le métal noir
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambientLight);
+
+            // Lumière directionnelle principale (plus forte)
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+            directionalLight.position.set(20, 30, 20);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            directionalLight.shadow.camera.left = -40;
+            directionalLight.shadow.camera.right = 40;
+            directionalLight.shadow.camera.top = 40;
+            directionalLight.shadow.camera.bottom = -40;
+            directionalLight.shadow.camera.near = 0.5;
+            directionalLight.shadow.camera.far = 100;
+            scene.add(directionalLight);
+
+            // Lumière d'appoint (plus forte)
+            const fillLight = new THREE.DirectionalLight(0xffffff, 0.6);
+            fillLight.position.set(-15, 20, -15);
+            scene.add(fillLight);
+
+            // Lumière supplémentaire pour éclairer le métal
+            const rimLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            rimLight.position.set(0, 10, -25);
+            scene.add(rimLight);
+
+            // Lumière hémisphérique
+            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
+            scene.add(hemiLight);
+        }
+
+        function createGround() {
+            const groundGeometry = new THREE.PlaneGeometry(200, 200);
+            const groundMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.ground,
+                roughness: 0.8,
+                metalness: 0.1
+            });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+        }
+
+        function createGrid() {
+            gridHelper = new THREE.GridHelper(100, 100, 0x00A651, 0x333333);
+            gridHelper.position.y = 0.01;
+            scene.add(gridHelper);
+        }
+
+        function createPrecisionModel() {
+            containerGroup = new THREE.Group();
+
+            // ========== STRUCTURE DE BASE ==========
+            
+            // 1. DALLE BÉTON (fondation)
+            const dalleGeometry = new THREE.BoxGeometry(13.0, 0.4, 3.0);
+            const dalleMaterial = new THREE.MeshStandardMaterial({
+                color: 0xB0B0B0,
+                roughness: 0.9,
+                metalness: 0.1
+            });
+            const dalle = new THREE.Mesh(dalleGeometry, dalleMaterial);
+            dalle.position.set(0, 0.2, 0); // Y = 0.2 (moitié de 0.4m)
+            dalle.castShadow = true;
+            dalle.receiveShadow = true;
+            containerGroup.add(dalle);
+
+            // 2. CONTAINER BAS (section inférieure - 50% de la hauteur)
+            // Avec reliefs/ondulations sur les flancs
+            const containerMaterial = new THREE.MeshStandardMaterial({
+                color: 0x1a1a1a, // Noir
+                roughness: 0.2,
+                metalness: 0.9
+            });
+            
+            // Container principal
+            const containerGeometry = new THREE.BoxGeometry(
+                DIMENSIONS.length,  // 12.196m (X - Est/Ouest)
+                SECTION_HEIGHT,    // 1.448m (Y - Vertical) - 50% de la hauteur
+                DIMENSIONS.width   // 2.438m (Z - Nord/Sud)
+            );
+            const container = new THREE.Mesh(containerGeometry, containerMaterial);
+            container.position.set(
+                CONTAINER_CENTER.x,
+                CONTAINER_CENTER.y,
+                CONTAINER_CENTER.z
+            );
+            container.castShadow = true;
+            containerGroup.add(container);
+            
+            // Reliefs/ondulations sur les flancs longs (Nord et Sud)
+            createCorrugatedDetails(container, containerMaterial);
+
+            // 3. SYSTÈME DE REFROIDISSEMENT (section supérieure - 50% de la hauteur)
+            // Structure ouverte sans flancs pour voir à travers
+            createCoolingSystem(containerGroup, containerMaterial);
+
+            scene.add(containerGroup);
+            
+            // Debug
+            console.log('✅ Structure de base créée');
+            console.log('Dimensions:', DIMENSIONS);
+            console.log('Hauteur par section:', SECTION_HEIGHT, 'm (50% chacune)');
+            console.log('Container center:', CONTAINER_CENTER);
+            console.log('Cooling system center:', COOLING_SYSTEM_CENTER);
+            console.log('Flancs:', FLANCS);
+        }
+
+        // Fonction supprimée - tout est maintenant dans createPrecisionModel()
+
+        function createCorrugatedDetails(container, material) {
+            // Créer des ondulations/reliefs sur les flancs longs (Nord et Sud)
+            const ribCount = 20;
+            const ribSpacing = DIMENSIONS.length / ribCount;
+            const ribGeometry = new THREE.BoxGeometry(0.05, SECTION_HEIGHT, DIMENSIONS.width + 0.1);
+
+            for (let i = 0; i < ribCount; i++) {
+                const x = FLANCS.OUEST + i * ribSpacing; // Position le long de X (Est/Ouest)
+                
+                // Ribs sur le flanc SUD (Z négatif)
+                const ribSouth = new THREE.Mesh(ribGeometry, material);
+                ribSouth.position.set(x, 0, FLANCS.SUD);
+                container.add(ribSouth);
+                
+                // Ribs sur le flanc NORD (Z positif)
+                const ribNorth = new THREE.Mesh(ribGeometry, material);
+                ribNorth.position.set(x, 0, FLANCS.NORD);
+                container.add(ribNorth);
+            }
+        }
+        
+        function createCoolingSystem(group, material) {
+            // Système de refroidissement - Structure ouverte sans flancs
+            // Seulement le plancher, le plafond et le cadre structurel
+            
+            // Plancher du système de refroidissement
+            const floorGeometry = new THREE.BoxGeometry(DIMENSIONS.length, 0.1, DIMENSIONS.width);
+            const floor = new THREE.Mesh(floorGeometry, material);
+            floor.position.set(
+                COOLING_SYSTEM_CENTER.x,
+                COOLING_SYSTEM_CENTER.y - SECTION_HEIGHT / 2 + 0.05,
+                COOLING_SYSTEM_CENTER.z
+            );
+            floor.castShadow = true;
+            floor.receiveShadow = true;
+            group.add(floor);
+            
+            // Plafond du système de refroidissement
+            const ceilingGeometry = new THREE.BoxGeometry(DIMENSIONS.length, 0.1, DIMENSIONS.width);
+            const ceiling = new THREE.Mesh(ceilingGeometry, material);
+            ceiling.position.set(
+                COOLING_SYSTEM_CENTER.x,
+                COOLING_SYSTEM_CENTER.y + SECTION_HEIGHT / 2 - 0.05,
+                COOLING_SYSTEM_CENTER.z
+            );
+            ceiling.castShadow = true;
+            ceiling.receiveShadow = true;
+            group.add(ceiling);
+            
+            // Cadre structurel (montants verticaux aux 4 coins) - SANS FLANCS
+            const frameThickness = 0.2;
+            const verticalFrameGeometry = new THREE.BoxGeometry(frameThickness, SECTION_HEIGHT, frameThickness);
+            
+            // 4 montants verticaux aux coins
+            const corners = [
+                { x: FLANCS.OUEST, z: FLANCS.SUD },   // Coin Ouest-Sud
+                { x: FLANCS.OUEST, z: FLANCS.NORD },  // Coin Ouest-Nord
+                { x: FLANCS.EST, z: FLANCS.SUD },      // Coin Est-Sud
+                { x: FLANCS.EST, z: FLANCS.NORD }      // Coin Est-Nord
+            ];
+            
+            corners.forEach(corner => {
+                const frame = new THREE.Mesh(verticalFrameGeometry, material);
+                frame.position.set(
+                    corner.x,
+                    COOLING_SYSTEM_CENTER.y,
+                    corner.z
+                );
+                frame.castShadow = true;
+                group.add(frame);
+            });
+            
+            // Traverses horizontales en haut et en bas
+            const horizontalTopGeometry = new THREE.BoxGeometry(DIMENSIONS.length, frameThickness, frameThickness);
+            const horizontalBottomGeometry = new THREE.BoxGeometry(DIMENSIONS.length, frameThickness, frameThickness);
+            
+            // Traverses en haut (Nord et Sud)
+            const topNorth = new THREE.Mesh(horizontalTopGeometry, material);
+            topNorth.position.set(0, COOLING_SYSTEM_CENTER.y + SECTION_HEIGHT / 2 - 0.1, FLANCS.NORD);
+            topNorth.castShadow = true;
+            group.add(topNorth);
+            
+            const topSouth = new THREE.Mesh(horizontalTopGeometry, material);
+            topSouth.position.set(0, COOLING_SYSTEM_CENTER.y + SECTION_HEIGHT / 2 - 0.1, FLANCS.SUD);
+            topSouth.castShadow = true;
+            group.add(topSouth);
+            
+            // Traverses en bas (Nord et Sud)
+            const bottomNorth = new THREE.Mesh(horizontalBottomGeometry, material);
+            bottomNorth.position.set(0, COOLING_SYSTEM_CENTER.y - SECTION_HEIGHT / 2 + 0.1, FLANCS.NORD);
+            bottomNorth.castShadow = true;
+            group.add(bottomNorth);
+            
+            const bottomSouth = new THREE.Mesh(horizontalBottomGeometry, material);
+            bottomSouth.position.set(0, COOLING_SYSTEM_CENTER.y - SECTION_HEIGHT / 2 + 0.1, FLANCS.SUD);
+            bottomSouth.castShadow = true;
+            group.add(bottomSouth);
+        }
+
+        function createLeftVentilationPanels(group, material) {
+            // 7 panneaux verticaux à l'extrémité OUEST (côté court)
+            const panelCount = 7;
+            const panelWidth = 0.3;
+            const panelHeight = 2.5;
+            const panelDepth = 0.05;
+            const spacing = 0.35;
+            const xPosition = FLANCS.OUEST - 0.05; // Position sur le côté Ouest
+            const zPosition = FLANCS.SUD + 0.1;    // Légèrement en avant du flanc Sud
+
+            for (let i = 0; i < panelCount; i++) {
+                const panelGeometry = new THREE.BoxGeometry(panelWidth, panelHeight, panelDepth);
+                const panel = new THREE.Mesh(panelGeometry, material);
+                panel.position.set(
+                    xPosition,
+                    CONTAINER_CENTER.y - DIMENSIONS.height / 2 + 1.5 + (i - panelCount / 2) * spacing,
+                    zPosition
+                );
+                panel.castShadow = true;
+                group.add(panel);
+
+                // Grilles sur les panneaux
+                const grilleGeometry = new THREE.BoxGeometry(panelWidth - 0.02, 0.02, 0.01);
+                const grilleMaterial = new THREE.MeshStandardMaterial({
+                    color: COLORS.blackGrilles,
+                    roughness: 0.6
+                });
+                
+                for (let j = 0; j < 15; j++) {
+                    const grille = new THREE.Mesh(grilleGeometry, grilleMaterial);
+                    grille.position.set(
+                        xPosition,
+                        CONTAINER_CENTER.y - DIMENSIONS.height / 2 + 0.5 + j * 0.15,
+                        zPosition
+                    );
+                    group.add(grille);
+                }
+            }
+        }
+
+        function createRightPipingSystem(group) {
+            // Matériau tuyauterie argentée
+            // Système de tuyauterie sur le côté EST (côté court)
+            const pipeMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.silverPipes,
+                roughness: 0.2,
+                metalness: 0.9
+            });
+
+            // 4 colonnes verticales
+            const columnCount = 4;
+            const columnSpacing = 2.5;
+            const pipeRadius = 0.075;
+            const pipeHeight = 2.5;
+            const xPosition = FLANCS.EST + 0.3; // Position sur le côté Est
+
+            for (let i = 0; i < columnCount; i++) {
+                const z = FLANCS.SUD + 0.5 + i * columnSpacing; // Position le long de Z (Nord/Sud)
+
+                // Tuyau vertical
+                const verticalPipe = new THREE.Mesh(
+                    new THREE.CylinderGeometry(pipeRadius, pipeRadius, pipeHeight, 16),
+                    pipeMaterial
+                );
+                verticalPipe.rotation.z = Math.PI / 2; // Rotation pour être vertical
+                verticalPipe.position.set(
+                    xPosition,
+                    CONTAINER_CENTER.y - DIMENSIONS.height / 2 + 1.5,
+                    z
+                );
+                verticalPipe.castShadow = true;
+                group.add(verticalPipe);
+
+                // Connexions horizontales entre colonnes (le long de Z)
+                if (i < columnCount - 1) {
+                    const horizontalPipe = new THREE.Mesh(
+                        new THREE.CylinderGeometry(pipeRadius, pipeRadius, columnSpacing, 16),
+                        pipeMaterial
+                    );
+                    horizontalPipe.rotation.y = Math.PI / 2; // Rotation pour être horizontal le long de Z
+                    horizontalPipe.position.set(
+                        xPosition,
+                        CONTAINER_CENTER.y - DIMENSIONS.height / 2 + 1.5,
+                        z + columnSpacing / 2
+                    );
+                    horizontalPipe.castShadow = true;
+                    group.add(horizontalPipe);
+                }
+
+                // Valves sur les connexions
+                const valveGeometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+                const valve = new THREE.Mesh(valveGeometry, pipeMaterial);
+                valve.position.set(
+                    xPosition,
+                    CONTAINER_CENTER.y - DIMENSIONS.height / 2 + 1.5,
+                    z + columnSpacing / 2
+                );
+                valve.castShadow = true;
+                if (i < columnCount - 1) group.add(valve);
+            }
+        }
+
+        function createCircularFans(group, material) {
+            // 2 ventilateurs circulaires empilés verticalement
+            // Positionnés sur le coin EST-NORD (coin supérieur droit)
+            const fanRadius = 0.4;
+            const fanHeight = 0.15;
+            const xPosition = FLANCS.EST - 0.3;  // Côté Est
+            const zPosition = FLANCS.NORD - 0.3; // Côté Nord
+            const fanYPositions = [
+                CONTAINER_CENTER.y - DIMENSIONS.height / 2 + 0.8,
+                CONTAINER_CENTER.y - DIMENSIONS.height / 2 + 1.6
+            ];
+
+            fanYPositions.forEach((y, index) => {
+                // Carcasse du ventilateur
+                const fanHousing = new THREE.Mesh(
+                    new THREE.CylinderGeometry(fanRadius, fanRadius, fanHeight, 32),
+                    material
+                );
+                fanHousing.rotation.x = Math.PI / 2; // Rotation pour être horizontal
+                fanHousing.position.set(xPosition, y, zPosition);
+                fanHousing.castShadow = true;
+                group.add(fanHousing);
+
+                // Grille du ventilateur
+                const grilleGeometry = new THREE.CylinderGeometry(fanRadius - 0.02, fanRadius - 0.02, 0.01, 32);
+                const grilleMaterial = new THREE.MeshStandardMaterial({
+                    color: COLORS.blackGrilles,
+                    roughness: 0.6,
+                    metalness: 0.3
+                });
+                const grille = new THREE.Mesh(grilleGeometry, grilleMaterial);
+                grille.rotation.x = Math.PI / 2;
+                grille.position.set(xPosition, y, zPosition);
+                group.add(grille);
+
+                // Pales du ventilateur (simplifiées)
+                for (let i = 0; i < 6; i++) {
+                    const bladeGeometry = new THREE.BoxGeometry(0.3, 0.02, 0.05);
+                    const blade = new THREE.Mesh(bladeGeometry, grilleMaterial);
+                    blade.rotation.z = (i * Math.PI * 2) / 6;
+                    blade.position.set(xPosition, y, zPosition);
+                    group.add(blade);
+                }
+            });
+        }
+
+        // Fonction supprimée - tout est maintenant dans createPrecisionModel()
+        
+        function createDryCooler_OLD() {
+            const group = new THREE.Group();
+
+            // Matériau métal noir (plus clair pour visibilité)
+            const blackMetalMaterial = new THREE.MeshStandardMaterial({
+                color: 0x4a4a4a, // Plus clair pour visibilité
+                roughness: 0.2,
+                metalness: 0.9,
+                envMapIntensity: 2.0
+            });
+
+            // Structure principale du dry cooler - OUVERTE sur les 4 côtés
+            // Seulement le cadre structurel, pas de panneaux fermés
+            // Le radiateur en V sera visible en transparence à travers les côtés ouverts
+            
+            // Plancher du dry cooler (pour voir qu'il est ouvert)
+            const floorGeometry = new THREE.BoxGeometry(DIMENSIONS.length, 0.1, DIMENSIONS.width);
+            const floor = new THREE.Mesh(floorGeometry, blackMetalMaterial);
+            floor.position.y = 0.05;
+            floor.castShadow = true;
+            floor.receiveShadow = true;
+            group.add(floor);
+            
+            // Plafond du dry cooler (pour délimiter)
+            const ceilingGeometry = new THREE.BoxGeometry(DIMENSIONS.length, 0.1, DIMENSIONS.width);
+            const ceiling = new THREE.Mesh(ceilingGeometry, blackMetalMaterial);
+            ceiling.position.y = DIMENSIONS.height - 0.05;
+            ceiling.castShadow = true;
+            ceiling.receiveShadow = true;
+            group.add(ceiling);
+            
+            // Cadre structurel visible (sans panneaux)
+            createOpenStructuralFrame(group, blackMetalMaterial);
+
+            // Panneaux bleus inclinés supprimés (comme demandé)
+
+            // Radiateur en V sur le dessus (comme sur l'image)
+            createVRadiatorOnTop(group);
+
+            // ~25 Grilles noires sur le dessus
+            createTopGrilles(group);
+
+            // Logo Hearst sur FLANC SUD du dry cooler (côté long de 12.196m)
+            createHearstLogo(group, 0, DIMENSIONS.height / 2, FLANCS.SUD - 0.02, Math.PI);
+
+            // Logo Hearst sur FLANC NORD du dry cooler (côté long de 12.196m)
+            createHearstLogo(group, 0, DIMENSIONS.height / 2, FLANCS.NORD + 0.02, 0);
+
+            return group;
+        }
+
+        function createStructuralFrame(cooler, material) {
+            // Montants verticaux aux coins
+            const verticalGeometry = new THREE.BoxGeometry(0.15, DIMENSIONS.height, 0.15);
+            const positions = [
+                [-DIMENSIONS.length / 2, 0, -DIMENSIONS.width / 2],
+                [-DIMENSIONS.length / 2, 0, DIMENSIONS.width / 2],
+                [DIMENSIONS.length / 2, 0, -DIMENSIONS.width / 2],
+                [DIMENSIONS.length / 2, 0, DIMENSIONS.width / 2]
+            ];
+
+            positions.forEach(pos => {
+                const frame = new THREE.Mesh(verticalGeometry, material);
+                frame.position.set(...pos);
+                cooler.add(frame);
+            });
+
+            // Traverses horizontales
+            const horizontalGeometry = new THREE.BoxGeometry(DIMENSIONS.length, 0.15, 0.15);
+            const hPositions = [
+                [0, DIMENSIONS.height / 2 - 0.075, -DIMENSIONS.width / 2],
+                [0, DIMENSIONS.height / 2 - 0.075, DIMENSIONS.width / 2],
+                [0, -DIMENSIONS.height / 2 + 0.075, -DIMENSIONS.width / 2],
+                [0, -DIMENSIONS.height / 2 + 0.075, DIMENSIONS.width / 2]
+            ];
+
+            hPositions.forEach(pos => {
+                const frame = new THREE.Mesh(horizontalGeometry, material);
+                frame.position.set(...pos);
+                cooler.add(frame);
+            });
+        }
+
+        function createOpenStructuralFrame(group, material) {
+            // Cadre structurel OUVERT - seulement les montants et traverses
+            // Pas de panneaux fermés, pour voir le radiateur en V en transparence
+            
+            // Montants verticaux aux 4 coins
+            const verticalGeometry = new THREE.BoxGeometry(0.2, DIMENSIONS.height, 0.2);
+            const positions = [
+                [-DIMENSIONS.length / 2, DIMENSIONS.height / 2, -DIMENSIONS.width / 2],
+                [-DIMENSIONS.length / 2, DIMENSIONS.height / 2, DIMENSIONS.width / 2],
+                [DIMENSIONS.length / 2, DIMENSIONS.height / 2, -DIMENSIONS.width / 2],
+                [DIMENSIONS.length / 2, DIMENSIONS.height / 2, DIMENSIONS.width / 2]
+            ];
+
+            positions.forEach(pos => {
+                const frame = new THREE.Mesh(verticalGeometry, material);
+                frame.position.set(...pos);
+                frame.castShadow = true;
+                group.add(frame);
+            });
+
+            // Traverses horizontales en haut
+            const topHorizontalGeometry = new THREE.BoxGeometry(DIMENSIONS.length, 0.2, 0.2);
+            const topPositions = [
+                [0, DIMENSIONS.height, -DIMENSIONS.width / 2],
+                [0, DIMENSIONS.height, DIMENSIONS.width / 2]
+            ];
+            topPositions.forEach(pos => {
+                const frame = new THREE.Mesh(topHorizontalGeometry, material);
+                frame.position.set(...pos);
+                frame.castShadow = true;
+                group.add(frame);
+            });
+
+            // Traverses horizontales en bas
+            const bottomHorizontalGeometry = new THREE.BoxGeometry(DIMENSIONS.length, 0.2, 0.2);
+            const bottomPositions = [
+                [0, 0, -DIMENSIONS.width / 2],
+                [0, 0, DIMENSIONS.width / 2]
+            ];
+            bottomPositions.forEach(pos => {
+                const frame = new THREE.Mesh(bottomHorizontalGeometry, material);
+                frame.position.set(...pos);
+                frame.castShadow = true;
+                group.add(frame);
+            });
+
+            // Traverses latérales (côtés)
+            const sideHorizontalGeometry = new THREE.BoxGeometry(0.2, DIMENSIONS.height, 0.2);
+            const sidePositions = [
+                [-DIMENSIONS.length / 2, DIMENSIONS.height / 2, 0],
+                [DIMENSIONS.length / 2, DIMENSIONS.height / 2, 0]
+            ];
+            sidePositions.forEach(pos => {
+                const frame = new THREE.Mesh(sideHorizontalGeometry, material);
+                frame.position.set(...pos);
+                frame.castShadow = true;
+                group.add(frame);
+            });
+        }
+
+        function createInclinedBluePanels(group) {
+            // 10 panneaux bleus inclinés vers l'intérieur (sur les côtés)
+            const panelCount = 10;
+            const panelWidth = 1.0;
+            const panelHeight = 2.4;
+            const panelDepth = 0.05;
+            const inclination = 18 * Math.PI / 180; // ~18 degrés
+            const spacing = DIMENSIONS.length / (panelCount + 1);
+
+            const bluePanelMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.bluePanels,
+                roughness: 0.5,
+                metalness: 0.5
+            });
+
+            for (let i = 0; i < panelCount; i++) {
+                const x = -DIMENSIONS.length / 2 + (i + 1) * spacing;
+                
+                // Panneau incliné
+                const panelGeometry = new THREE.BoxGeometry(panelWidth, panelHeight, panelDepth);
+                const panel = new THREE.Mesh(panelGeometry, bluePanelMaterial);
+                panel.rotation.z = inclination;
+                panel.position.set(x, DIMENSIONS.height / 2, 0);
+                panel.castShadow = true;
+                group.add(panel);
+
+                // Support structurel (noir)
+                const supportGeometry = new THREE.BoxGeometry(0.1, 2.4, 0.1);
+                const supportMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x4a4a4a,
+                    roughness: 0.4,
+                    metalness: 0.7
+                });
+                const support = new THREE.Mesh(supportGeometry, supportMaterial);
+                support.position.set(x, DIMENSIONS.height / 2, 0);
+                group.add(support);
+            }
+        }
+
+        function createVRadiatorOnTop(group) {
+            // Radiateur en V sur la LARGEUR (width), visible en transparence
+            // Part du centre du dessus du container (y = DIMENSIONS.height) et monte
+            const radiatorMaterial = new THREE.MeshStandardMaterial({
+                color: 0x909090, // Gris pour le radiateur
+                roughness: 0.4,
+                metalness: 0.6,
+                transparent: true,
+                opacity: 0.8 // Légèrement transparent pour voir à travers
+            });
+
+            // Radiateur en V sur la LARGEUR (2.438m)
+            const vAngle = 30 * Math.PI / 180; // 30 degrés
+            const radiatorWidth = DIMENSIONS.width; // 2.438m (largeur du container)
+            const radiatorHeight = 2.0; // Hauteur du radiateur (monte depuis le centre)
+            const radiatorDepth = 0.15; // Épaisseur
+
+            // Le radiateur part du centre du dessus (y = DIMENSIONS.height) et monte
+            const baseY = DIMENSIONS.height; // Centre du dessus du container
+
+            // Plan gauche du V (incliné vers la gauche, rotation sur Z)
+            const leftPlaneGeometry = new THREE.BoxGeometry(radiatorWidth, radiatorHeight, radiatorDepth);
+            const leftPlane = new THREE.Mesh(leftPlaneGeometry, radiatorMaterial);
+            leftPlane.rotation.z = vAngle; // Rotation sur Z pour créer le V
+            leftPlane.position.set(0, baseY + radiatorHeight / 2 * Math.sin(vAngle), 0);
+            leftPlane.castShadow = true;
+            group.add(leftPlane);
+
+            // Plan droit du V (incliné vers la droite, rotation inverse sur Z)
+            const rightPlane = new THREE.Mesh(leftPlaneGeometry, radiatorMaterial);
+            rightPlane.rotation.z = -vAngle; // Rotation inverse
+            rightPlane.position.set(0, baseY + radiatorHeight / 2 * Math.sin(vAngle), 0);
+            rightPlane.castShadow = true;
+            group.add(rightPlane);
+
+            // Base du radiateur V (au centre du dessus, point de départ)
+            const baseGeometry = new THREE.BoxGeometry(radiatorWidth, 0.1, radiatorDepth);
+            const base = new THREE.Mesh(baseGeometry, radiatorMaterial);
+            base.position.set(0, baseY, 0);
+            base.castShadow = true;
+            group.add(base);
+
+            // Ailettes du radiateur (sur la largeur, espacées)
+            for (let i = 0; i < 12; i++) {
+                const finGeometry = new THREE.BoxGeometry(0.03, radiatorHeight, radiatorDepth);
+                const fin = new THREE.Mesh(finGeometry, radiatorMaterial);
+                const z = -radiatorWidth / 2 + 0.1 + i * (radiatorWidth / 11);
+                fin.position.set(0, baseY + radiatorHeight / 2 * Math.sin(vAngle), z);
+                group.add(fin);
+            }
+        }
+
+        function createTopGrilles(group) {
+            // ~25 grilles noires rectangulaires sur le dessus du dry cooler
+            const grilleCountX = 5;
+            const grilleCountZ = 5;
+            const grilleWidth = 2.2;
+            const grilleHeight = 0.05;
+            const grilleDepth = 0.4;
+            const spacingX = DIMENSIONS.length / (grilleCountX + 1);
+            const spacingZ = DIMENSIONS.width / (grilleCountZ + 1);
+            const topY = DIMENSIONS.height + 0.025; // Au-dessus du dry cooler
+
+            const grilleMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.blackGrilles,
+                roughness: 0.6,
+                metalness: 0.3
+            });
+
+            for (let i = 0; i < grilleCountX; i++) {
+                for (let j = 0; j < grilleCountZ; j++) {
+                    const x = FLANCS.OUEST + (i + 1) * spacingX; // Position le long de X (Est/Ouest)
+                    const z = FLANCS.SUD + (j + 1) * spacingZ;  // Position le long de Z (Nord/Sud)
+                    
+                    const grilleGeometry = new THREE.BoxGeometry(grilleWidth, grilleHeight, grilleDepth);
+                    const grille = new THREE.Mesh(grilleGeometry, grilleMaterial);
+                    grille.position.set(x, topY, z);
+                    grille.castShadow = true;
+                    group.add(grille);
+
+                    // Détails de la grille (lignes)
+                    for (let k = 0; k < 8; k++) {
+                        const lineGeometry = new THREE.BoxGeometry(grilleWidth, 0.01, 0.01);
+                        const line = new THREE.Mesh(lineGeometry, grilleMaterial);
+                        line.position.set(x, topY, z - grilleDepth / 2 + k * (grilleDepth / 7));
+                        group.add(line);
+                    }
+                }
+            }
+        }
+
+        function createHearstLogo(group, x, y, z, rotationY = 0) {
+            // Logo Hearst vert avec émission lumineuse - Version agrandie pour flancs
+            // Le logo est placé sur les flancs longs (côtés de 12.196m)
+            const logoGeometry = new THREE.PlaneGeometry(3.0, 1.5); // Agrandi pour être visible sur le flanc
+            const logoMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.hearstGreen,
+                roughness: 0.3,
+                metalness: 0.7,
+                emissive: COLORS.hearstGreen,
+                emissiveIntensity: 0.25
+            });
+            const logo = new THREE.Mesh(logoGeometry, logoMaterial);
+            logo.position.set(x, y, z);
+            // Rotation pour mettre le logo vertical sur le flanc (perpendiculaire à Z)
+            // rotation.x = -Math.PI/2 pour le mettre vertical
+            // rotation.y pour l'orienter vers l'extérieur selon le flanc
+            logo.rotation.x = -Math.PI / 2; // Vertical
+            logo.rotation.y = rotationY; // Orientation vers l'extérieur
+            group.add(logo);
+
+            // Texte "HEARST" (simplifié avec géométrie) - Agrandi aussi
+            const textGeometry = new THREE.PlaneGeometry(2.5, 0.4);
+            const textMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.hearstGreen,
+                emissive: COLORS.hearstGreen,
+                emissiveIntensity: 0.2
+            });
+            const text = new THREE.Mesh(textGeometry, textMaterial);
+            text.position.set(x, y - 0.8, z);
+            text.rotation.x = -Math.PI / 2; // Vertical
+            text.rotation.y = rotationY; // Orientation vers l'extérieur
+            group.add(text);
+        }
+
+        function createConnectionPipes() {
+            // Tuyaux de connexion entre le container et le dry cooler
+            // Positionnés sur les flancs Nord et Sud
+            const pipeMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.silverPipes,
+                roughness: 0.2,
+                metalness: 0.9
+            });
+
+            // Tuyaux verticaux de connexion
+            const connectionCount = 6;
+            const spacing = DIMENSIONS.length / (connectionCount + 1);
+            const pipeRadius = 0.08;
+            const pipeHeight = DIMENSIONS.height;
+            const topY = CONTAINER_CENTER.y + DIMENSIONS.height / 2; // Haut du container
+
+            for (let i = 0; i < connectionCount; i++) {
+                const x = FLANCS.OUEST + (i + 1) * spacing; // Position le long de X (Est/Ouest)
+                
+                // Tuyau vertical sur le flanc SUD
+                const pipeSouth = new THREE.Mesh(
+                    new THREE.CylinderGeometry(pipeRadius, pipeRadius, pipeHeight, 16),
+                    pipeMaterial
+                );
+                pipeSouth.rotation.z = Math.PI / 2; // Rotation pour être vertical
+                pipeSouth.position.set(x, topY, FLANCS.SUD + 0.3);
+                pipeSouth.castShadow = true;
+                containerGroup.add(pipeSouth);
+
+                // Tuyau vertical sur le flanc NORD
+                const pipeNorth = new THREE.Mesh(
+                    new THREE.CylinderGeometry(pipeRadius, pipeRadius, pipeHeight, 16),
+                    pipeMaterial
+                );
+                pipeNorth.rotation.z = Math.PI / 2; // Rotation pour être vertical
+                pipeNorth.position.set(x, topY, FLANCS.NORD - 0.3);
+                pipeNorth.castShadow = true;
+                containerGroup.add(pipeNorth);
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function resetCamera() {
+            camera.position.set(15, 10, 15);
+            camera.lookAt(0, 3, 0);
+        }
+
+        function toggleGrid() {
+            gridHelper.visible = !gridHelper.visible;
+        }
+
+        function toggleWireframe() {
+            wireframeMode = !wireframeMode;
+            scene.traverse((object) => {
+                if (object.isMesh && object.material) {
+                    object.material.wireframe = wireframeMode;
+                }
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
+

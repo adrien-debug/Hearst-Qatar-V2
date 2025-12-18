@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitmain ANTSPACE HD5 Hydro - Modèle Réaliste</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .ui-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 107, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 320px;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .ui-panel h2 {
+            color: #FF6B00;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .ui-panel .subtitle {
+            color: #00A651;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-group h3 {
+            color: #FF6B00;
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 11px;
+        }
+
+        .spec-label {
+            color: #888;
+        }
+
+        .spec-value {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #FF6B00;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 6px;
+        }
+
+        button:hover {
+            background: #E55A00;
+        }
+
+        button.secondary {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .stats {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(255, 107, 0, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            min-width: 320px;
+        }
+
+        .stats h3 {
+            color: #FF6B00;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 11px;
+        }
+
+        .note {
+            background: rgba(0, 166, 81, 0.1);
+            border: 1px solid #00A651;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 11px;
+            color: #00A651;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <div class="ui-panel">
+        <h2>⚡ Bitmain ANTSPACE HD5</h2>
+        <div class="subtitle">Modèle Réaliste - Basé sur Photo</div>
+        
+        <div class="control-group">
+            <h3>Actions</h3>
+            <button onclick="resetCamera()">🎯 Réinitialiser</button>
+            <button onclick="toggleGrid()" class="secondary">📐 Grille</button>
+            <button onclick="toggleWireframe()" class="secondary">🔲 Wireframe</button>
+        </div>
+
+        <div class="control-group">
+            <h3>Dimensions 40' HC</h3>
+            <div class="spec-item">
+                <span class="spec-label">Longueur</span>
+                <span class="spec-value">12.196 m</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Largeur</span>
+                <span class="spec-value">2.438 m</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Hauteur</span>
+                <span class="spec-value">2.896 m</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>Caractéristiques</h3>
+            <div class="spec-item">
+                <span class="spec-label">Mineurs</span>
+                <span class="spec-value">308 unités</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Puissance</span>
+                <span class="spec-value">~1.5 MW</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Refroidissement</span>
+                <span class="spec-value">Hydraulique</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Poids</span>
+                <span class="spec-value">~40 tonnes</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>Apparence Réaliste</h3>
+            <div class="spec-item">
+                <span class="spec-label">✅ Container blanc/gris clair</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">✅ Panneaux ventilation avant</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">✅ Grilles modulaires</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">✅ Design industriel propre</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">✅ Logo Bitmain orange</span>
+            </div>
+        </div>
+
+        <div class="note">
+            💡 Modèle basé sur l'image réelle du Bitmain ANTSPACE HD5 Hydro
+        </div>
+    </div>
+
+    <div class="stats">
+        <h3>📊 Statistiques</h3>
+        <div class="stat-item">
+            <span class="stat-label">Polygones</span>
+            <span class="stat-value" id="polycount">~12000</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">FPS</span>
+            <span class="stat-value" id="fps">60</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Basé sur</span>
+            <span class="stat-value">Photo réelle</span>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Couleurs RÉALISTES basées sur la photo
+        const COLORS = {
+            // Container principal - BLANC/GRIS CLAIR (pas anthracite!)
+            containerBody: 0xE8E8E8,      // Gris très clair / blanc cassé
+            containerFrame: 0xC0C0C0,     // Gris moyen pour la structure
+            
+            // Panneaux de ventilation
+            ventPanels: 0xD0D0D0,         // Gris clair
+            ventGrilles: 0x404040,        // Gris foncé pour les grilles
+            
+            // Dalle
+            concrete: 0xB0B0B0,           // Gris béton
+            
+            // Équipements
+            equipmentBox: 0x909090,       // Gris moyen
+            pipes: 0x4A90E2,              // Bleu tuyauterie
+            
+            // Logos
+            bitmainOrange: 0xFF6B00,      // Orange Bitmain
+            hearstGreen: 0x00A651,        // Vert Hearst
+            
+            // Environnement
+            ground: 0x8B7355
+        };
+
+        let scene, camera, renderer, gridHelper;
+        let containerGroup;
+        let wireframeMode = false;
+        let lastTime = Date.now();
+        let frameCount = 0;
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a1a1a);
+            scene.fog = new THREE.Fog(0x1a1a1a, 50, 150);
+
+            camera = new THREE.PerspectiveCamera(
+                50,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            camera.position.set(25, 15, 25);
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            setupControls();
+            setupLights();
+            createGround();
+            createGrid();
+            createRealisticHD5();
+
+            window.addEventListener('resize', onWindowResize);
+            animate();
+        }
+
+        function setupControls() {
+            let isDragging = false;
+            let previousMousePosition = { x: 0, y: 0 };
+            let rotation = { x: 0.3, y: 0.5 };
+            let zoom = 30;
+
+            renderer.domElement.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            renderer.domElement.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+                rotation.y += deltaX * 0.005;
+                rotation.x += deltaY * 0.005;
+                rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, rotation.x));
+                updateCameraPosition();
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            renderer.domElement.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            renderer.domElement.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                zoom += e.deltaY * 0.02;
+                zoom = Math.max(10, Math.min(80, zoom));
+                updateCameraPosition();
+            });
+
+            function updateCameraPosition() {
+                camera.position.x = zoom * Math.sin(rotation.y) * Math.cos(rotation.x);
+                camera.position.y = zoom * Math.sin(rotation.x);
+                camera.position.z = zoom * Math.cos(rotation.y) * Math.cos(rotation.x);
+                camera.lookAt(0, 1.5, 0);
+            }
+        }
+
+        function setupLights() {
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(15, 20, 15);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+
+            const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
+            fillLight.position.set(-10, 10, -10);
+            scene.add(fillLight);
+        }
+
+        function createGround() {
+            const groundGeometry = new THREE.PlaneGeometry(200, 200);
+            const groundMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.ground,
+                roughness: 0.8
+            });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+        }
+
+        function createGrid() {
+            gridHelper = new THREE.GridHelper(100, 100, 0xFF6B00, 0x333333);
+            gridHelper.position.y = 0.01;
+            scene.add(gridHelper);
+        }
+
+        function createRealisticHD5() {
+            containerGroup = new THREE.Group();
+
+            // 1. DALLE BÉTON
+            const dalleGeometry = new THREE.BoxGeometry(13.0, 0.4, 3.0);
+            const dalleMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.concrete,
+                roughness: 0.9
+            });
+            const dalle = new THREE.Mesh(dalleGeometry, dalleMaterial);
+            dalle.position.y = 0.2;
+            dalle.castShadow = true;
+            dalle.receiveShadow = true;
+            containerGroup.add(dalle);
+
+            // 2. CONTAINER PRINCIPAL - BLANC/GRIS CLAIR
+            const containerGeometry = new THREE.BoxGeometry(12.196, 2.896, 2.438);
+            const containerMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.containerBody,
+                roughness: 0.4,
+                metalness: 0.3
+            });
+            const container = new THREE.Mesh(containerGeometry, containerMaterial);
+            container.position.y = 1.848;
+            container.castShadow = true;
+            containerGroup.add(container);
+
+            // 3. CADRE MÉTALLIQUE (structure visible)
+            createContainerFrame(container);
+
+            // 4. PANNEAUX DE VENTILATION AVANT (comme sur la photo)
+            createVentilationPanels(container);
+
+            // 5. GRILLES DE VENTILATION
+            createVentilationGrilles(container);
+
+            // 6. ÉQUIPEMENTS SUR LE TOIT
+            createRoofEquipment(container);
+
+            // 7. TUYAUTERIE VISIBLE
+            createPipes(container);
+
+            // 8. LOGOS
+            createLogos(container);
+
+            scene.add(containerGroup);
+            updateStats();
+        }
+
+        function createContainerFrame(container) {
+            // Cadre métallique gris autour du container
+            const frameMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.containerFrame,
+                roughness: 0.5,
+                metalness: 0.6
+            });
+
+            // Montants verticaux
+            const verticalGeometry = new THREE.BoxGeometry(0.1, 2.896, 0.1);
+            const positions = [
+                [-6.098, 0, -1.219],
+                [-6.098, 0, 1.219],
+                [6.098, 0, -1.219],
+                [6.098, 0, 1.219]
+            ];
+
+            positions.forEach(pos => {
+                const frame = new THREE.Mesh(verticalGeometry, frameMaterial);
+                frame.position.set(...pos);
+                container.add(frame);
+            });
+
+            // Traverses horizontales
+            const horizontalGeometry = new THREE.BoxGeometry(12.196, 0.1, 0.1);
+            const hPositions = [
+                [0, 1.448, -1.219],
+                [0, 1.448, 1.219],
+                [0, -1.448, -1.219],
+                [0, -1.448, 1.219]
+            ];
+
+            hPositions.forEach(pos => {
+                const frame = new THREE.Mesh(horizontalGeometry, frameMaterial);
+                frame.position.set(...pos);
+                container.add(frame);
+            });
+        }
+
+        function createVentilationPanels(container) {
+            // Panneaux de ventilation sur la face avant (comme sur la photo)
+            const panelMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.ventPanels,
+                roughness: 0.5,
+                metalness: 0.3
+            });
+
+            // Créer une grille de panneaux
+            const panelWidth = 1.8;
+            const panelHeight = 2.6;
+            const panelDepth = 0.05;
+
+            for (let i = -2; i <= 2; i++) {
+                const panelGeometry = new THREE.BoxGeometry(panelWidth, panelHeight, panelDepth);
+                const panel = new THREE.Mesh(panelGeometry, panelMaterial);
+                panel.position.set(-6.12, 0, i * 0.5);
+                container.add(panel);
+            }
+        }
+
+        function createVentilationGrilles(container) {
+            // Grilles de ventilation (lignes horizontales)
+            const grilleMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.ventGrilles,
+                roughness: 0.6
+            });
+
+            for (let i = -2; i <= 2; i++) {
+                for (let j = -10; j <= 10; j++) {
+                    const grilleGeometry = new THREE.BoxGeometry(1.6, 0.02, 0.08);
+                    const grille = new THREE.Mesh(grilleGeometry, grilleMaterial);
+                    grille.position.set(-6.14, j * 0.12, i * 0.5);
+                    container.add(grille);
+                }
+            }
+        }
+
+        function createRoofEquipment(container) {
+            // Équipements sur le toit
+            const equipmentGeometry = new THREE.BoxGeometry(2.0, 0.6, 1.8);
+            const equipmentMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.equipmentBox,
+                roughness: 0.5,
+                metalness: 0.5
+            });
+
+            const positions = [-4, -1.5, 1.5, 4];
+            positions.forEach(x => {
+                const equipment = new THREE.Mesh(equipmentGeometry, equipmentMaterial);
+                equipment.position.set(x, 1.748, 0);
+                equipment.castShadow = true;
+                container.add(equipment);
+            });
+        }
+
+        function createPipes(container) {
+            // Tuyauterie bleue visible
+            const pipeGeometry = new THREE.CylinderGeometry(0.08, 0.08, 12.0, 16);
+            const pipeMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.pipes,
+                roughness: 0.3,
+                metalness: 0.7
+            });
+
+            const pipe1 = new THREE.Mesh(pipeGeometry, pipeMaterial);
+            pipe1.rotation.z = Math.PI / 2;
+            pipe1.position.set(0, 0.4, -1.3);
+            container.add(pipe1);
+
+            const pipe2 = new THREE.Mesh(pipeGeometry, pipeMaterial);
+            pipe2.rotation.z = Math.PI / 2;
+            pipe2.position.set(0, 0.4, 1.3);
+            container.add(pipe2);
+        }
+
+        function createLogos(container) {
+            // Logo Bitmain (orange)
+            const logoGeometry = new THREE.PlaneGeometry(1.5, 0.6);
+            const bitmainMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.bitmainOrange,
+                roughness: 0.3,
+                metalness: 0.7,
+                emissive: COLORS.bitmainOrange,
+                emissiveIntensity: 0.3
+            });
+            const bitmainLogo = new THREE.Mesh(logoGeometry, bitmainMaterial);
+            bitmainLogo.position.set(-6.15, 0.8, 0);
+            bitmainLogo.rotation.y = Math.PI / 2;
+            container.add(bitmainLogo);
+
+            // Logo Hearst (vert)
+            const hearstMaterial = new THREE.MeshStandardMaterial({
+                color: COLORS.hearstGreen,
+                roughness: 0.3,
+                metalness: 0.7,
+                emissive: COLORS.hearstGreen,
+                emissiveIntensity: 0.3
+            });
+            const hearstLogo = new THREE.Mesh(logoGeometry, hearstMaterial);
+            hearstLogo.position.set(-6.15, -0.3, 0);
+            hearstLogo.rotation.y = Math.PI / 2;
+            container.add(hearstLogo);
+        }
+
+        function updateStats() {
+            let totalPolygons = 0;
+            scene.traverse((object) => {
+                if (object.isMesh) {
+                    totalPolygons += object.geometry.index ? object.geometry.index.count / 3 : object.geometry.attributes.position.count / 3;
+                }
+            });
+            document.getElementById('polycount').textContent = Math.round(totalPolygons);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            frameCount++;
+            const currentTime = Date.now();
+            if (currentTime - lastTime >= 1000) {
+                document.getElementById('fps').textContent = frameCount;
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function resetCamera() {
+            camera.position.set(25, 15, 25);
+            camera.lookAt(0, 1.5, 0);
+        }
+
+        function toggleGrid() {
+            gridHelper.visible = !gridHelper.visible;
+        }
+
+        function toggleWireframe() {
+            wireframeMode = !wireframeMode;
+            scene.traverse((object) => {
+                if (object.isMesh && object.material) {
+                    object.material.wireframe = wireframeMode;
+                }
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+

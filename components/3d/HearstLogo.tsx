@@ -1,0 +1,86 @@
+import { useMemo, useState, useEffect } from 'react';
+import { PlaneGeometry } from 'three';
+import * as THREE from 'three';
+import { texturePreloader } from '../../utils/texturePreloader';
+
+interface HearstLogoProps {
+  position: [number, number, number];
+  rotation: [number, number, number];
+  width?: number;
+}
+
+/**
+ * Composant logo HEARST avec texture préchargée depuis le cache global
+ * Utilise texturePreloader pour éviter de charger la même texture 48 fois
+ */
+export default function HearstLogo({
+  position,
+  rotation,
+  width = 1.8,
+}: HearstLogoProps) {
+  const [hearstLogo, setHearstLogo] = useState<THREE.Texture | null>(null);
+  
+  // Charger la texture depuis le cache global
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Essayer d'obtenir depuis le cache
+    const cachedTexture = texturePreloader.getTexture('/HEARST_LOGO.png');
+    
+    if (cachedTexture) {
+      // Texture déjà en cache
+      setHearstLogo(cachedTexture);
+    } else {
+      // Charger la texture (sera mis en cache automatiquement)
+      texturePreloader.loadTexture('/HEARST_LOGO.png').then(texture => {
+        setHearstLogo(texture);
+      }).catch(error => {
+        console.error('❌ Erreur de chargement du logo HEARST:', error);
+      });
+    }
+  }, []);
+
+  // Configurer la texture une seule fois quand elle arrive
+  useEffect(() => {
+    if (!hearstLogo) return;
+    hearstLogo.flipY = false;
+    hearstLogo.needsUpdate = true;
+  }, [hearstLogo]);
+  
+  const logoHeight = useMemo(() => {
+    if (hearstLogo && hearstLogo.image) {
+      const img = hearstLogo.image as HTMLImageElement | HTMLCanvasElement;
+      if (img && typeof img.width === 'number' && typeof img.height === 'number' && img.width > 0) {
+        return (width * img.height) / img.width;
+      }
+    }
+    return width * 0.25; // Ratio par défaut
+  }, [hearstLogo, width]);
+  
+  const logoGeometry = useMemo(() => new PlaneGeometry(width, logoHeight), [width, logoHeight]);
+
+  // Si la texture n'est pas encore chargée, ne rien rendre
+  if (!hearstLogo) {
+    return null;
+  }
+
+  return (
+    <mesh
+      position={position}
+      rotation={rotation}
+      geometry={logoGeometry}
+      renderOrder={999}
+    >
+      <meshBasicMaterial
+        map={hearstLogo}
+        transparent={true}
+        opacity={1}
+        side={THREE.DoubleSide}
+        depthWrite={true}
+        depthTest={true}
+        toneMapped={false}
+      />
+    </mesh>
+  );
+}
+

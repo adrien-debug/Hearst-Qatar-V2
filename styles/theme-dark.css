@@ -1,0 +1,180 @@
+/**
+ * Thème Sombre Hearst Qatar
+ * Couleurs cohérentes pour toutes les pages
+ */
+
+:root {
+  /* Couleurs Hearst */
+  --hearst-green: #8AFD81;
+  --hearst-green-hover: #7AED71;
+  --hearst-green-light: #9FFDA1;
+  
+  /* Backgrounds */
+  --bg-dark-primary: #0a0b0d;
+  --bg-dark-secondary: #1a1b1d;
+  --bg-slate-900: #0f172a;
+  --bg-slate-800: #1e293b;
+  
+  /* Texte */
+  --text-white: #ffffff;
+  --text-white-60: rgba(255, 255, 255, 0.6);
+  --text-white-40: rgba(255, 255, 255, 0.4);
+  --text-slate-400: #94a3b8;
+  
+  /* Bordures */
+  --border-white-20: rgba(255, 255, 255, 0.2);
+  --border-white-10: rgba(255, 255, 255, 0.1);
+  --border-green: rgba(138, 253, 129, 0.3);
+  
+  /* Effets */
+  --shadow-green: rgba(138, 253, 129, 0.3);
+  --glow-green: rgba(138, 253, 129, 0.05);
+}
+
+/* Background gradient global */
+.hearst-bg-dark {
+  background: linear-gradient(135deg, var(--bg-slate-900) 0%, var(--bg-slate-800) 50%, var(--bg-slate-900) 100%);
+}
+
+/* Cards avec effet glassmorphism */
+.hearst-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.hearst-card:hover {
+  border-color: var(--hearst-green);
+  box-shadow: 0 0 40px var(--shadow-green);
+  transform: translateY(-2px);
+}
+
+/* Boutons primaires */
+.hearst-btn-primary {
+  background: var(--hearst-green);
+  color: var(--bg-dark-primary);
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 10px 25px var(--shadow-green);
+}
+
+.hearst-btn-primary:hover {
+  background: var(--hearst-green-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 15px 35px var(--shadow-green);
+}
+
+/* Boutons secondaires */
+.hearst-btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.hearst-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Inputs */
+.hearst-input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.hearst-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.hearst-input:focus {
+  outline: none;
+  border-color: var(--hearst-green);
+  box-shadow: 0 0 0 3px var(--glow-green);
+}
+
+/* Texte */
+.hearst-text-primary {
+  color: var(--text-white);
+}
+
+.hearst-text-secondary {
+  color: var(--text-white-60);
+}
+
+.hearst-text-muted {
+  color: var(--text-white-40);
+}
+
+.hearst-text-accent {
+  color: var(--hearst-green);
+}
+
+/* Grid pattern background */
+.hearst-grid-pattern {
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+');
+  opacity: 0.2;
+}
+
+/* Glow effect */
+.hearst-glow {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 800px;
+  background: var(--glow-green);
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+}
+
+/* Animations */
+@keyframes hearst-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.hearst-pulse {
+  animation: hearst-pulse 2s ease-in-out infinite;
+}
+
+@keyframes hearst-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.hearst-spin {
+  animation: hearst-spin 1s linear infinite;
+}
+
+/* Loader */
+.hearst-loader {
+  border: 4px solid rgba(138, 253, 129, 0.3);
+  border-top-color: var(--hearst-green);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  animation: hearst-spin 1s linear infinite;
+}
+

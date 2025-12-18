@@ -1,0 +1,1210 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Decision Board – Transformateurs 100 MW</title>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #38bdf8;
+      --accent2: #22c55e;
+      --text: #e5e7eb;
+      --text-soft: #9ca3af;
+      --danger: #f97373;
+      --border: rgba(148, 163, 184, 0.45);
+      --radius-xl: 22px;
+      --radius-pill: 999px;
+      --shadow-soft: 0 24px 60px rgba(15, 23, 42, 0.9);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1d263b 0, #020617 55%);
+      color: var(--text);
+      padding: 32px 12px 48px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    /* HERO */
+    .hero {
+      border-radius: 28px;
+      padding: 22px 22px 18px;
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.23), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.18), transparent 55%),
+        linear-gradient(135deg, #020617, #020617);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.1fr);
+      gap: 18px;
+      align-items: center;
+    }
+
+    @media (max-width: 880px) {
+      .hero-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      body {
+        padding: 18px 10px 38px;
+      }
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 11px 4px 4px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(10px);
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .hero-tag-badge {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle, #22c55e 0, #15803d 65%);
+      box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9);
+      font-size: 14px;
+    }
+
+    h1 {
+      font-size: clamp(25px, 3vw, 32px);
+      margin-bottom: 8px;
+    }
+
+    .hero-sub {
+      font-size: 14px;
+      color: var(--text-soft);
+      max-width: 520px;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .pill {
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      color: var(--text-soft);
+      background: rgba(15, 23, 42, 0.85);
+    }
+
+    .pill-main {
+      border-color: rgba(56, 189, 248, 0.9);
+      color: #e0f2fe;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.35), rgba(15, 23, 42, 0.96));
+    }
+
+    .hero-kpis {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 720px) {
+      .hero-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .kpi {
+      border-radius: 16px;
+      padding: 10px 11px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.8);
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 5px;
+    }
+
+    .kpi-value {
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .kpi-chip {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(56, 189, 248, 0.6);
+      background: rgba(15, 23, 42, 0.96);
+      color: #e0f2fe;
+    }
+
+    .hero-right {
+      border-radius: 20px;
+      padding: 13px 14px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.95);
+    }
+
+    .choice-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+      font-size: 11px;
+    }
+
+    .choice-pill {
+      padding: 4px 9px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.96);
+      color: var(--text-soft);
+    }
+
+    .choice-pill strong {
+      color: #e5e7eb;
+      margin-right: 3px;
+    }
+
+    .quick-box {
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px dashed rgba(148, 163, 184, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .quick-main {
+      font-size: 13px;
+    }
+
+    .quick-main span {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-soft);
+      padding: 3px 7px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.65);
+      margin-right: 7px;
+      background: rgba(15, 23, 42, 0.96);
+    }
+
+    .quick-main strong {
+      color: var(--accent);
+    }
+
+    .quick-note {
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .cta-row {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 7px 14px;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(135deg, #0ea5e9, #22c55e);
+      color: #020617;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 12px 28px rgba(34, 197, 94, 0.5);
+      cursor: pointer;
+    }
+
+    .btn span.icon {
+      font-size: 16px;
+    }
+
+    .cta-hint {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    /* NAV */
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .nav a {
+      font-size: 12px;
+      text-decoration: none;
+      color: var(--text-soft);
+      padding: 5px 11px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .nav a:hover {
+      border-color: var(--accent);
+      color: #e0f2fe;
+    }
+
+    /* SECTIONS */
+    .section {
+      margin-top: 22px;
+      border-radius: 26px;
+      padding: 18px 18px 16px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(31, 41, 55, 0.95);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 720px) {
+      .section-head {
+        flex-direction: column;
+      }
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 17px;
+    }
+
+    .section-title span.icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.3), rgba(15, 23, 42, 1));
+      border: 1px solid rgba(56, 189, 248, 0.7);
+      font-size: 15px;
+    }
+
+    .section-sub {
+      font-size: 13px;
+      color: var(--text-soft);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .legend span {
+      padding: 3px 7px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.95);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+    }
+
+    .dot-green { background: #22c55e; }
+    .dot-amber { background: #eab308; }
+    .dot-red { background: #f97373; }
+
+    /* OPTION CARDS */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .options-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .options-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      border-radius: 20px;
+      padding: 13px 13px 10px;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), rgba(15, 23, 42, 0.98));
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card.reco {
+      border-color: rgba(56, 189, 248, 1);
+      box-shadow: 0 15px 38px rgba(56, 189, 248, 0.47);
+    }
+
+    .badge {
+      position: absolute;
+      top: 9px;
+      right: 9px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      padding: 3px 8px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(56, 189, 248, 0.8);
+      background: rgba(15, 23, 42, 0.98);
+      color: #e0f2fe;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .card-sub {
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .chip {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--text-soft);
+    }
+
+    .chip strong { color: #e5e7eb; }
+
+    .chip.good {
+      border-color: rgba(34, 197, 94, 0.9);
+      color: #bbf7d0;
+    }
+
+    .chip.risk {
+      border-color: rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+    }
+
+    .bar {
+      margin-top: 5px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(31, 41, 55, 0.95);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #eab308);
+      width: 70%;
+    }
+
+    .bar-fill-mid { width: 55%; }
+    .bar-fill-low { width: 38%; }
+
+    .card-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+      gap: 6px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    @media (max-width: 720px) {
+      .card-body {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .list {
+      list-style: none;
+    }
+
+    .list li {
+      margin-bottom: 3px;
+    }
+
+    .list li::before {
+      content: "•";
+      margin-right: 6px;
+      color: var(--accent);
+    }
+
+    .comment {
+      margin-top: 6px;
+      font-size: 12px;
+      padding: 7px 9px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px dashed rgba(148, 163, 184, 0.85);
+      color: #e5e7eb;
+    }
+
+    .comment span {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-soft);
+      margin-right: 6px;
+    }
+
+    /* TABLE */
+    .table-wrap {
+      margin-top: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(31, 41, 55, 0.95);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      background: rgba(15, 23, 42, 0.98);
+    }
+
+    th, td {
+      padding: 7px 9px;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.95);
+      vertical-align: top;
+    }
+
+    thead th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-soft);
+      background: rgba(15, 23, 42, 0.98);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tbody tr:nth-child(odd) td {
+      background: rgba(15, 23, 42, 0.98);
+    }
+
+    tbody tr:nth-child(even) td {
+      background: rgba(15, 23, 42, 0.94);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 7px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--text-soft);
+      margin-bottom: 4px;
+    }
+
+    .tag-best {
+      border-color: rgba(34, 197, 94, 0.9);
+      color: #bbf7d0;
+    }
+
+    .tag-cheap {
+      border-color: rgba(234, 179, 8, 0.9);
+      color: #facc15;
+    }
+
+    .tag-risk {
+      border-color: rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+    }
+
+    .price {
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .price span {
+      display: block;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-soft);
+    }
+
+    /* BRANDS */
+    .vendors-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr);
+      gap: 14px;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 880px) {
+      .vendors-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .vendors-card {
+      border-radius: 18px;
+      padding: 12px 13px 10px;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), rgba(15, 23, 42, 0.98));
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .vendors-title {
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      color: #e5e7eb;
+    }
+
+    .vendors-title span.icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      font-size: 13px;
+    }
+
+    .vendor-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0;
+    }
+
+    .vendor-tag {
+      font-size: 12px;
+      padding: 4px 9px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      background: rgba(15, 23, 42, 0.98);
+    }
+
+    .vendor-tag a {
+      color: #e5e7eb;
+      text-decoration: none;
+    }
+
+    .vendor-tag a:hover {
+      text-decoration: underline;
+      color: #e0f2fe;
+    }
+
+    .note-card {
+      margin-top: 10px;
+      border-radius: 16px;
+      padding: 9px 10px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px dashed rgba(148, 163, 184, 0.9);
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .note-card ul {
+      list-style: none;
+      margin-top: 5px;
+    }
+
+    .note-card li {
+      margin-bottom: 3px;
+    }
+
+    .note-card li::before {
+      content: "↳";
+      margin-right: 5px;
+      color: var(--accent);
+    }
+
+    footer {
+      margin-top: 18px;
+      font-size: 11px;
+      color: var(--text-soft);
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="hero-tag">
+            <div class="hero-tag-badge">⚡</div>
+            <span>Ferme 100&nbsp;MW · Décision transfo HT/MT</span>
+          </div>
+          <h1>Transformateurs pour 4 blocs × 25&nbsp;MW – Vue décisionnelle instantanée</h1>
+          <p class="hero-sub">
+            Objectif&nbsp;: choisir <strong>maintenant</strong> l’architecture de transformateurs HT/MT idéale pour 100&nbsp;MW
+            de mining, raccordé au grid, en voyant en 1 seconde&nbsp;: <strong>quoi, comment, marques, prix, +/–, commentaire</strong>.
+          </p>
+          <div class="hero-badges">
+            <span class="pill pill-main">Recommandé&nbsp;: 2 × 50&nbsp;MVA&nbsp;132/33&nbsp;kV</span>
+            <span class="pill">Alternatives&nbsp;: 1 × 100&nbsp;MVA · 3 × 40&nbsp;MVA</span>
+            <span class="pill">4 blocs de charge × 25&nbsp;MW</span>
+          </div>
+          <div class="hero-kpis">
+            <div class="kpi">
+              <div class="kpi-label">Décision rapide</div>
+              <div class="kpi-value">
+                Option B
+                <span class="kpi-chip">2 × 50&nbsp;MVA</span>
+              </div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Budget transfo HT/MT</div>
+              <div class="kpi-value">
+                2–5&nbsp;M&nbsp;USD
+                <span class="kpi-chip">ordre de grandeur</span>
+              </div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Délai typique OEM</div>
+              <div class="kpi-value">
+                18–30&nbsp;mois
+                <span class="kpi-chip">gros transfo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-right">
+          <div class="choice-row">
+            <div class="choice-pill"><strong>A</strong> 1 × 100&nbsp;MVA&nbsp;132/33&nbsp;kV – le plus simple, le moins cher, mais 1 seul point de panne</div>
+            <div class="choice-pill"><strong>B</strong> 2 × 50&nbsp;MVA&nbsp;132/33&nbsp;kV – équilibre coût / risque (reco)</div>
+            <div class="choice-pill"><strong>C</strong> 3 × 40&nbsp;MVA&nbsp;132/33&nbsp;kV – ultra modulaire, plus d’équipements</div>
+          </div>
+          <div class="quick-box">
+            <div class="quick-main">
+              <span>Choix instantané</span>
+              Prends <strong>Option B – 2 × 50&nbsp;MVA&nbsp;132/33&nbsp;kV</strong> si tu veux le meilleur compromis
+              <strong>prix / sécurité / standard marché</strong> pour 100&nbsp;MW de mining.
+            </div>
+            <div class="quick-note">
+              Option A&nbsp;: CAPEX un peu plus bas, mais si le transfo tombe tu perds tout le site.<br />
+              Option C&nbsp;: très bien pour une plateforme multi-clients ou >100&nbsp;MW, sinon surdimensionné en complexité.
+            </div>
+          </div>
+          <div class="cta-row">
+            <a href="#comparatif" class="btn">
+              <span class="icon">👇</span>
+              Voir le comparatif marques / prix / + / –
+            </a>
+            <div class="cta-hint">
+              Tu peux sauvegarder ce fichier en .html et l’envoyer directement à tes EPC / fournisseurs pour RFQ.
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="nav">
+      <a href="#options">1. Architectures HT/MT</a>
+      <a href="#comparatif">2. Tableau comparatif</a>
+      <a href="#marques">3. Marques & fournisseurs</a>
+      <a href="#notes">4. Mes commentaires</a>
+    </nav>
+
+    <!-- ARCHITECTURES -->
+    <section id="options" class="section">
+      <div class="section-head">
+        <div>
+          <div class="section-title">
+            <span class="icon">☰</span>
+            <span>1. Architectures HT/MT pour 100&nbsp;MW</span>
+          </div>
+          <p class="section-sub">
+            Les 3 scénarios partent sur 4 blocs de consommation × 25&nbsp;MW côté ferme. La différence se joue au niveau des
+            transformateurs 132/33&nbsp;kV (ou tension HT réelle du grid).
+          </p>
+        </div>
+        <div class="legend">
+          <span><span class="dot dot-green"></span> Sécurité / redondance</span>
+          <span><span class="dot dot-amber"></span> Coût moyen</span>
+          <span><span class="dot dot-red"></span> Risque plus élevé</span>
+        </div>
+      </div>
+
+      <div class="options-grid">
+        <!-- A -->
+        <article class="card">
+          <h2 class="card-title">Option A – 1 × 100&nbsp;MVA&nbsp;132/33&nbsp;kV</h2>
+          <p class="card-sub">
+            Un seul gros transfo qui alimente les 4 blocs&nbsp;: simple, souvent un peu moins cher en hardware, mais un seul
+            point de défaillance pour 100&nbsp;MW.
+          </p>
+          <div class="chips">
+            <span class="chip"><strong>Architecture&nbsp;:</strong> 1 × 100&nbsp;MVA 132/33&nbsp;kV · 4 départs 33&nbsp;kV</span>
+            <span class="chip"><strong>Prix transfo&nbsp;:</strong> ~2,5–4,5&nbsp;M&nbsp;USD</span>
+            <span class="chip risk"><strong>Risque&nbsp;:</strong> élevé (panne = 0&nbsp;MW)</span>
+          </div>
+          <div class="bar">
+            <div class="bar-fill-low"></div>
+          </div>
+          <div class="card-body">
+            <ul class="list">
+              <li>Un transfo de puissance 100&nbsp;MVA 132/33&nbsp;kV ONAN/ONAF avec OLTC.</li>
+              <li>Jeu de barres 33&nbsp;kV avec 4 feeders vers 4 sous-fermes (25&nbsp;MW chacune).</li>
+              <li>Moins de protections à gérer, schéma électrique plus simple.</li>
+              <li>Capex transfo légèrement plus bas qu’une solution redondante.</li>
+            </ul>
+            <ul class="list">
+              <li><strong>Panne transfo = arrêt total</strong> de la ferme.</li>
+              <li>Maintenance plus sensible (fenêtres d’arrêt critiques).</li>
+              <li>Si le délai OEM est de 24&nbsp;mois pour un remplacement, risque business important.</li>
+            </ul>
+          </div>
+          <div class="comment">
+            <span>Commentaire</span>
+            Je ne prends cette option que si tu as une autre redondance forte côté utilité (double arrivée, transfo côté utility)
+            ou si tu peux vraiment accepter la perte des 100&nbsp;MW pendant une panne lourde.
+          </div>
+        </article>
+
+        <!-- B -->
+        <article class="card reco">
+          <div class="badge">Recommandée</div>
+          <h2 class="card-title">Option B – 2 × 50&nbsp;MVA&nbsp;132/33&nbsp;kV</h2>
+          <p class="card-sub">
+            Standard data center / industrie lourde&nbsp;: deux transfos 50&nbsp;MVA partagent les 4 blocs. Très bon compromis
+            coût / redondance / délais, parfait pour 100&nbsp;MW.
+          </p>
+          <div class="chips">
+            <span class="chip good"><strong>Architecture&nbsp;:</strong> 2 × 50&nbsp;MVA 132/33&nbsp;kV · jeux de barres 33&nbsp;kV couplés</span>
+            <span class="chip"><strong>Prix transfos&nbsp;:</strong> ~1,8–4&nbsp;M&nbsp;USD (les 2)</span>
+            <span class="chip"><strong>Mode dégradé&nbsp;:</strong> tu gardes ≈50&nbsp;MW si un transfo est out</span>
+          </div>
+          <div class="bar">
+            <div class="bar-fill"></div>
+          </div>
+          <div class="card-body">
+            <ul class="list">
+              <li>Deux transfos 50&nbsp;MVA 132/33&nbsp;kV, architecture hyper standard pour Hitachi, Siemens, GE, etc.</li>
+              <li>Chaque transfo peut alimenter 2 blocs de 25&nbsp;MW, ou les 2 partagent les 4 blocs via couplage.</li>
+              <li>En cas de panne d’un transfo, tu peux maintenir une partie de la prod (50&nbsp;MW voire plus en surcharge courte).</li>
+            </ul>
+            <ul class="list">
+              <li>Capex un peu supérieur à 1 × 100&nbsp;MVA (deux cuves, deux sets d’accessoires).</li>
+              <li>Protections + logiques d’automatisme un peu plus complexes.</li>
+            </ul>
+          </div>
+          <div class="comment">
+            <span>Commentaire</span>
+            Pour une ferme 100&nbsp;MW entièrement dépendante de ce poste, c’est le <strong>sweet spot</strong>. Tu gardes une vraie
+            redondance, des ratings très courants (donc plus de compétition entre fournisseurs), et un coût global qui reste maîtrisé.
+          </div>
+        </article>
+
+        <!-- C -->
+        <article class="card">
+          <h2 class="card-title">Option C – 3 × 40&nbsp;MVA&nbsp;132/33&nbsp;kV</h2>
+          <p class="card-sub">
+            Trois transfos ≈40&nbsp;MVA se partagent les 4 blocs. Très modulaire et scalable, mais plus de matériel et d’ingénierie.
+          </p>
+          <div class="chips">
+            <span class="chip"><strong>Architecture&nbsp;:</strong> 3 × 40&nbsp;MVA 132/33&nbsp;kV · 4 blocs partagés</span>
+            <span class="chip"><strong>Prix transfos&nbsp;:</strong> ~2,1–4,5&nbsp;M&nbsp;USD (les 3)</span>
+            <span class="chip"><strong>Scalabilité&nbsp;:</strong> parfaite pour extensions future &gt;100&nbsp;MW</span>
+          </div>
+          <div class="bar">
+            <div class="bar-fill-mid"></div>
+          </div>
+          <div class="card-body">
+            <ul class="list">
+              <li>Tu peux phaser le CAPEX (installer 2 transfos au début, 1 en plus quand tu montes la puissance).</li>
+              <li>Bon fit pour une plateforme multi-clients ou pour prévoir 120–150&nbsp;MW plus tard.</li>
+              <li>Permet des scénarios de redondance avancés (N-1-1).</li>
+            </ul>
+            <ul class="list">
+              <li>Plus de cuves, plus d’accessoires, plus de protections → Capex & Opex en hausse.</li>
+              <li>Layout de sous-station plus dense, génie civil et câblage plus lourds.</li>
+            </ul>
+          </div>
+          <div class="comment">
+            <span>Commentaire</span>
+            Je la garde si tu veux une vraie plateforme « campus » qui grossit dans le temps.
+            Pour un site 100&nbsp;MW mono-projet, c’est souvent plus sophistiqué que nécessaire.
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- TABLEAU COMPARATIF -->
+    <section id="comparatif" class="section">
+      <div class="section-head">
+        <div>
+          <div class="section-title">
+            <span class="icon">📊</span>
+            <span>2. Comparatif rapide – quoi / marques / prix / + / –</span>
+          </div>
+          <p class="section-sub">
+            Ordres de grandeur 2025 pour les gros transfos de puissance HT/MT (132/33&nbsp;kV, 40–100&nbsp;MVA).
+            C’est pour comparer les options entre elles&nbsp;: toujours demander un devis OEM pour figer.
+          </p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="min-width:130px;">Option</th>
+              <th style="min-width:150px;">Quoi & comment</th>
+              <th>Marques / OEM</th>
+              <th style="min-width:140px;">Prix transfo HT/MT*</th>
+              <th>Avantages</th>
+              <th>Inconvénients</th>
+              <th>Mon avis</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="tag tag-cheap">A – CAPEX mini</div>
+                <strong>1 × 100&nbsp;MVA</strong><br />
+                132/33&nbsp;kV – ONAN/ONAF
+              </td>
+              <td>
+                <strong>1 transfo 100&nbsp;MVA 132/33&nbsp;kV</strong><br />
+                4 départs 33&nbsp;kV vers 4 blocs 25&nbsp;MW.<br />
+                MT/BT en 33/0,4&nbsp;kV près des containers.
+              </td>
+              <td>
+                <ul>
+                  <li>Hitachi&nbsp;Energy (ABB)</li>
+                  <li>Siemens&nbsp;Energy</li>
+                  <li>GE Grid Solutions</li>
+                  <li>Hyundai&nbsp;Electric, Toshiba</li>
+                  <li>Daelim, Elecbase (plus prix)</li>
+                </ul>
+              </td>
+              <td>
+                <div class="price">≈ 2,5–4,5&nbsp;M&nbsp;USD</div>
+                <span>Suivant tension exacte, cuivre/alu, instrumentation.</span>
+              </td>
+              <td>
+                <ul>
+                  <li>Schéma simple à concevoir et à exploiter.</li>
+                  <li>Moins de protections, moins de jeux de barres.</li>
+                  <li>Prix matériel souvent un peu plus bas.</li>
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  <li><strong>Single point of failure</strong> pour les 100&nbsp;MW.</li>
+                  <li>Maintenance très délicate (il faut des fenêtres d’arrêt complètes).</li>
+                  <li>Si OEM annonce 24&nbsp;mois de délai pour une nouvelle cuve → gros risque business.</li>
+                </ul>
+              </td>
+              <td>
+                <div class="tag tag-risk">Risque business fort</div>
+                À prendre uniquement si tu as déjà de la redondance côté utility ou si tu peux encaisser des arrêts longs.
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="tag tag-best">B – Équilibre</div>
+                <strong>2 × 50&nbsp;MVA</strong><br />
+                132/33&nbsp;kV – ONAN/ONAF
+              </td>
+              <td>
+                <strong>2 transfos 50&nbsp;MVA 132/33&nbsp;kV</strong><br />
+                Jeux de barres 33&nbsp;kV couplés ou séparés.<br />
+                Chaque transfo prend 2 blocs ou partage les 4.
+              </td>
+              <td>
+                <ul>
+                  <li>Hitachi&nbsp;Energy – Power Transformers</li>
+                  <li>Siemens&nbsp;Energy – 72,5–170&nbsp;kV</li>
+                  <li>GE Grid, Hyundai, Toshiba</li>
+                  <li>Daelim, Elecbase pour challenger les prix</li>
+                </ul>
+              </td>
+              <td>
+                <div class="price">≈ 1,8–4&nbsp;M&nbsp;USD</div>
+                <span>Les 2 transfos, très dépendant des options, transport, monitoring.</span>
+              </td>
+              <td>
+                <ul>
+                  <li>Tu gardes ≈50&nbsp;MW si un transfo est en panne.</li>
+                  <li>Ratings très standard → plus d’offre, parfois meilleurs délais.</li>
+                  <li>Aligné avec les pratiques data centers / industrie lourde.</li>
+                  <li>Parfait match avec découpe 4 × 25&nbsp;MW côté ferme.</li>
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  <li>Un peu plus de CAPEX que 1 × 100&nbsp;MVA.</li>
+                  <li>Protections et automatisme un peu plus complexes à régler.</li>
+                </ul>
+              </td>
+              <td>
+                <div class="tag tag-best">CHOIX CONSEILLÉ</div>
+                C’est clairement l’option que je recommande pour une ferme 100&nbsp;MW 24/7 branchée au grid.
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="tag">C – Scalabilité</div>
+                <strong>3 × 40&nbsp;MVA</strong><br />
+                132/33&nbsp;kV – ONAN/ONAF
+              </td>
+              <td>
+                <strong>3 transfos ≈40&nbsp;MVA 132/33&nbsp;kV</strong><br />
+                Partage de charge sur les 4 blocs via jeux de barres 33&nbsp;kV.<br />
+                Tu peux monter en puissance progressivement.
+              </td>
+              <td>
+                <ul>
+                  <li>Hitachi, Siemens, GE, Hyundai</li>
+                  <li>Fabricants asiatiques pour optim prix</li>
+                  <li>Intéressant si tu veux un « campus » évolutif</li>
+                </ul>
+              </td>
+              <td>
+                <div class="price">≈ 2,1–4,5&nbsp;M&nbsp;USD</div>
+                <span>Les 3 transfos, suivant options et niveaux d’équipement.</span>
+              </td>
+              <td>
+                <ul>
+                  <li>Très bonne modularité & scalabilité.</li>
+                  <li>Parfait pour préparer &gt;100&nbsp;MW à terme.</li>
+                  <li>Scénarios de redondance avancés possibles.</li>
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  <li>Plus de matériel, plus de câblage → CAPEX & Opex en hausse.</li>
+                  <li>Layout poste plus chargé, plus de génie civil.</li>
+                </ul>
+              </td>
+              <td>
+                À garder si tu as une vraie vision campus multi-sites / multi-clients. Sinon Option B reste plus simple et suffisante.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:11px;color:#9ca3af;margin-top:6px;">
+        *Prix indicatifs pour les seuls transformateurs HT/MT. À ajouter&nbsp;: tableaux HT/MT, GIS/AIS, protections, SCADA, génie civil,
+        transfos MT/BT, câbles, etc.
+      </p>
+    </section>
+
+    <!-- MARQUES -->
+    <section id="marques" class="section">
+      <div class="section-head">
+        <div>
+          <div class="section-title">
+            <span class="icon">🏷️</span>
+            <span>3. Marques & fournisseurs à contacter</span>
+          </div>
+          <p class="section-sub">
+            Tu peux envoyer <strong>ce fichier HTML</strong> avec l’option cochée (A/B/C) aux OEM pour obtenir
+            des offres fermes (power transformers 132/33&nbsp;kV + MT/BT).
+          </p>
+        </div>
+      </div>
+      <div class="vendors-grid">
+        <div class="vendors-card">
+          <div class="vendors-title">
+            <span class="icon">🌍</span>
+            <span>Tier&nbsp;1 – OEM internationaux (recommandés pour HT/MT)</span>
+          </div>
+          <p>
+            Prioritaires pour les gros transfos 132/33&nbsp;kV 40–100&nbsp;MVA. Qualité, références, support global.
+          </p>
+          <div class="vendor-tags">
+            <div class="vendor-tag">
+              <a href="https://www.hitachienergy.com/fr/fr/products-and-solutions/transformers/power-transformers" target="_blank" rel="noopener noreferrer">
+                Hitachi&nbsp;Energy – Power Transformers
+              </a>
+            </div>
+            <div class="vendor-tag">
+              <a href="https://www.siemens-energy.com/global/en/home/products-services/product-offerings/transformers.html" target="_blank" rel="noopener noreferrer">
+                Siemens&nbsp;Energy – Transformers
+              </a>
+            </div>
+            <div class="vendor-tag">
+              <a href="https://www.gegridsolutions.com" target="_blank" rel="noopener noreferrer">
+                GE Grid Solutions
+              </a>
+            </div>
+            <div class="vendor-tag">
+              <a href="https://en.hdel.co.kr" target="_blank" rel="noopener noreferrer">
+                Hyundai&nbsp;Electric
+              </a>
+            </div>
+            <div class="vendor-tag">
+              <a href="https://www.toshiba-energy.com/" target="_blank" rel="noopener noreferrer">
+                Toshiba Energy Systems
+              </a>
+            </div>
+          </div>
+          <div class="note-card">
+            <strong>Stratégie</strong>
+            <ul>
+              <li>Envoyer RFQ pour <strong>Option B – 2 × 50&nbsp;MVA 132/33&nbsp;kV</strong> en base.</li>
+              <li>Demander variantes Option A et C pour comparer prix/délais.</li>
+              <li>Exiger délai ferme ex-works + options d’expédition accélérée.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="vendors-card">
+          <div class="vendors-title">
+            <span class="icon">💰</span>
+            <span>Tier&nbsp;2 – Focus prix / flexibilité</span>
+          </div>
+          <p>
+            Intéressants pour transfos MT/BT (33/0,4&nbsp;kV) et pour challenger le prix sur les 40–50&nbsp;MVA.
+          </p>
+          <div class="vendor-tags">
+            <div class="vendor-tag">
+              <a href="https://elecbase.net" target="_blank" rel="noopener noreferrer">
+                Elecbase – Guides & fourniture
+              </a>
+            </div>
+            <div class="vendor-tag">
+              <a href="https://www.daelimtransformer.com" target="_blank" rel="noopener noreferrer">
+                Daelim Transformer
+              </a>
+            </div>
+            <div class="vendor-tag">
+              <a href="https://www.alibaba.com/showroom/132kv-transformer-price.html" target="_blank" rel="noopener noreferrer">
+                Plateformes type Alibaba (132&nbsp;kV 50–100&nbsp;MVA)
+              </a>
+            </div>
+          </div>
+          <div class="note-card">
+            <strong>Attention</strong>
+            <ul>
+              <li>Vérifier certifications IEC/IEEE, références de projets HT, garanties.</li>
+              <li>Qui assure le service / SAV local sur site (Qatar) ?</li>
+              <li>Peut offrir des délais plus courts ou du stock, utile si planning tendu.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NOTES -->
+    <section id="notes" class="section">
+      <div class="section-head">
+        <div>
+          <div class="section-title">
+            <span class="icon">📝</span>
+            <span>4. Mes commentaires pour que tu choisisses vite</span>
+          </div>
+          <p class="section-sub">
+            La question n’est pas que le prix du transfo, c’est le risque de perdre des MW pendant des mois si tu fais le mauvais choix.
+          </p>
+        </div>
+      </div>
+      <div class="note-card">
+        <strong>Concrètement, ce que je ferais à ta place&nbsp;:</strong>
+        <ul>
+          <li>Valider <strong>Option B – 2 × 50&nbsp;MVA 132/33&nbsp;kV</strong> comme base de design.</li>
+          <li>Envoyer des RFQ à 3–4 OEM Tier&nbsp;1 + 1–2 Tier&nbsp;2 avec ce HTML en pièce jointe.</li>
+          <li>Demander un lot complet&nbsp;: power transformers + MT/BT pour les 4 blocs de 25&nbsp;MW.</li>
+          <li>Exiger dans les offres&nbsp;: prix, délai ferme, pénalités en cas de retard, dispo pièces critiques.</li>
+          <li>Garder Option A comme « plan B » uniquement si un OEM te propose un 100&nbsp;MVA beaucoup plus rapide que 2 × 50&nbsp;MVA, en étant conscient du risque.</li>
+        </ul>
+        <p style="margin-top:5px;">
+          Tu peux imprimer ce tableau, faire entourer l’option par ton équipe / partenaires, et tu as ta décision claire
+          en moins de 30&nbsp;secondes.
+        </p>
+      </div>
+    </section>
+
+    <footer>
+      Fichier HTML autonome – sauvegarde-le en .html, partage-le ou imprime-le tel quel.
+    </footer>
+  </div>
+</body>
+</html>

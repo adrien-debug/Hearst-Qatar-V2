@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan Avancé - Placement & Rotation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #1a1a1a;
+      color: white;
+      overflow: hidden;
+    }
+    
+    .header {
+      background: #2a2a2a;
+      padding: 15px 30px;
+      border-bottom: 2px solid #8AFD81;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    h1 {
+      color: #8AFD81;
+      font-size: 24px;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      background: #8AFD81;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn:hover {
+      background: #6FD96A;
+      transform: scale(1.05);
+    }
+    
+    .btn-secondary {
+      background: #555;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background: #666;
+    }
+    
+    .main-container {
+      display: flex;
+      height: calc(100vh - 70px);
+    }
+    
+    .sidebar {
+      width: 400px;
+      background: #2a2a2a;
+      border-right: 2px solid #333;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    
+    .sidebar h3 {
+      color: #8AFD81;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    
+    .info-panel {
+      background: rgba(0,0,0,0.3);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .info-item {
+      margin: 10px 0;
+      padding: 8px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 5px;
+      font-size: 13px;
+    }
+    
+    .info-item label {
+      color: #888;
+      display: block;
+      font-size: 11px;
+      margin-bottom: 3px;
+    }
+    
+    .info-item .value {
+      color: #FFD700;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    
+    .rotation-controls {
+      margin-top: 15px;
+      padding: 15px;
+      background: rgba(138, 253, 129, 0.1);
+      border-radius: 8px;
+      border: 2px solid #8AFD81;
+    }
+    
+    .rotation-controls h4 {
+      color: #8AFD81;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    
+    .rotation-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    
+    .rot-btn {
+      padding: 8px;
+      background: #555;
+      color: white;
+      border: 1px solid #888;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+    
+    .rot-btn:hover {
+      background: #666;
+      border-color: #8AFD81;
+    }
+    
+    .rot-input {
+      width: 100%;
+      padding: 8px;
+      background: #333;
+      color: white;
+      border: 1px solid #555;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    
+    .plan-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: #1a1a1a;
+    }
+    
+    .plan-canvas {
+      width: 3000px;
+      height: 2000px;
+      background: linear-gradient(135deg, #e8e8e8 0%, #d5d5d5 100%);
+      position: relative;
+      cursor: crosshair;
+      transform-origin: 0 0;
+      transition: transform 0.1s;
+    }
+    
+    /* Grille */
+    .plan-canvas::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px);
+      background-size: 100px 100px;
+      pointer-events: none;
+    }
+    
+    /* Éléments */
+    .element {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+      text-align: center;
+      cursor: move;
+      transition: all 0.2s;
+      border: 3px solid;
+      transform-origin: center center;
+    }
+    
+    .element:hover {
+      z-index: 1000;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    }
+    
+    .element.selected {
+      border-color: #FFD700 !important;
+      box-shadow: 0 0 30px rgba(255, 215, 0, 1);
+      z-index: 1001;
+    }
+    
+    .element .label {
+      text-shadow: 0px 0px 3px rgba(255,255,255,0.9);
+      pointer-events: none;
+    }
+    
+    .element .coordinates {
+      position: absolute;
+      top: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      color: #000;
+      background: rgba(255,255,255,0.9);
+      padding: 2px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+      font-weight: bold;
+      pointer-events: none;
+    }
+    
+    .element .rotation-handle {
+      position: absolute;
+      top: -15px;
+      right: -15px;
+      width: 30px;
+      height: 30px;
+      background: #FFD700;
+      border: 2px solid #000;
+      border-radius: 50%;
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      z-index: 10;
+    }
+    
+    .element .rotation-handle:active {
+      cursor: grabbing;
+    }
+    
+    /* Types d'éléments */
+    .substation {
+      background: rgba(76, 175, 80, 0.6);
+      border-color: #4CAF50;
+    }
+    
+    .powerblock {
+      background: rgba(255, 152, 0, 0.5);
+      border-color: #FF9800;
+    }
+    
+    .container-hd5 {
+      background: rgba(96, 125, 139, 0.5);
+      border-color: #607D8B;
+    }
+    
+    .building {
+      background: rgba(156, 39, 176, 0.6);
+      border-color: #9C27B0;
+    }
+    
+    .parking {
+      background: rgba(255, 235, 59, 0.4);
+      border-color: #FFEB3B;
+    }
+    
+    /* Rectangle de sélection */
+    .selection-rect {
+      position: absolute;
+      border: 3px solid #FFD700;
+      background: rgba(255, 215, 0, 0.2);
+      pointer-events: none;
+      display: none;
+      z-index: 999;
+    }
+    
+    .selection-rect.valid {
+      border-color: #4CAF50;
+      background: rgba(76, 175, 80, 0.2);
+    }
+    
+    .selection-rect.invalid {
+      border-color: #F44336;
+      background: rgba(244, 67, 54, 0.2);
+    }
+    
+    /* Axes */
+    .axis {
+      position: absolute;
+      background: #000;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .axis-x {
+      height: 3px;
+      width: 100%;
+      top: 50%;
+    }
+    
+    .axis-z {
+      width: 3px;
+      height: 100%;
+      left: 50%;
+    }
+    
+    .axis-label {
+      position: absolute;
+      background: #000;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: bold;
+      pointer-events: none;
+      z-index: 2;
+    }
+    
+    /* Zoom controls */
+    .zoom-controls {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.8);
+      padding: 15px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 2000;
+    }
+    
+    .zoom-btn {
+      width: 40px;
+      height: 40px;
+      background: #555;
+      color: white;
+      border: 2px solid #888;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .zoom-btn:hover {
+      background: #666;
+      border-color: #8AFD81;
+    }
+    
+    .zoom-level {
+      text-align: center;
+      font-size: 12px;
+      color: #8AFD81;
+      margin-top: 5px;
+    }
+    
+    .validation {
+      margin-top: 15px;
+      padding: 15px;
+      border-radius: 8px;
+      font-weight: bold;
+      text-align: center;
+      font-size: 12px;
+    }
+    
+    .validation.valid {
+      background: rgba(76, 175, 80, 0.2);
+      border: 2px solid #4CAF50;
+      color: #4CAF50;
+    }
+    
+    .validation.invalid {
+      background: rgba(244, 67, 54, 0.2);
+      border: 2px solid #F44336;
+      color: #F44336;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🗺️ Plan Avancé - Placement & Rotation</h1>
+    <div class="controls">
+      <button class="btn btn-secondary" onclick="resetView()">🔄 Réinitialiser Vue</button>
+      <button class="btn" onclick="exportPositions()">💾 Exporter Positions</button>
+    </div>
+  </div>
+  
+  <div class="main-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h3>📍 Informations</h3>
+      
+      <div class="info-panel" id="infoPanel">
+        <div class="info-item">
+          <label>Élément sélectionné</label>
+          <div class="value" id="selectedElement">Aucun</div>
+        </div>
+        
+        <div class="info-item">
+          <label>Position (X, Z)</label>
+          <div class="value" id="position">-</div>
+        </div>
+        
+        <div class="info-item">
+          <label>Rotation</label>
+          <div class="value" id="rotation">0°</div>
+        </div>
+        
+        <div class="info-item">
+          <label>Dimensions</label>
+          <div class="value" id="dimensions">-</div>
+        </div>
+      </div>
+      
+      <div class="rotation-controls" id="rotationControls" style="display: none;">
+        <h4>🔄 Rotation</h4>
+        <div class="rotation-buttons">
+          <button class="rot-btn" onclick="rotateElement(-90)">-90°</button>
+          <button class="rot-btn" onclick="rotateElement(-45)">-45°</button>
+          <button class="rot-btn" onclick="rotateElement(45)">+45°</button>
+          <button class="rot-btn" onclick="rotateElement(90)">+90°</button>
+        </div>
+        <input type="range" class="rot-input" id="rotationSlider" min="0" max="360" value="0" 
+               oninput="setRotation(this.value)">
+        <input type="number" class="rot-input" id="rotationInput" value="0" 
+               onchange="setRotation(this.value)" placeholder="Angle (0-360)">
+      </div>
+      
+      <div class="validation" id="validation" style="display: none;">
+        <div id="validationText"></div>
+      </div>
+      
+      <button class="btn" id="confirmBtn" style="width: 100%; margin-top: 15px;" disabled>
+        ✅ Confirmer Position Parking
+      </button>
+    </div>
+    
+    <!-- Plan -->
+    <div class="plan-container" id="planContainer">
+      <div class="plan-canvas" id="planCanvas">
+        <!-- Rectangle de sélection -->
+        <div class="selection-rect" id="selectionRect"></div>
+        
+        <!-- Axes -->
+        <div class="axis axis-x"></div>
+        <div class="axis axis-z"></div>
+        <div class="axis-label" style="top: 48%; left: 98%;">+X (Est) →</div>
+        <div class="axis-label" style="top: 48%; left: 1%;">← -X (Ouest)</div>
+        <div class="axis-label" style="top: 98%; left: 51%;">+Z (Nord) ↓</div>
+        <div class="axis-label" style="top: 1%; left: 51%;">↑ -Z (Sud)</div>
+        <div class="axis-label" style="top: 48%; left: 48%; background: red;">0,0</div>
+      </div>
+      
+      <!-- Zoom controls -->
+      <div class="zoom-controls">
+        <button class="zoom-btn" onclick="zoomIn()">+</button>
+        <button class="zoom-btn" onclick="zoomOut()">−</button>
+        <div class="zoom-level" id="zoomLevel">100%</div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Configuration
+    const SITE_CONFIG = {
+      width: 400,  // X: -200 à +200
+      depth: 300,  // Z: -150 à +150
+    };
+    
+    const CANVAS_WIDTH = 3000;
+    const CANVAS_HEIGHT = 2000;
+    
+    // ==================== SYSTÈME DE DÉBOGAGE RÉUTILISABLE ====================
+    // Pour déboguer de nouveaux éléments, utilisez cette fonction
+    const DEBUG_CONFIG = {
+      enabled: false,  // Mettre à true pour activer les logs
+      serverEndpoint: 'http://127.0.0.1:7242/ingest/662cfcf5-45d7-4a4c-8dee-f5adb339e61a',
+      sessionId: 'debug-session',
+    };
+    
+    /**
+     * Fonction utilitaire pour logger des événements de débogage
+     * @param {string} location - Emplacement du code (ex: 'file.js:42')
+     * @param {string} message - Description de l'événement
+     * @param {object} data - Données à logger
+     * @param {string} hypothesisId - ID de l'hypothèse testée (optionnel)
+     * @param {string} runId - ID de la session de test (optionnel)
+     */
+    function debugLog(location, message, data = {}, hypothesisId = null, runId = 'run1') {
+      if (!DEBUG_CONFIG.enabled) return;
+      
+      const logEntry = {
+        location,
+        message,
+        data,
+        timestamp: Date.now(),
+        sessionId: DEBUG_CONFIG.sessionId,
+        runId,
+      };
+      
+      if (hypothesisId) {
+        logEntry.hypothesisId = hypothesisId;
+      }
+      
+      // Envoi asynchrone (ne bloque pas l'exécution)
+      fetch(DEBUG_CONFIG.serverEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(logEntry)
+      }).catch(() => {}); // Ignore les erreurs réseau
+    }
+    
+    // Exemples d'utilisation pour nouveaux éléments :
+    // debugLog('plan-parking-advanced.html:XXX', 'nouvelElement - Entry', { x, z, type });
+    // debugLog('plan-parking-advanced.html:XXX', 'nouvelElement - Conversion', { before, after }, 'A');
+    // =========================================================================
+    
+    // Variables globales
+    let zoom = 1;
+    let panX = 0;
+    let panY = 0;
+    let isPanning = false;
+    let isDrawing = false;
+    let isDragging = false;
+    let isRotating = false;
+    let selectedElement = null;
+    let startX, startY;
+    let currentSelection = null;
+    let elements = [];
+    
+    const planCanvas = document.getElementById('planCanvas');
+    const planContainer = document.getElementById('planContainer');
+    const selectionRect = document.getElementById('selectionRect');
+    
+    // Initialisation
+    init();
+    
+    function init() {
+      drawExistingElements();
+      setupEventListeners();
+      updateZoom();
+    }
+    
+    function drawExistingElements() {
+      // Substation
+      addElement({
+        type: 'substation',
+        x: 0,
+        z: 60,
+        width: 40,
+        depth: 15,
+        rotation: 0,
+        label: 'SUBSTATION<br>200MW'
+      });
+      
+      // Power Blocks
+      [-75, -25, 25, 75].forEach((x, i) => {
+        addElement({
+          type: 'powerblock',
+          x: x,
+          z: 35,
+          width: 15,
+          depth: 10,
+          rotation: 0,
+          label: `PB${i+1}`
+        });
+      });
+      
+      // Containers (simplifié - zones)
+      [-75, -25, 25, 75].forEach(pbX => {
+        for (let tr = 0; tr < 4; tr++) {
+          const trZ = -15 - (tr * 20);
+          addElement({
+            type: 'container-hd5',
+            x: pbX - 12,
+            z: trZ,
+            width: 12.196,
+            depth: 2.896,
+            rotation: 0,
+            label: ''
+          });
+          addElement({
+            type: 'container-hd5',
+            x: pbX + 12,
+            z: trZ,
+            width: 12.196,
+            depth: 2.896,
+            rotation: 0,
+            label: ''
+          });
+        }
+      });
+      
+      // Buildings
+      addElement({
+        type: 'building',
+        x: -110,
+        z: 45,
+        width: 54.8,
+        depth: 15,
+        rotation: -90,
+        label: '🏢 PERSONNEL'
+      });
+      
+      addElement({
+        type: 'building',
+        x: 110,
+        z: 45,
+        width: 54.8,
+        depth: 15,
+        rotation: -90,
+        label: '🏢 MAINTENANCE'
+      });
+    }
+    
+    function addElement(config) {
+      const el = document.createElement('div');
+      el.className = `element ${config.type}`;
+      el.dataset.type = config.type;
+      el.dataset.x = config.x;
+      el.dataset.z = config.z;
+      el.dataset.width = config.width;
+      el.dataset.depth = config.depth;
+      el.dataset.rotation = config.rotation || 0;
+      
+      updateElementPosition(el);
+      
+      if (config.label) {
+        el.innerHTML = `
+          <div class="coordinates">[${config.x}, ${config.z}] ${config.rotation}°</div>
+          <div class="label">${config.label}</div>
+          <div class="rotation-handle">↻</div>
+        `;
+      }
+      
+      // Event listeners
+      el.addEventListener('mousedown', (e) => {
+        if (e.target.classList.contains('rotation-handle')) {
+          startRotation(e, el);
+        } else {
+          selectElement(el);
+          startDrag(e, el);
+        }
+      });
+      
+      planCanvas.appendChild(el);
+      elements.push(el);
+    }
+    
+    function updateElementPosition(el) {
+      const x = parseFloat(el.dataset.x);
+      const z = parseFloat(el.dataset.z);
+      const width = parseFloat(el.dataset.width);
+      const depth = parseFloat(el.dataset.depth);
+      const rotation = parseFloat(el.dataset.rotation) || 0;
+      
+      const px = coordToPixelX(x);
+      const py = coordToPixelZ(z);
+      const pxWidth = (width / SITE_CONFIG.width) * CANVAS_WIDTH;
+      const pxDepth = (depth / SITE_CONFIG.depth) * CANVAS_HEIGHT;
+      
+      el.style.left = (px - pxWidth/2) + 'px';
+      el.style.top = (py - pxDepth/2) + 'px';
+      el.style.width = pxWidth + 'px';
+      el.style.height = pxDepth + 'px';
+      el.style.transform = `rotate(${rotation}deg)`;
+    }
+    
+    function coordToPixelX(x) {
+      return ((x + SITE_CONFIG.width / 2) / SITE_CONFIG.width) * CANVAS_WIDTH;
+    }
+    
+    function coordToPixelZ(z) {
+      return ((z + SITE_CONFIG.depth / 2) / SITE_CONFIG.depth) * CANVAS_HEIGHT;
+    }
+    
+    function pixelToCoordX(px) {
+      return ((px / CANVAS_WIDTH) * SITE_CONFIG.width) - (SITE_CONFIG.width / 2);
+    }
+    
+    function pixelToCoordZ(py) {
+      return ((py / CANVAS_HEIGHT) * SITE_CONFIG.depth) - (SITE_CONFIG.depth / 2);
+    }
+    
+    function selectElement(el) {
+      // Désélectionner tous
+      elements.forEach(e => e.classList.remove('selected'));
+      
+      // Sélectionner
+      el.classList.add('selected');
+      selectedElement = el;
+      
+      // Mettre à jour le panneau
+      document.getElementById('selectedElement').textContent = el.dataset.type.toUpperCase();
+      document.getElementById('position').textContent = `[${el.dataset.x}, ${el.dataset.z}]`;
+      document.getElementById('rotation').textContent = `${el.dataset.rotation}°`;
+      document.getElementById('dimensions').textContent = `${el.dataset.width}m × ${el.dataset.depth}m`;
+      
+      // Afficher les contrôles de rotation
+      document.getElementById('rotationControls').style.display = 'block';
+      document.getElementById('rotationSlider').value = el.dataset.rotation;
+      document.getElementById('rotationInput').value = el.dataset.rotation;
+    }
+    
+    function startDrag(e, el) {
+      e.stopPropagation();
+      isDragging = true;
+      const rect = planCanvas.getBoundingClientRect();
+      const viewportX = e.clientX - rect.left;
+      const viewportY = e.clientY - rect.top;
+      
+      // Convertir en coordonnées canvas (inverser zoom/pan)
+      startX = (viewportX - panX) / zoom;
+      startY = (viewportY - panY) / zoom;
+    }
+    
+    function startRotation(e, el) {
+      e.stopPropagation();
+      isRotating = true;
+      const rect = el.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      startX = e.clientX;
+      startY = e.clientY;
+    }
+    
+    function setupEventListeners() {
+      // Pan (déplacer la vue)
+      planContainer.addEventListener('mousedown', (e) => {
+        if (e.button === 1 || (e.button === 0 && e.ctrlKey)) {
+          isPanning = true;
+          startX = e.clientX - panX;
+          startY = e.clientY - panY;
+        }
+      });
+      
+      planContainer.addEventListener('mousemove', (e) => {
+        if (isPanning) {
+          panX = e.clientX - startX;
+          panY = e.clientY - startY;
+          updateZoom();
+        } else if (isDragging && selectedElement) {
+          const rect = planCanvas.getBoundingClientRect();
+          // Coordonnées dans le viewport
+          const viewportX = e.clientX - rect.left;
+          const viewportY = e.clientY - rect.top;
+          
+          // Convertir les coordonnées viewport → canvas en inversant la transformation
+          // Le canvas a: transform: translate(panX, panY) scale(zoom)
+          // Pour inverser: canvasX = (viewportX - panX) / zoom
+          const canvasX = (viewportX - panX) / zoom;
+          const canvasY = (viewportY - panY) / zoom;
+          
+          const newX = pixelToCoordX(canvasX);
+          const newZ = pixelToCoordZ(canvasY);
+          
+          selectedElement.dataset.x = Math.round(newX);
+          selectedElement.dataset.z = Math.round(newZ);
+          updateElementPosition(selectedElement);
+          
+          document.getElementById('position').textContent = `[${Math.round(newX)}, ${Math.round(newZ)}]`;
+        } else if (isRotating && selectedElement) {
+          const rect = selectedElement.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+          
+          const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * (180 / Math.PI);
+          const newRotation = Math.round(angle);
+          
+          selectedElement.dataset.rotation = newRotation;
+          updateElementPosition(selectedElement);
+          
+          document.getElementById('rotation').textContent = `${newRotation}°`;
+          document.getElementById('rotationSlider').value = newRotation;
+          document.getElementById('rotationInput').value = newRotation;
+        } else if (isDrawing) {
+          const rect = planCanvas.getBoundingClientRect();
+          const viewportX = e.clientX - rect.left;
+          const viewportY = e.clientY - rect.top;
+          
+          // Convertir en coordonnées canvas (inverser zoom/pan)
+          const canvasX = (viewportX - panX) / zoom;
+          const canvasY = (viewportY - panY) / zoom;
+          const startCanvasX = (startX - panX) / zoom;
+          const startCanvasY = (startY - panY) / zoom;
+          
+          const width = canvasX - startCanvasX;
+          const height = canvasY - startCanvasY;
+          
+          // Convertir les coordonnées canvas → viewport pour l'affichage
+          const displayX = startCanvasX * zoom + panX;
+          const displayY = startCanvasY * zoom + panY;
+          const displayWidth = width * zoom;
+          const displayHeight = height * zoom;
+          
+          if (width < 0) {
+            selectionRect.style.left = (displayX + displayWidth) + 'px';
+            selectionRect.style.width = Math.abs(displayWidth) + 'px';
+          } else {
+            selectionRect.style.left = displayX + 'px';
+            selectionRect.style.width = displayWidth + 'px';
+          }
+          
+          if (height < 0) {
+            selectionRect.style.top = (displayY + displayHeight) + 'px';
+            selectionRect.style.height = Math.abs(displayHeight) + 'px';
+          } else {
+            selectionRect.style.top = displayY + 'px';
+            selectionRect.style.height = displayHeight + 'px';
+          }
+          
+          updateSelection();
+        }
+      });
+      
+      planContainer.addEventListener('mouseup', () => {
+        isPanning = false;
+        isDragging = false;
+        isRotating = false;
+      });
+      
+      planContainer.addEventListener('mouseleave', () => {
+        isPanning = false;
+        isDragging = false;
+        isRotating = false;
+      });
+      
+      // Dessiner parking (clic droit ou espace)
+      planCanvas.addEventListener('mousedown', (e) => {
+        if (e.button === 0 && !e.target.closest('.element')) {
+          const rect = planCanvas.getBoundingClientRect();
+          const viewportX = e.clientX - rect.left;
+          const viewportY = e.clientY - rect.top;
+          
+          // Convertir en coordonnées canvas
+          startX = (viewportX - panX) / zoom;
+          startY = (viewportY - panY) / zoom;
+          isDrawing = true;
+          
+          // Afficher dans le viewport
+          selectionRect.style.display = 'block';
+          selectionRect.style.left = viewportX + 'px';
+          selectionRect.style.top = viewportY + 'px';
+          selectionRect.style.width = '0px';
+          selectionRect.style.height = '0px';
+        }
+      });
+      
+      planCanvas.addEventListener('mouseup', () => {
+        if (isDrawing) {
+          isDrawing = false;
+          updateSelection();
+        }
+      });
+      
+      // Zoom avec molette
+      planContainer.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? 0.9 : 1.1;
+        zoom *= delta;
+        zoom = Math.max(0.1, Math.min(3, zoom));
+        updateZoom();
+      });
+    }
+    
+    function updateZoom() {
+      planCanvas.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+      document.getElementById('zoomLevel').textContent = Math.round(zoom * 100) + '%';
+    }
+    
+    function zoomIn() {
+      zoom *= 1.2;
+      zoom = Math.min(3, zoom);
+      updateZoom();
+    }
+    
+    function zoomOut() {
+      zoom *= 0.8;
+      zoom = Math.max(0.1, zoom);
+      updateZoom();
+    }
+    
+    function resetView() {
+      zoom = 1;
+      panX = 0;
+      panY = 0;
+      updateZoom();
+    }
+    
+    function rotateElement(angle) {
+      if (!selectedElement) return;
+      const current = parseFloat(selectedElement.dataset.rotation) || 0;
+      const newRotation = (current + angle) % 360;
+      setRotation(newRotation);
+    }
+    
+    function setRotation(angle) {
+      if (!selectedElement) return;
+      const rotation = parseFloat(angle);
+      selectedElement.dataset.rotation = rotation;
+      updateElementPosition(selectedElement);
+      document.getElementById('rotation').textContent = `${rotation}°`;
+      document.getElementById('rotationSlider').value = rotation;
+      document.getElementById('rotationInput').value = rotation;
+    }
+    
+    function updateSelection() {
+      const rectWidth = parseFloat(selectionRect.style.width);
+      const rectHeight = parseFloat(selectionRect.style.height);
+      
+      if (Math.abs(rectWidth) < 10 || Math.abs(rectHeight) < 10) return;
+      
+      // Convertir les coordonnées viewport → canvas
+      const rectLeft = parseFloat(selectionRect.style.left);
+      const rectTop = parseFloat(selectionRect.style.top);
+      const canvasLeft = (rectLeft - panX) / zoom;
+      const canvasTop = (rectTop - panY) / zoom;
+      const canvasWidth = rectWidth / zoom;
+      const canvasHeight = rectHeight / zoom;
+      
+      const centerPx = canvasLeft + canvasWidth / 2;
+      const centerPy = canvasTop + canvasHeight / 2;
+      
+      const center = {
+        x: Math.round(pixelToCoordX(centerPx)),
+        z: Math.round(pixelToCoordZ(centerPy))
+      };
+      
+      const width3D = Math.round((rectWidth / CANVAS_WIDTH) * SITE_CONFIG.width);
+      const depth3D = Math.round((rectHeight / CANVAS_HEIGHT) * SITE_CONFIG.depth);
+      
+      currentSelection = {
+        x: center.x,
+        z: center.z,
+        width: width3D,
+        depth: depth3D
+      };
+      
+      const isValid = width3D >= 15 && depth3D >= 10;
+      
+      document.getElementById('position').textContent = `[${center.x}, ${center.z}]`;
+      document.getElementById('dimensions').textContent = `${width3D}m × ${depth3D}m`;
+      
+      const validation = document.getElementById('validation');
+      const validationText = document.getElementById('validationText');
+      
+      validation.style.display = 'block';
+      
+      if (isValid) {
+        selectionRect.className = 'selection-rect valid';
+        validation.className = 'validation valid';
+        validationText.textContent = '✅ ZONE VALIDE';
+        document.getElementById('confirmBtn').disabled = false;
+      } else {
+        selectionRect.className = 'selection-rect invalid';
+        validation.className = 'validation invalid';
+        validationText.textContent = '❌ Dimensions trop petites (min 15m × 10m)';
+        document.getElementById('confirmBtn').disabled = true;
+      }
+    }
+    
+    function exportPositions() {
+      const data = elements.map(el => ({
+        type: el.dataset.type,
+        position: `[${el.dataset.x}, 0, ${el.dataset.z}]`,
+        rotation: `${el.dataset.rotation}°`,
+        dimensions: `${el.dataset.width}m × ${el.dataset.depth}m`
+      }));
+      
+      console.log('Positions exportées:', data);
+      alert('Positions exportées dans la console !');
+    }
+    
+    document.getElementById('confirmBtn').addEventListener('click', () => {
+      if (!currentSelection) return;
+      alert(`✅ PARKING CONFIRMÉ !\n\nPosition: [${currentSelection.x}, 0, ${currentSelection.z}]\nDimensions: ${currentSelection.width}m × ${currentSelection.depth}m`);
+    });
+  </script>
+</body>
+</html>
+

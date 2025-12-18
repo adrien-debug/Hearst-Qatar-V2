@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Microphone - Reconnaissance Vocale</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 800px;
+      width: 100%;
+      background: #2a2a2a;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+      border: 2px solid #8AFD81;
+    }
+    
+    h1 {
+      color: #8AFD81;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+    }
+    
+    .status {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #1a1a1a;
+      border-radius: 10px;
+      border: 2px solid #333;
+    }
+    
+    .status-indicator {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 10px;
+      transition: all 0.3s;
+    }
+    
+    .status-indicator.inactive {
+      background: #666;
+    }
+    
+    .status-indicator.listening {
+      background: #8AFD81;
+      box-shadow: 0 0 20px #8AFD81;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.8; }
+    }
+    
+    .controls {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      padding: 15px 30px;
+      background: #2a2a2a;
+      border: 2px solid #8AFD81;
+      color: #8AFD81;
+      cursor: pointer;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .btn:hover {
+      background: #8AFD81;
+      color: #1a1a1a;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(138, 253, 129, 0.3);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .btn.active {
+      background: #8AFD81;
+      color: #1a1a1a;
+    }
+    
+    .transcript-box {
+      background: #1a1a1a;
+      border: 2px solid #333;
+      border-radius: 10px;
+      padding: 20px;
+      min-height: 200px;
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+    
+    .transcript-item {
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #2a2a2a;
+      border-radius: 5px;
+      border-left: 4px solid #8AFD81;
+    }
+    
+    .transcript-item.interim {
+      opacity: 0.6;
+      border-left-color: #666;
+    }
+    
+    .timestamp {
+      color: #888;
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+    
+    .text {
+      color: white;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    
+    .info {
+      background: rgba(33, 150, 243, 0.1);
+      border: 2px solid #2196F3;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    
+    .info h3 {
+      color: #2196F3;
+      margin-bottom: 10px;
+    }
+    
+    .info ul {
+      margin-left: 20px;
+      color: #ccc;
+    }
+    
+    .info li {
+      margin-bottom: 5px;
+    }
+    
+    .error {
+      background: rgba(244, 67, 54, 0.1);
+      border: 2px solid #F44336;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+      color: #F44336;
+    }
+    
+    .mic-icon {
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎤 Test Reconnaissance Vocale</h1>
+    
+    <div class="status">
+      <span class="status-indicator inactive" id="statusIndicator"></span>
+      <span id="statusText">Prêt à écouter</span>
+    </div>
+    
+    <div class="controls">
+      <button class="btn" id="startBtn" onclick="startListening()">
+        <span class="mic-icon">🎤</span>
+        Démarrer
+      </button>
+      <button class="btn" id="stopBtn" onclick="stopListening()" disabled>
+        <span class="mic-icon">⏹️</span>
+        Arrêter
+      </button>
+      <button class="btn" onclick="clearTranscript()">
+        <span class="mic-icon">🗑️</span>
+        Effacer
+      </button>
+    </div>
+    
+    <div class="transcript-box" id="transcriptBox">
+      <div style="color: #666; text-align: center; padding: 40px;">
+        Cliquez sur "Démarrer" et commencez à parler...
+      </div>
+    </div>
+    
+    <div class="info">
+      <h3>ℹ️ Instructions</h3>
+      <ul>
+        <li>Cliquez sur "Démarrer" pour activer le microphone</li>
+        <li>Autorisez l'accès au microphone si demandé</li>
+        <li>Parlez clairement en français</li>
+        <li>La transcription apparaîtra en temps réel</li>
+        <li>Fonctionne sur Chrome, Edge et Safari (iOS 14.5+)</li>
+      </ul>
+    </div>
+    
+    <div id="errorBox"></div>
+  </div>
+  
+  <script>
+    let recognition = null;
+    let isListening = false;
+    
+    // Vérifier la compatibilité du navigateur
+    function checkCompatibility() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      
+      if (!SpeechRecognition) {
+        showError('❌ Votre navigateur ne supporte pas la reconnaissance vocale. Utilisez Chrome, Edge ou Safari.');
+        document.getElementById('startBtn').disabled = true;
+        return false;
+      }
+      
+      return true;
+    }
+    
+    // Initialiser la reconnaissance vocale
+    function initRecognition() {
+      if (!checkCompatibility()) return null;
+      
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recog = new SpeechRecognition();
+      
+      // Configuration
+      recog.lang = 'fr-FR';  // Français
+      recog.continuous = true;  // Écoute continue
+      recog.interimResults = true;  // Résultats intermédiaires
+      recog.maxAlternatives = 1;
+      
+      // Événements
+      recog.onstart = () => {
+        console.log('🎤 Reconnaissance vocale démarrée');
+        updateStatus(true);
+      };
+      
+      recog.onresult = (event) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
+        
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript + ' ';
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+        
+        if (finalTranscript) {
+          addTranscript(finalTranscript, false);
+        }
+        
+        if (interimTranscript) {
+          updateInterimTranscript(interimTranscript);
+        }
+      };
+      
+      recog.onerror = (event) => {
+        console.error('❌ Erreur:', event.error);
+        
+        let errorMessage = 'Erreur: ';
+        switch(event.error) {
+          case 'no-speech':
+            errorMessage += 'Aucune parole détectée. Parlez plus fort.';
+            break;
+          case 'audio-capture':
+            errorMessage += 'Microphone non détecté. Vérifiez vos paramètres.';
+            break;
+          case 'not-allowed':
+            errorMessage += 'Permission microphone refusée. Autorisez l\'accès dans votre navigateur.';
+            break;
+          case 'network':
+            errorMessage += 'Erreur réseau. Vérifiez votre connexion internet.';
+            break;
+          default:
+            errorMessage += event.error;
+        }
+        
+        showError(errorMessage);
+        
+        if (event.error === 'not-allowed' || event.error === 'audio-capture') {
+          stopListening();
+        }
+      };
+      
+      recog.onend = () => {
+        console.log('🛑 Reconnaissance vocale arrêtée');
+        
+        // Redémarrer automatiquement si on est en mode écoute
+        if (isListening) {
+          console.log('🔄 Redémarrage automatique...');
+          setTimeout(() => {
+            if (isListening) {
+              try {
+                recog.start();
+              } catch(e) {
+                console.error('Erreur redémarrage:', e);
+              }
+            }
+          }, 100);
+        } else {
+          updateStatus(false);
+        }
+      };
+      
+      return recog;
+    }
+    
+    function startListening() {
+      if (!recognition) {
+        recognition = initRecognition();
+        if (!recognition) return;
+      }
+      
+      try {
+        isListening = true;
+        recognition.start();
+        
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('stopBtn').disabled = false;
+        document.getElementById('startBtn').classList.remove('active');
+        document.getElementById('stopBtn').classList.add('active');
+        
+        clearError();
+      } catch(e) {
+        console.error('Erreur démarrage:', e);
+        showError('Erreur lors du démarrage. Le microphone est peut-être déjà actif.');
+      }
+    }
+    
+    function stopListening() {
+      isListening = false;
+      
+      if (recognition) {
+        recognition.stop();
+      }
+      
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('stopBtn').disabled = true;
+      document.getElementById('startBtn').classList.remove('active');
+      document.getElementById('stopBtn').classList.remove('active');
+      
+      updateStatus(false);
+      
+      // Supprimer les transcriptions intermédiaires
+      const interim = document.querySelector('.transcript-item.interim');
+      if (interim) interim.remove();
+    }
+    
+    function updateStatus(listening) {
+      const indicator = document.getElementById('statusIndicator');
+      const text = document.getElementById('statusText');
+      
+      if (listening) {
+        indicator.classList.remove('inactive');
+        indicator.classList.add('listening');
+        text.textContent = '🎤 En écoute... Parlez maintenant !';
+      } else {
+        indicator.classList.add('inactive');
+        indicator.classList.remove('listening');
+        text.textContent = 'Arrêté';
+      }
+    }
+    
+    function addTranscript(text, isInterim = false) {
+      const box = document.getElementById('transcriptBox');
+      
+      // Supprimer le message initial si présent
+      if (box.querySelector('div[style*="color: #666"]')) {
+        box.innerHTML = '';
+      }
+      
+      // Supprimer l'ancien transcript intermédiaire
+      const oldInterim = box.querySelector('.transcript-item.interim');
+      if (oldInterim) oldInterim.remove();
+      
+      const item = document.createElement('div');
+      item.className = 'transcript-item' + (isInterim ? ' interim' : '');
+      
+      const timestamp = document.createElement('div');
+      timestamp.className = 'timestamp';
+      timestamp.textContent = new Date().toLocaleTimeString('fr-FR');
+      
+      const textElem = document.createElement('div');
+      textElem.className = 'text';
+      textElem.textContent = text.trim();
+      
+      item.appendChild(timestamp);
+      item.appendChild(textElem);
+      box.appendChild(item);
+      
+      // Scroll vers le bas
+      box.scrollTop = box.scrollHeight;
+    }
+    
+    function updateInterimTranscript(text) {
+      const box = document.getElementById('transcriptBox');
+      let interim = box.querySelector('.transcript-item.interim');
+      
+      if (!interim) {
+        addTranscript(text, true);
+      } else {
+        interim.querySelector('.text').textContent = text.trim();
+      }
+    }
+    
+    function clearTranscript() {
+      const box = document.getElementById('transcriptBox');
+      box.innerHTML = '<div style="color: #666; text-align: center; padding: 40px;">Transcriptions effacées. Cliquez sur "Démarrer" pour recommencer...</div>';
+      clearError();
+    }
+    
+    function showError(message) {
+      const errorBox = document.getElementById('errorBox');
+      errorBox.innerHTML = `
+        <div class="error">
+          <strong>⚠️ Erreur</strong><br>
+          ${message}
+        </div>
+      `;
+    }
+    
+    function clearError() {
+      document.getElementById('errorBox').innerHTML = '';
+    }
+    
+    // Initialisation au chargement
+    window.addEventListener('load', () => {
+      checkCompatibility();
+      console.log('✅ Page chargée - Prêt à écouter');
+    });
+    
+    // Arrêter proprement quand on quitte la page
+    window.addEventListener('beforeunload', () => {
+      if (recognition && isListening) {
+        stopListening();
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
+

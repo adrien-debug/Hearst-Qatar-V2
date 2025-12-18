@@ -1,0 +1,169 @@
+/**
+ * HEARST HARMONY - Palette avec Vert Néon Signature
+ * Design sophistiqué autour du vert néon iconique Hearst
+ */
+
+:root {
+  /* ============================================
+     HEARST SIGNATURE - Vert Néon Iconique
+     ============================================ */
+  --hearst-neon: #8AFD81;           /* Vert néon signature Hearst */
+  --hearst-neon-light: #a0ffa0;    /* Vert clair */
+  --hearst-neon-dark: #6ee066;     /* Vert foncé */
+  
+  /* ============================================
+     PALETTE HARMONIEUSE - Autour du Vert
+     ============================================ */
+  
+  /* Bleus Profonds - Contraste avec le vert */
+  --harmony-navy: #0f172a;          /* Navy profond - Base */
+  --harmony-slate: #1e293b;         /* Slate foncé - Cartes */
+  --harmony-blue: #334155;          /* Blue-gray - Accents */
+  
+  /* Neutres Sophistiqués */
+  --harmony-white: #ffffff;         /* Blanc pur */
+  --harmony-gray-50: #f8fafc;       /* Background très clair */
+  --harmony-gray-100: #f1f5f9;      /* Background clair */
+  --harmony-gray-200: #e2e8f0;      /* Bordures */
+  --harmony-gray-500: #64748b;      /* Texte secondaire */
+  --harmony-gray-700: #334155;      /* Texte principal */
+  --harmony-gray-900: #0f172a;      /* Titres */
+  
+  /* Accents Complémentaires */
+  --harmony-cyan: #06b6d4;          /* Cyan - Données secondaires */
+  --harmony-purple: #8b5cf6;        /* Purple - Tertiaire */
+  --harmony-amber: #f59e0b;         /* Amber - Warnings */
+  
+  /* ============================================
+     GRADIENTS SOPHISTIQUÉS
+     ============================================ */
+  --gradient-hearst: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  --gradient-neon: linear-gradient(135deg, #8AFD81 0%, #6ee066 100%);
+  --gradient-accent: linear-gradient(135deg, #06b6d4 0%, #8AFD81 100%);
+  
+  /* ============================================
+     EFFETS LUMINEUX - Glow du Vert Néon
+     ============================================ */
+  --glow-neon-sm: 0 0 10px rgba(138, 253, 129, 0.3);
+  --glow-neon-md: 0 0 20px rgba(138, 253, 129, 0.4);
+  --glow-neon-lg: 0 0 30px rgba(138, 253, 129, 0.5);
+  
+  /* ============================================
+     SHADOWS SOPHISTIQUÉES
+     ============================================ */
+  --shadow-elegant: 0 4px 20px rgba(15, 23, 42, 0.08);
+  --shadow-elevated: 0 10px 40px rgba(15, 23, 42, 0.12);
+  --shadow-floating: 0 20px 60px rgba(15, 23, 42, 0.15);
+}
+
+/* ============================================
+   CLASSES UTILITAIRES HEARST
+   ============================================ */
+
+/* Accent Vert Néon Hearst */
+.text-hearst-neon {
+  color: var(--hearst-neon);
+}
+
+.bg-hearst-neon {
+  background-color: var(--hearst-neon);
+}
+
+.border-hearst-neon {
+  border-color: var(--hearst-neon);
+}
+
+/* Glow Effect */
+.glow-hearst {
+  box-shadow: var(--glow-neon-md);
+}
+
+.glow-hearst-hover:hover {
+  box-shadow: var(--glow-neon-lg);
+  border-color: var(--hearst-neon);
+}
+
+/* Gradient Hearst */
+.bg-gradient-hearst {
+  background: var(--gradient-hearst);
+}
+
+/* Card Premium avec Accent Vert */
+.card-hearst-premium {
+  background: var(--harmony-white);
+  border: 2px solid var(--harmony-gray-200);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-elegant);
+  transition: all 300ms ease-in-out;
+}
+
+.card-hearst-premium:hover {
+  border-color: var(--hearst-neon);
+  box-shadow: var(--glow-neon-md);
+  transform: translateY(-2px);
+}
+
+/* Card Foncée avec Accent Vert */
+.card-hearst-dark {
+  background: var(--gradient-hearst);
+  border: 1px solid rgba(138, 253, 129, 0.2);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-elevated);
+}
+
+/* Status Dot Animé */
+.status-dot-hearst {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--hearst-neon);
+  border-radius: 9999px;
+  animation: pulse-neon 2s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(138, 253, 129, 0.6);
+}
+
+@keyframes pulse-neon {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 10px rgba(138, 253, 129, 0.6);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 20px rgba(138, 253, 129, 0.8);
+  }
+}
+
+/* Accent Line */
+.accent-line-hearst {
+  height: 3px;
+  background: linear-gradient(90deg, var(--hearst-neon) 0%, transparent 100%);
+  border-radius: 9999px;
+}
+
+/* Badge Hearst */
+.badge-hearst {
+  background: rgba(138, 253, 129, 0.1);
+  color: var(--hearst-neon);
+  border: 1px solid rgba(138, 253, 129, 0.3);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

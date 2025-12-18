@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide Complet - Container Hearst HD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #00A651 0%, #008040 100%);
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            color: #00A651;
+            font-size: 32px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .section h3 {
+            color: #fff;
+            font-size: 24px;
+            margin: 30px 0 15px 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 25px;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: #00A651;
+            transform: translateY(-5px);
+        }
+
+        .card h4 {
+            color: #00A651;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .steps {
+            counter-reset: step;
+        }
+
+        .step {
+            background: rgba(0, 166, 81, 0.1);
+            border-left: 4px solid #00A651;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+            position: relative;
+            padding-left: 70px;
+        }
+
+        .step::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #00A651;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .step h4 {
+            color: #00A651;
+            margin-bottom: 5px;
+        }
+
+        .code-block {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            color: #00A651;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .file-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .file-list li {
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 3px solid #00A651;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-list li::before {
+            content: '📄';
+            font-size: 20px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #00A651;
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge.secondary {
+            background: #666;
+        }
+
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .specs-table th,
+        .specs-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .specs-table th {
+            background: rgba(0, 166, 81, 0.2);
+            color: #00A651;
+            font-weight: 600;
+        }
+
+        .specs-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .color-swatch {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        .nav {
+            position: sticky;
+            top: 0;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav a {
+            color: #00A651;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .nav a:hover {
+            background: rgba(0, 166, 81, 0.2);
+        }
+
+        .highlight {
+            background: rgba(0, 166, 81, 0.2);
+            border: 1px solid #00A651;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .highlight h4 {
+            color: #00A651;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <div class="nav-content">
+            <a href="#start">🚀 Démarrage</a>
+            <a href="#docs">📚 Documentation</a>
+            <a href="#scripts">🔧 Scripts</a>
+            <a href="#integration">💻 Intégration</a>
+            <a href="#specs">📐 Spécifications</a>
+        </div>
+    </div>
+
+    <div class="hero">
+        <h1>📦 Container Hearst HD</h1>
+        <p>Guide Complet de Modélisation 3D</p>
+    </div>
+
+    <div class="container">
+        <!-- Démarrage Rapide -->
+        <div id="start" class="section">
+            <h2>🚀 Démarrage Rapide</h2>
+            <p>Créez votre container en 5 minutes avec le script automatique !</p>
+
+            <div class="steps">
+                <div class="step">
+                    <h4>Installer Blender</h4>
+                    <p>Télécharger gratuitement sur <a href="https://www.blender.org" style="color: #00A651;">blender.org</a></p>
+                </div>
+
+                <div class="step">
+                    <h4>Ouvrir le Script</h4>
+                    <p>Blender → Scripting → Open → <code>blender_scripts/create_container_hearst_hd.py</code></p>
+                </div>
+
+                <div class="step">
+                    <h4>Exécuter</h4>
+                    <p>Cliquer sur ▶️ Run Script (ou Alt+P)</p>
+                </div>
+
+                <div class="step">
+                    <h4>Vérifier</h4>
+                    <p>Container créé et exporté automatiquement en GLB !</p>
+                </div>
+
+                <div class="step">
+                    <h4>Intégrer</h4>
+                    <p>Utiliser le composant React dans votre configurateur</p>
+                </div>
+            </div>
+
+            <div class="highlight">
+                <h4>⚡ Temps Total : ~90 secondes</h4>
+                <p>Le script fait tout automatiquement : création, matériaux, optimisation et export !</p>
+            </div>
+        </div>
+
+        <!-- Documentation -->
+        <div id="docs" class="section">
+            <h2>📚 Documentation Disponible</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4>START_CONTAINER_UNIQUE.md</h4>
+                    <p>Point de départ rapide avec instructions pas à pas</p>
+                    <span class="badge">Débutant</span>
+                </div>
+
+                <div class="card">
+                    <h4>README_CONTAINER_UNIQUE.md</h4>
+                    <p>Vue d'ensemble complète du projet</p>
+                    <span class="badge">Essentiel</span>
+                </div>
+
+                <div class="card">
+                    <h4>GUIDE_MODELISATION_CONTAINER_UNIQUE.md</h4>
+                    <p>Guide détaillé étape par étape</p>
+                    <span class="badge">Complet</span>
+                </div>
+
+                <div class="card">
+                    <h4>CONTAINER_HEARST_RECAP.md</h4>
+                    <p>Récapitulatif technique et workflow</p>
+                    <span class="badge">Technique</span>
+                </div>
+
+                <div class="card">
+                    <h4>GUIDE_BLENDER_CONTAINER.md</h4>
+                    <p>Guide Blender pour débutants</p>
+                    <span class="badge">Débutant</span>
+                </div>
+
+                <div class="card">
+                    <h4>EXEMPLES_UTILISATION_CONTAINER.md</h4>
+                    <p>10 exemples d'intégration React</p>
+                    <span class="badge">Code</span>
+                </div>
+
+                <div class="card">
+                    <h4>INDEX_CONTAINER_UNIQUE.md</h4>
+                    <p>Index complet de toute la documentation</p>
+                    <span class="badge">Navigation</span>
+                </div>
+
+                <div class="card">
+                    <h4>preview-container-hearst.html</h4>
+                    <p>Aperçu visuel 3D interactif</p>
+                    <span class="badge">Visuel</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scripts -->
+        <div id="scripts" class="section">
+            <h2>🔧 Scripts Blender</h2>
+
+            <h3>Script Automatique (Recommandé)</h3>
+            <div class="code-block">
+                <pre>blender_scripts/create_container_hearst_hd.py
+
+✅ Création automatique complète
+✅ Matériaux avec vertex colors
+✅ Optimisation géométrie
+✅ Export GLB avec Draco
+✅ ~600 lignes documentées</pre>
+            </div>
+
+            <h3>Script Simple</h3>
+            <div class="code-block">
+                <pre>blender_scripts/container_simple.py
+
+✅ Version courte et lisible
+✅ ~100 lignes de code
+✅ Facile à modifier
+✅ Parfait pour apprendre</pre>
+            </div>
+
+            <div class="highlight">
+                <h4>💡 Conseil</h4>
+                <p>Utilisez le script automatique pour la production, le script simple pour apprendre et personnaliser.</p>
+            </div>
+        </div>
+
+        <!-- Intégration -->
+        <div id="integration" class="section">
+            <h2>💻 Intégration React Three Fiber</h2>
+
+            <h3>Composant de Base</h3>
+            <div class="code-block">
+                <pre>import { ContainerHearstHD } from '@/components/ContainerHearstHD'
+
+export default function Scene() {
+  return (
+    &lt;Canvas&gt;
+      &lt;ambientLight intensity={0.5} /&gt;
+      &lt;directionalLight position={[10, 10, 5]} /&gt;
+      
+      &lt;ContainerHearstHD position={[0, 0, 0]} /&gt;
+      
+      &lt;OrbitControls /&gt;
+    &lt;/Canvas&gt;
+  )
+}</pre>
+            </div>
+
+            <h3>Grille de Containers</h3>
+            <div class="code-block">
+                <pre>import { ContainerGrid } from '@/components/ContainerHearstHD'
+
+&lt;ContainerGrid
+  countX={5}
+  countY={3}
+  spacing={7}
+  onContainerClick={(id) => console.log(id)}
+/&gt;</pre>
+            </div>
+
+            <h3>Container Interactif</h3>
+            <div class="code-block">
+                <pre>import { ContainerHearstHDInteractive } from '@/components/ContainerHearstHD'
+
+&lt;ContainerHearstHDInteractive
+  position={[0, 0, 0]}
+  selected={true}
+  onClick={handleClick}
+/&gt;</pre>
+            </div>
+        </div>
+
+        <!-- Spécifications -->
+        <div id="specs" class="section">
+            <h2>📐 Spécifications Techniques</h2>
+
+            <h3>Dimensions</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>Élément</th>
+                        <th>Dimensions (L × l × h)</th>
+                        <th>Couleur</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Dalle béton</strong></td>
+                        <td>6.5m × 3.0m × 0.4m</td>
+                        <td>
+                            <span class="color-swatch" style="background: #C0C0C0;"></span>
+                            #C0C0C0
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Container HD</strong></td>
+                        <td>6.058m × 2.438m × 2.591m</td>
+                        <td>
+                            <span class="color-swatch" style="background: #000000;"></span>
+                            #000000
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Unité AC</strong></td>
+                        <td>1.6m × 1.2m × 0.6m</td>
+                        <td>
+                            <span class="color-swatch" style="background: #404040;"></span>
+                            #404040
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Grilles (×2)</strong></td>
+                        <td>2.0m × 0.1m × 0.8m</td>
+                        <td>
+                            <span class="color-swatch" style="background: #404040;"></span>
+                            #404040
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Logo Hearst</strong></td>
+                        <td>1.2m × 0.6m</td>
+                        <td>
+                            <span class="color-swatch" style="background: #00A651;"></span>
+                            #00A651
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Optimisation</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>Critère</th>
+                        <th>Valeur Cible</th>
+                        <th>Importance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Polygones</td>
+                        <td>&lt; 5000 triangles</td>
+                        <td><span class="badge">Critique</span></td>
+                    </tr>
+                    <tr>
+                        <td>Taille fichier</td>
+                        <td>&lt; 500 KB</td>
+                        <td><span class="badge secondary">Important</span></td>
+                    </tr>
+                    <tr>
+                        <td>Format</td>
+                        <td>GLB + Draco</td>
+                        <td><span class="badge">Critique</span></td>
+                    </tr>
+                    <tr>
+                        <td>Matériaux</td>
+                        <td>1 seul</td>
+                        <td><span class="badge">Critique</span></td>
+                    </tr>
+                    <tr>
+                        <td>Objets</td>
+                        <td>1 seul fusionné</td>
+                        <td><span class="badge">CRITIQUE</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Checklist -->
+        <div class="section">
+            <h2>✅ Checklist de Validation</h2>
+
+            <div class="grid">
+                <div>
+                    <h3>Modélisation</h3>
+                    <ul class="file-list">
+                        <li>Dalle béton 40cm présente</li>
+                        <li>Container noir HD modélisé</li>
+                        <li>Unité AC sur le toit</li>
+                        <li>2 grilles de ventilation</li>
+                        <li>Logo Hearst face avant</li>
+                        <li><strong>1 seul objet fusionné</strong></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3>Matériaux & Export</h3>
+                    <ul class="file-list">
+                        <li>1 seul matériau appliqué</li>
+                        <li>Vertex colors configurées</li>
+                        <li>Couleurs Hearst respectées</li>
+                        <li>Export GLB avec Draco</li>
+                        <li>Taille &lt; 500 KB</li>
+                        <li>Test Three.js OK</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Points Critiques -->
+        <div class="section">
+            <h2>⚠️ Points Critiques</h2>
+
+            <div class="highlight" style="border-color: #ff4444;">
+                <h4 style="color: #ff4444;">🔴 1 SEUL OBJET</h4>
+                <p>Tous les composants doivent être fusionnés avec l'opération <strong>Join (Ctrl+J)</strong> dans Blender. C'est LA règle la plus importante !</p>
+            </div>
+
+            <div class="highlight">
+                <h4>🎨 Vertex Colors</h4>
+                <p>Les couleurs sont appliquées via vertex colors, pas via des matériaux multiples. Un seul matériau avec zones colorées.</p>
+            </div>
+
+            <div class="highlight">
+                <h4>📏 Échelle Réelle</h4>
+                <p>1 unité Blender = 1 mètre réel. Respecter scrupuleusement les dimensions pour la précision du configurateur.</p>
+            </div>
+
+            <div class="highlight">
+                <h4>📍 Pivot au Centre</h4>
+                <p>L'origine doit être au centre de la dalle béton (niveau du sol) pour faciliter le placement dans le configurateur.</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; padding: 40px 20px; color: #666; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 40px;">
+            <p style="font-size: 16px; margin-bottom: 10px;">
+                <strong style="color: #00A651;">Hearst Qatar Project</strong>
+            </p>
+            <p style="font-size: 14px;">
+                Container HD Unique - Documentation Complète
+            </p>
+            <p style="font-size: 12px; margin-top: 20px;">
+                Modélisation 3D optimisée pour Three.js / React Three Fiber
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+

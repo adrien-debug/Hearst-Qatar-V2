@@ -1,0 +1,91 @@
+═══════════════════════════════════════════════════════════
+    🔒 SERVEUR REDÉMARRÉ EN MODE LOCAL SÉCURISÉ
+═══════════════════════════════════════════════════════════
+
+✅ CONFIGURATION APPLIQUÉE :
+
+Mode: Localhost uniquement (accès réseau désactivé)
+Port: 1111
+Host: localhost (127.0.0.1)
+
+
+═══════════════════════════════════════════════════════════
+
+🌐 ADRESSE D'ACCÈS :
+
+http://localhost:1111
+
+⚠️  Cette adresse fonctionne UNIQUEMENT sur cet ordinateur
+
+
+═══════════════════════════════════════════════════════════
+
+✅ TESTS DE SÉCURITÉ :
+
+• Localhost (127.0.0.1) : ✓ HTTP 200 (accessible)
+• Réseau (192.168.1.65) : ✗ HTTP 000 (bloqué)
+
+→ Les autres ordinateurs ne peuvent plus se connecter ✓
+
+
+═══════════════════════════════════════════════════════════
+
+📊 CONFIGURATION :
+
+Fichier: package.json
+Script: "dev": "next dev -p 1111 -H localhost"
+
+Avant: -H 0.0.0.0 (accessible depuis le réseau)
+Après: -H localhost (accessible uniquement en local)
+
+
+═══════════════════════════════════════════════════════════
+
+🔧 POUR RÉACTIVER L'ACCÈS RÉSEAU :
+
+Si vous voulez à nouveau permettre l'accès depuis d'autres
+appareils, modifiez package.json :
+
+"dev": "next dev -p 1111 -H 0.0.0.0"
+
+Puis redémarrez : npm run dev
+
+
+═══════════════════════════════════════════════════════════
+
+✅ STATUS ACTUEL :
+
+• Serveur: ✓ En ligne
+• Port: 1111
+• Accès local: ✓ Activé
+• Accès réseau: ✗ Désactivé
+• Sécurité: ✓ Mode local uniquement
+
+
+═══════════════════════════════════════════════════════════
+
+💻 ACCÈS :
+
+Depuis cet ordinateur uniquement :
+http://localhost:1111
+
+Pages disponibles :
+• http://localhost:1111/ (Vue d'ensemble)
+• http://localhost:1111/mining-dashboard
+• http://localhost:1111/infrastructure
+
+
+═══════════════════════════════════════════════════════════
+
+🎯 RÉSUMÉ :
+
+Le serveur est maintenant configuré pour être accessible
+UNIQUEMENT depuis cet ordinateur. Les autres appareils
+du réseau ne peuvent plus s'y connecter.
+
+C'est plus sécurisé pour le développement local.
+
+
+═══════════════════════════════════════════════════════════
+
+

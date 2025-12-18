@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sélection de Design - Substation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            padding: 40px 20px;
+            color: #0b1120;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: #0b1120;
+        }
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: #0b1120;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 15px;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        .option-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s;
+            cursor: pointer;
+            background: white;
+        }
+        .option-card:hover {
+            border-color: #8AFD81;
+            box-shadow: 0 4px 12px rgba(138, 253, 129, 0.15);
+            transform: translateY(-2px);
+        }
+        .option-card.selected {
+            border-color: #8AFD81;
+            background: #f0fdf4;
+            box-shadow: 0 4px 12px rgba(138, 253, 129, 0.25);
+        }
+        .option-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .option-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0b1120;
+        }
+        .option-badge {
+            background: #8AFD81;
+            color: #0b1120;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .icon-preview {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 15px;
+            min-height: 150px;
+        }
+        .icon-preview svg {
+            max-width: 100%;
+            height: auto;
+        }
+        .option-description {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+        .features {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .features-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #0b1120;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .features-list {
+            list-style: none;
+            font-size: 12px;
+            color: #64748b;
+        }
+        .features-list li {
+            padding: 4px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        .features-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #8AFD81;
+            font-weight: bold;
+        }
+        .size-info {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        .preview-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #8AFD81;
+            color: #0b1120;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+        }
+        .preview-button:hover {
+            background: #6FD96A;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(138, 253, 129, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+                <h1>Sélection de Design - Substation</h1>
+                <p class="subtitle">Choisissez le style de représentation pour la substation 132/33 kV</p>
+            </div>
+            <a href="icon-selection-preview.html" target="_blank" class="preview-button">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                Voir Prévisualisation
+            </a>
+        </div>
+
+        <!-- SUBSTATIONS -->
+        <div class="section">
+            <h2 class="section-title">Designs de Substation</h2>
+            <div class="options-grid">
+
+                <!-- Option 1: Moderne -->
+                <div class="option-card" onclick="selectOption(this, 'modern')">
+                    <div class="option-header">
+                        <span class="option-name">Moderne</span>
+                        <span class="option-badge">Recommandé</span>
+                    </div>
+                    <div class="icon-preview">
+                        <svg viewBox="0 0 240 80" width="360" height="120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="sub-modern" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="#475569" />
+                                    <stop offset="100%" stopColor="#334155" />
+                                </linearGradient>
+                            </defs>
+                            <!-- Structure principale moderne -->
+                            <rect x="20" y="20" width="200" height="40" rx="4" fill="url(#sub-modern)" opacity="0.15" stroke="#1e293b" strokeWidth="2.5"/>
+                            <!-- Transformateurs centraux -->
+                            <rect x="60" y="30" width="30" height="20" rx="2" fill="url(#sub-modern)" opacity="0.3" stroke="#64748b" strokeWidth="2"/>
+                            <rect x="110" y="30" width="30" height="20" rx="2" fill="url(#sub-modern)" opacity="0.3" stroke="#64748b" strokeWidth="2"/>
+                            <rect x="160" y="30" width="30" height="20" rx="2" fill="url(#sub-modern)" opacity="0.3" stroke="#64748b" strokeWidth="2"/>
+                            <!-- Lignes électriques -->
+                            <line x1="10" y1="25" x2="230" y2="25" stroke="#8AFD81" strokeWidth="3" strokeLinecap="round"/>
+                            <line x1="10" y1="35" x2="230" y2="35" stroke="#8AFD81" strokeWidth="3" strokeLinecap="round"/>
+                            <line x1="10" y1="45" x2="230" y2="45" stroke="#8AFD81" strokeWidth="3" strokeLinecap="round"/>
+                            <line x1="10" y1="55" x2="230" y2="55" stroke="#8AFD81" strokeWidth="3" strokeLinecap="round"/>
+                            <!-- Texte -->
+                            <text x="120" y="15" fontSize="12" fontWeight="700" fill="#1e293b" textAnchor="middle">SUBSTATION 132/33 kV</text>
+                        </svg>
+                    </div>
+                    <p class="option-description">Design moderne avec structure épurée et transformateurs intégrés. Style professionnel et clair.</p>
+                    <div class="features">
+                        <div class="features-title">Caractéristiques</div>
+                        <ul class="features-list">
+                            <li>Structure rectangulaire moderne</li>
+                            <li>Transformateurs intégrés</li>
+                            <li>Lignes électriques visibles</li>
+                            <li>Style épuré et professionnel</li>
+                        </ul>
+                    </div>
+                    <div class="size-info">Taille: 240x80px (w-72 h-20)</div>
+                </div>
+
+                <!-- Option 2: Technique -->
+                <div class="option-card" onclick="selectOption(this, 'technical')">
+                    <div class="option-header">
+                        <span class="option-name">Technique</span>
+                        <span class="option-badge">Détaillé</span>
+                    </div>
+                    <div class="icon-preview">
+                        <svg viewBox="0 0 240 80" width="360" height="120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="sub-tech" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="#475569" />
+                                    <stop offset="100%" stopColor="#334155" />
+                                </linearGradient>
+                            </defs>
+                            <!-- Poteaux techniques -->
+                            <rect x="15" y="15" width="4" height="50" fill="url(#sub-tech)" rx="2"/>
+                            <rect x="115" y="15" width="4" height="50" fill="url(#sub-tech)" rx="2"/>
+                            <rect x="221" y="15" width="4" height="50" fill="url(#sub-tech)" rx="2"/>
+                            <!-- Lignes haute tension -->
+                            <line x1="17" y1="20" x2="223" y2="20" stroke="#8AFD81" strokeWidth="4" strokeLinecap="round"/>
+                            <line x1="17" y1="30" x2="223" y2="30" stroke="#8AFD81" strokeWidth="4" strokeLinecap="round"/>
+                            <line x1="17" y1="40" x2="223" y2="40" stroke="#8AFD81" strokeWidth="4" strokeLinecap="round"/>
+                            <!-- Isolateurs -->
+                            <circle cx="60" cy="20" r="4" fill="white" opacity="0.9" stroke="#94a3b8" strokeWidth="1.5"/>
+                            <circle cx="120" cy="20" r="4" fill="white" opacity="0.9" stroke="#94a3b8" strokeWidth="1.5"/>
+                            <circle cx="180" cy="20" r="4" fill="white" opacity="0.9" stroke="#94a3b8" strokeWidth="1.5"/>
+                            <!-- Transformateurs -->
+                            <rect x="50" y="50" width="25" height="15" rx="2" fill="url(#sub-tech)" opacity="0.4" stroke="#64748b" strokeWidth="2"/>
+                            <rect x="107.5" y="50" width="25" height="15" rx="2" fill="url(#sub-tech)" opacity="0.4" stroke="#64748b" strokeWidth="2"/>
+                            <rect x="165" y="50" width="25" height="15" rx="2" fill="url(#sub-tech)" opacity="0.4" stroke="#64748b" strokeWidth="2"/>
+                            <!-- Texte -->
+                            <text x="120" y="12" fontSize="11" fontWeight="700" fill="#1e293b" textAnchor="middle">SUBSTATION 132/33 kV</text>
+                        </svg>
+                    </div>
+                    <p class="option-description">Représentation technique avec poteaux, isolateurs et transformateurs. Style réaliste et détaillé.</p>
+                    <div class="features">
+                        <div class="features-title">Caractéristiques</div>
+                        <ul class="features-list">
+                            <li>Poteaux métalliques visibles</li>
+                            <li>Isolateurs détaillés</li>
+                            <li>Lignes haute tension</li>
+                            <li>Représentation réaliste</li>
+                        </ul>
+                    </div>
+                    <div class="size-info">Taille: 240x80px (w-72 h-20)</div>
+                </div>
+
+                <!-- Option 3: Minimaliste -->
+                <div class="option-card" onclick="selectOption(this, 'minimal')">
+                    <div class="option-header">
+                        <span class="option-name">Minimaliste</span>
+                        <span class="option-badge">Épuré</span>
+                    </div>
+                    <div class="icon-preview">
+                        <svg viewBox="0 0 240 80" width="360" height="120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Boîtier minimaliste -->
+                            <rect x="30" y="25" width="180" height="30" rx="3" fill="none" stroke="#1e293b" strokeWidth="2.5"/>
+                            <!-- Lignes simples -->
+                            <line x1="20" y1="30" x2="220" y2="30" stroke="#8AFD81" strokeWidth="2.5" strokeLinecap="round"/>
+                            <line x1="20" y1="40" x2="220" y2="40" stroke="#8AFD81" strokeWidth="2.5" strokeLinecap="round"/>
+                            <line x1="20" y1="50" x2="220" y2="50" stroke="#8AFD81" strokeWidth="2.5" strokeLinecap="round"/>
+                            <!-- Points de connexion -->
+                            <circle cx="70" cy="40" r="3" fill="#8AFD81"/>
+                            <circle cx="120" cy="40" r="3" fill="#8AFD81"/>
+                            <circle cx="170" cy="40" r="3" fill="#8AFD81"/>
+                            <!-- Texte -->
+                            <text x="120" y="20" fontSize="12" fontWeight="700" fill="#1e293b" textAnchor="middle">SUBSTATION 132/33 kV</text>
+                        </svg>
+                    </div>
+                    <p class="option-description">Design minimaliste avec lignes épurées et points de connexion. Style très simple et moderne.</p>
+                    <div class="features">
+                        <div class="features-title">Caractéristiques</div>
+                        <ul class="features-list">
+                            <li>Boîtier simple</li>
+                            <li>Lignes épurées</li>
+                            <li>Points de connexion</li>
+                            <li>Style minimaliste</li>
+                        </ul>
+                    </div>
+                    <div class="size-info">Taille: 240x80px (w-72 h-20)</div>
+                </div>
+
+                <!-- Option 4: Isométrique 3D -->
+                <div class="option-card" onclick="selectOption(this, 'isometric-3d')">
+                    <div class="option-header">
+                        <span class="option-name">Isométrique 3D</span>
+                        <span class="option-badge">3D</span>
+                    </div>
+                    <div class="icon-preview">
+                        <svg viewBox="0 0 240 80" width="360" height="120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="sub-iso" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="#475569" />
+                                    <stop offset="100%" stopColor="#334155" />
+                                </linearGradient>
+                            </defs>
+                            <!-- Face principale isométrique -->
+                            <path d="M30 30 L210 30 L210 60 L30 60 Z" fill="url(#sub-iso)" opacity="0.2" stroke="#1e293b" strokeWidth="2.5"/>
+                            <!-- Face supérieure (isométrique) -->
+                            <path d="M30 30 L40 20 L220 20 L210 30" fill="url(#sub-iso)" opacity="0.3" stroke="#1e293b" strokeWidth="2"/>
+                            <!-- Face latérale -->
+                            <path d="M210 30 L220 20 L220 50 L210 60" fill="url(#sub-iso)" opacity="0.25" stroke="#1e293b" strokeWidth="2"/>
+                            <!-- Transformateurs isométriques -->
+                            <path d="M70 50 L90 50 L90 60 L70 60 Z" fill="url(#sub-iso)" opacity="0.4" stroke="#64748b" strokeWidth="1.5"/>
+                            <path d="M70 50 L75 45 L95 45 L90 50" fill="url(#sub-iso)" opacity="0.3" stroke="#64748b" strokeWidth="1.5"/>
+                            <path d="M120 50 L140 50 L140 60 L120 60 Z" fill="url(#sub-iso)" opacity="0.4" stroke="#64748b" strokeWidth="1.5"/>
+                            <path d="M120 50 L125 45 L145 45 L140 50" fill="url(#sub-iso)" opacity="0.3" stroke="#64748b" strokeWidth="1.5"/>
+                            <path d="M170 50 L190 50 L190 60 L170 60 Z" fill="url(#sub-iso)" opacity="0.4" stroke="#64748b" strokeWidth="1.5"/>
+                            <path d="M170 50 L175 45 L195 45 L190 50" fill="url(#sub-iso)" opacity="0.3" stroke="#64748b" strokeWidth="1.5"/>
+                            <!-- Lignes -->
+                            <line x1="25" y1="35" x2="215" y2="35" stroke="#8AFD81" strokeWidth="3" strokeLinecap="round"/>
+                            <line x1="25" y1="45" x2="215" y2="45" stroke="#8AFD81" strokeWidth="3" strokeLinecap="round"/>
+                            <!-- Texte -->
+                            <text x="120" y="18" fontSize="11" fontWeight="700" fill="#1e293b" textAnchor="middle">SUBSTATION 132/33 kV</text>
+                        </svg>
+                    </div>
+                    <p class="option-description">Vue isométrique 3D avec profondeur visuelle. Transformateurs en perspective pour un rendu réaliste.</p>
+                    <div class="features">
+                        <div class="features-title">Caractéristiques</div>
+                        <ul class="features-list">
+                            <li>Perspective 3D isométrique</li>
+                            <li>Profondeur visuelle</li>
+                            <li>Transformateurs en 3D</li>
+                            <li>Style réaliste</li>
+                        </ul>
+                    </div>
+                    <div class="size-info">Taille: 240x80px (w-72 h-20)</div>
+                </div>
+
+                <!-- Option 5: Schématique -->
+                <div class="option-card" onclick="selectOption(this, 'schematic')">
+                    <div class="option-header">
+                        <span class="option-name">Schématique</span>
+                        <span class="option-badge">Technique</span>
+                    </div>
+                    <div class="icon-preview">
+                        <svg viewBox="0 0 240 80" width="360" height="120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Boîtier schématique -->
+                            <rect x="25" y="20" width="190" height="40" rx="2" fill="none" stroke="#1e293b" strokeWidth="2.5" strokeDasharray="3 3"/>
+                            <!-- Lignes électriques schématiques -->
+                            <line x1="15" y1="25" x2="225" y2="25" stroke="#8AFD81" strokeWidth="2" strokeLinecap="round"/>
+                            <line x1="15" y1="35" x2="225" y2="35" stroke="#8AFD81" strokeWidth="2" strokeLinecap="round"/>
+                            <line x1="15" y1="45" x2="225" y2="45" stroke="#8AFD81" strokeWidth="2" strokeLinecap="round"/>
+                            <line x1="15" y1="55" x2="225" y2="55" stroke="#8AFD81" strokeWidth="2" strokeLinecap="round"/>
+                            <!-- Symboles de transformateurs -->
+                            <circle cx="70" cy="40" r="8" fill="none" stroke="#64748b" strokeWidth="2"/>
+                            <circle cx="70" cy="40" r="4" fill="#64748b" opacity="0.6"/>
+                            <circle cx="120" cy="40" r="8" fill="none" stroke="#64748b" strokeWidth="2"/>
+                            <circle cx="120" cy="40" r="4" fill="#64748b" opacity="0.6"/>
+                            <circle cx="170" cy="40" r="8" fill="none" stroke="#64748b" strokeWidth="2"/>
+                            <circle cx="170" cy="40" r="4" fill="#64748b" opacity="0.6"/>
+                            <!-- Connexions -->
+                            <line x1="62" y1="40" x2="70" y2="40" stroke="#64748b" strokeWidth="1.5"/>
+                            <line x1="78" y1="40" x2="112" y2="40" stroke="#64748b" strokeWidth="1.5"/>
+                            <line x1="128" y1="40" x2="162" y2="40" stroke="#64748b" strokeWidth="1.5"/>
+                            <line x1="178" y1="40" x2="225" y2="40" stroke="#64748b" strokeWidth="1.5"/>
+                            <!-- Texte -->
+                            <text x="120" y="15" fontSize="11" fontWeight="700" fill="#1e293b" textAnchor="middle">SUBSTATION 132/33 kV</text>
+                        </svg>
+                    </div>
+                    <p class="option-description">Style schématique technique avec symboles de transformateurs et lignes électriques. Idéal pour documentation technique.</p>
+                    <div class="features">
+                        <div class="features-title">Caractéristiques</div>
+                        <ul class="features-list">
+                            <li>Boîtier en pointillés</li>
+                            <li>Symboles de transformateurs</li>
+                            <li>Lignes électriques claires</li>
+                            <li>Style schématique professionnel</li>
+                        </ul>
+                    </div>
+                    <div class="size-info">Taille: 240x80px (w-72 h-20)</div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- RÉSUMÉ DES SÉLECTIONS -->
+        <div class="section">
+            <h2 class="section-title">Votre Sélection</h2>
+            <div id="selection-summary" style="padding: 20px; background: #f8f9fa; border-radius: 8px; min-height: 100px;">
+                <p style="color: #64748b; font-size: 14px;">Sélectionnez une option ci-dessus</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let selectedSubstation = null;
+
+        function selectOption(element, option) {
+            // Retirer la sélection précédente
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Ajouter la sélection
+            element.classList.add('selected');
+
+            // Enregistrer la sélection
+            selectedSubstation = option;
+
+            // Mettre à jour le résumé
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const summary = document.getElementById('selection-summary');
+            const names = {
+                'modern': 'Moderne',
+                'technical': 'Technique',
+                'minimal': 'Minimaliste',
+                'isometric-3d': 'Isométrique 3D',
+                'schematic': 'Schématique'
+            };
+            
+            if (selectedSubstation) {
+                summary.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div>
+                            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 10px; color: #0b1120;">Substation sélectionnée:</h3>
+                            <p style="color: #8AFD81; font-weight: 600; font-size: 18px;">${names[selectedSubstation]}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                summary.innerHTML = '<p style="color: #94a3b8;">Aucune sélection</p>';
+            }
+        }
+    </script>
+</body>
+</html>
+
+

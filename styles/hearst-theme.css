@@ -1,0 +1,258 @@
+/**
+ * Charte Graphique Hearst Corporation
+ * Basée sur https://www.hearstcorporation.io/
+ */
+
+:root {
+  /* Couleurs principales Hearst */
+  --hearst-black: #0a0b0d;
+  --hearst-dark-gray: #1a1b1d;
+  --hearst-medium-gray: #2d3436;
+  --hearst-light-gray: #95a5a6;
+  
+  /* Vert Hearst (accent principal) */
+  --hearst-green: #8AFD81;
+  --hearst-green-hover: #7AED71;
+  --hearst-green-dark: #6ADD61;
+  
+  /* Couleurs secondaires */
+  --hearst-white: #ffffff;
+  --hearst-white-60: rgba(255, 255, 255, 0.6);
+  --hearst-white-40: rgba(255, 255, 255, 0.4);
+  --hearst-white-20: rgba(255, 255, 255, 0.2);
+  --hearst-white-10: rgba(255, 255, 255, 0.1);
+  
+  /* Couleurs d'état */
+  --hearst-success: #27ae60;
+  --hearst-warning: #f39c12;
+  --hearst-error: #e74c3c;
+  --hearst-info: #3498db;
+  
+  /* Ombres */
+  --hearst-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --hearst-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --hearst-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --hearst-shadow-xl: 0 16px 64px rgba(0, 0, 0, 0.4);
+  --hearst-shadow-green: 0 0 40px rgba(138, 253, 129, 0.2);
+  
+  /* Bordures */
+  --hearst-border-radius-sm: 8px;
+  --hearst-border-radius-md: 12px;
+  --hearst-border-radius-lg: 16px;
+  --hearst-border-radius-xl: 24px;
+  
+  /* Transitions */
+  --hearst-transition-fast: 150ms ease;
+  --hearst-transition-normal: 300ms ease;
+  --hearst-transition-slow: 500ms ease;
+  
+  /* Typographie */
+  --hearst-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  --hearst-font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', 'Source Code Pro', monospace;
+}
+
+/* Styles globaux Hearst */
+body {
+  font-family: var(--hearst-font-sans);
+  background-color: var(--hearst-black);
+  color: var(--hearst-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Boutons Hearst */
+.hearst-btn-primary {
+  background-color: var(--hearst-green);
+  color: var(--hearst-black);
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: var(--hearst-border-radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all var(--hearst-transition-normal);
+  box-shadow: var(--hearst-shadow-md);
+}
+
+.hearst-btn-primary:hover {
+  background-color: var(--hearst-green-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--hearst-shadow-lg);
+}
+
+.hearst-btn-secondary {
+  background-color: var(--hearst-white-10);
+  color: var(--hearst-white);
+  font-weight: 500;
+  padding: 12px 24px;
+  border-radius: var(--hearst-border-radius-md);
+  border: 1px solid var(--hearst-white-20);
+  cursor: pointer;
+  transition: all var(--hearst-transition-normal);
+}
+
+.hearst-btn-secondary:hover {
+  background-color: var(--hearst-white-20);
+  border-color: var(--hearst-green);
+}
+
+/* Cards Hearst */
+.hearst-card {
+  background-color: var(--hearst-dark-gray);
+  border: 1px solid var(--hearst-white-10);
+  border-radius: var(--hearst-border-radius-lg);
+  padding: 24px;
+  transition: all var(--hearst-transition-normal);
+}
+
+.hearst-card:hover {
+  border-color: var(--hearst-green);
+  box-shadow: var(--hearst-shadow-green);
+  transform: translateY(-4px);
+}
+
+/* Inputs Hearst */
+.hearst-input {
+  background-color: var(--hearst-white-10);
+  border: 1px solid var(--hearst-white-20);
+  border-radius: var(--hearst-border-radius-md);
+  padding: 12px 16px;
+  color: var(--hearst-white);
+  font-size: 16px;
+  transition: all var(--hearst-transition-fast);
+}
+
+.hearst-input:focus {
+  outline: none;
+  border-color: var(--hearst-green);
+  box-shadow: 0 0 0 3px rgba(138, 253, 129, 0.1);
+}
+
+.hearst-input::placeholder {
+  color: var(--hearst-white-40);
+}
+
+/* Titres Hearst */
+.hearst-h1 {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--hearst-white);
+  margin-bottom: 16px;
+}
+
+.hearst-h2 {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--hearst-white);
+  margin-bottom: 12px;
+}
+
+.hearst-h3 {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--hearst-white);
+  margin-bottom: 8px;
+}
+
+/* Texte */
+.hearst-text-primary {
+  color: var(--hearst-white);
+}
+
+.hearst-text-secondary {
+  color: var(--hearst-white-60);
+}
+
+.hearst-text-muted {
+  color: var(--hearst-white-40);
+}
+
+.hearst-text-accent {
+  color: var(--hearst-green);
+}
+
+/* Badges */
+.hearst-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--hearst-border-radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hearst-badge-success {
+  background-color: rgba(39, 174, 96, 0.2);
+  color: var(--hearst-success);
+}
+
+.hearst-badge-warning {
+  background-color: rgba(243, 156, 18, 0.2);
+  color: var(--hearst-warning);
+}
+
+.hearst-badge-info {
+  background-color: rgba(52, 152, 219, 0.2);
+  color: var(--hearst-info);
+}
+
+/* Gradient backgrounds */
+.hearst-gradient-bg {
+  background: linear-gradient(135deg, var(--hearst-black) 0%, var(--hearst-dark-gray) 50%, var(--hearst-black) 100%);
+}
+
+.hearst-gradient-green {
+  background: linear-gradient(135deg, rgba(138, 253, 129, 0.1) 0%, rgba(138, 253, 129, 0.05) 100%);
+}
+
+/* Effet de grille */
+.hearst-grid-pattern {
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+');
+  opacity: 0.2;
+}
+
+/* Animations */
+@keyframes hearst-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes hearst-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(138, 253, 129, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(138, 253, 129, 0.6);
+  }
+}
+
+.hearst-pulse {
+  animation: hearst-pulse 2s ease-in-out infinite;
+}
+
+.hearst-glow {
+  animation: hearst-glow 2s ease-in-out infinite;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hearst-h1 {
+    font-size: 32px;
+  }
+  
+  .hearst-h2 {
+    font-size: 24px;
+  }
+  
+  .hearst-h3 {
+    font-size: 18px;
+  }
+}

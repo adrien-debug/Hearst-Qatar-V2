@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Optimisation Circulation et Câbles - Hearst Qatar</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%231a1a1a'/%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5' stroke='%238AFD81' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #1a1a1a;
+      color: white;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    h1 {
+      color: #8AFD81;
+      margin-bottom: 10px;
+      font-size: 2.5em;
+    }
+    
+    .subtitle {
+      color: #888;
+      font-size: 14px;
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      background: #2a2a2a;
+      border: 2px solid #8AFD81;
+      color: #8AFD81;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+    
+    .btn:hover {
+      background: #8AFD81;
+      color: #1a1a1a;
+    }
+    
+    .btn.active {
+      background: #8AFD81;
+      color: #1a1a1a;
+    }
+    
+    .container {
+      max-width: 1800px;
+      margin: 0 auto;
+      background: #2a2a2a;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    }
+    
+    .plan-wrapper {
+      position: relative;
+      width: 100%;
+      margin-bottom: 30px;
+      background: #1a1a1a;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    
+    .plan {
+      width: 100%;
+      height: 900px;
+      background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
+      position: relative;
+      border: 4px solid #333;
+      cursor: grab;
+      overflow: hidden;
+    }
+    
+    .plan:active {
+      cursor: grabbing;
+    }
+    
+    /* Grille de fond */
+    .plan::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(138, 253, 129, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(138, 253, 129, 0.1) 1px, transparent 1px);
+      background-size: 20px 20px;
+      pointer-events: none;
+    }
+    
+    /* Éléments sur le plan */
+    .element {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+      text-align: center;
+      pointer-events: all;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    
+    .element:hover {
+      transform: scale(1.05);
+      z-index: 100;
+      filter: brightness(1.2);
+    }
+    
+    .element .label {
+      text-shadow: 0px 0px 3px rgba(0,0,0,0.9);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    
+    /* Types d'éléments */
+    .substation {
+      background: rgba(76, 175, 80, 0.7);
+      border: 3px solid #4CAF50;
+      z-index: 5;
+    }
+    
+    .powerblock {
+      background: rgba(255, 152, 0, 0.6);
+      border: 2px solid #FF9800;
+      z-index: 4;
+    }
+    
+    .transformer {
+      background: rgba(33, 150, 243, 0.7);
+      border: 2px solid #2196F3;
+      z-index: 3;
+    }
+    
+    .container-elem {
+      background: rgba(138, 253, 129, 0.5);
+      border: 2px solid #8AFD81;
+      z-index: 2;
+    }
+    
+    .switchgear {
+      background: rgba(156, 39, 176, 0.6);
+      border: 2px solid #9C27B0;
+      z-index: 3;
+    }
+    
+    /* Allées de circulation en béton */
+    .circulation-main {
+      background: rgba(255, 193, 7, 0.4);
+      border: 3px solid #FFC107;
+      z-index: 1;
+      box-shadow: inset 0 0 10px rgba(255, 193, 7, 0.3);
+    }
+    
+    .circulation-secondary {
+      background: rgba(255, 193, 7, 0.3);
+      border: 2px solid #FFC107;
+      z-index: 1;
+      box-shadow: inset 0 0 8px rgba(255, 193, 7, 0.2);
+    }
+    
+    .circulation-perimeter {
+      background: rgba(255, 193, 7, 0.25);
+      border: 2px solid #FFD54F;
+      z-index: 1;
+      box-shadow: inset 0 0 6px rgba(255, 193, 7, 0.2);
+    }
+    
+    .circulation-safety {
+      background: rgba(255, 87, 34, 0.2);
+      border: 1px dashed #FF5722;
+      z-index: 1;
+    }
+    
+    /* Câbles */
+    .cable {
+      stroke: #ff6b6b;
+      stroke-width: 2;
+      fill: none;
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .cable-optimized {
+      stroke: #51cf66;
+      stroke-width: 2;
+      fill: none;
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 20px;
+      padding: 20px;
+      background: #1a1a1a;
+      border-radius: 5px;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .legend-color {
+      width: 30px;
+      height: 30px;
+      border: 2px solid;
+      border-radius: 3px;
+    }
+    
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+    
+    .metric-card {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 5px;
+      border: 2px solid #333;
+    }
+    
+    .metric-card h3 {
+      color: #8AFD81;
+      margin-bottom: 10px;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+    
+    .metric-value {
+      font-size: 2em;
+      font-weight: bold;
+      color: white;
+    }
+    
+    .metric-label {
+      color: #888;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+    
+    .comparison-table {
+      width: 100%;
+      margin-top: 30px;
+      border-collapse: collapse;
+    }
+    
+    .comparison-table th,
+    .comparison-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+    }
+    
+    .comparison-table th {
+      background: #1a1a1a;
+      color: #8AFD81;
+      font-weight: bold;
+    }
+    
+    .comparison-table tr:hover {
+      background: #2a2a2a;
+    }
+    
+    .improvement {
+      color: #51cf66;
+      font-weight: bold;
+    }
+    
+    .tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 5px;
+      font-size: 12px;
+      pointer-events: none;
+      z-index: 1000;
+      border: 1px solid #8AFD81;
+      display: none;
+    }
+    
+    .zoom-controls {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 100;
+    }
+    
+    .zoom-btn {
+      width: 40px;
+      height: 40px;
+      background: #2a2a2a;
+      border: 2px solid #8AFD81;
+      color: #8AFD81;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .zoom-btn:hover {
+      background: #8AFD81;
+      color: #1a1a1a;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Optimisation Circulation Béton et Accès Maintenance</h1>
+    <p class="subtitle">Visualisation comparative - Disposition actuelle vs Optimisée avec allées béton complètes</p>
+  </div>
+  
+  <div class="controls">
+    <button class="btn active" onclick="showView('current')">Vue Actuelle</button>
+    <button class="btn" onclick="showView('optimized')">Vue Optimisée</button>
+    <button class="btn" onclick="showCables()">Afficher Câbles</button>
+    <button class="btn" onclick="resetView()">Réinitialiser Vue</button>
+  </div>
+  
+  <div class="container">
+    <div class="plan-wrapper">
+      <div class="zoom-controls">
+        <button class="zoom-btn" onclick="zoomIn()">+</button>
+        <button class="zoom-btn" onclick="zoomOut()">−</button>
+      </div>
+      <svg id="plan" class="plan" viewBox="0 0 2000 1000" preserveAspectRatio="xMidYMid meet">
+        <!-- Les éléments seront ajoutés dynamiquement -->
+      </svg>
+      <div id="tooltip" class="tooltip"></div>
+    </div>
+    
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(76, 175, 80, 0.7); border-color: #4CAF50;"></div>
+        <span>Substation</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(255, 152, 0, 0.6); border-color: #FF9800;"></div>
+        <span>Power Block</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(33, 150, 243, 0.7); border-color: #2196F3;"></div>
+        <span>Transformateur</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(138, 253, 129, 0.5); border-color: #8AFD81;"></div>
+        <span>Container HD5</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(156, 39, 176, 0.6); border-color: #9C27B0;"></div>
+        <span>Switchgear</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(255, 193, 7, 0.4); border: 3px solid #FFC107;"></div>
+        <span>Allée Principale Béton (6m) - Camions</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(255, 193, 7, 0.3); border: 2px solid #FFC107;"></div>
+        <span>Allée Secondaire Béton (4m) - Véhicules</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(255, 193, 7, 0.25); border: 2px solid #FFD54F;"></div>
+        <span>Allée Périmétrique Béton (3m) - Accès Containers</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(255, 87, 34, 0.2); border: 1px dashed #FF5722;"></div>
+        <span>Zone Sécurité (2m)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: transparent; border: 2px solid #ff6b6b;"></div>
+        <span>Câble Actuel</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: transparent; border: 2px solid #51cf66;"></div>
+        <span>Câble Optimisé</span>
+      </div>
+    </div>
+    
+    <div class="metrics" id="metrics">
+      <!-- Métriques calculées dynamiquement -->
+    </div>
+    
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Métrique</th>
+          <th>Disposition Actuelle</th>
+          <th>Disposition Optimisée</th>
+          <th>Amélioration</th>
+        </tr>
+      </thead>
+      <tbody id="comparison-body">
+        <!-- Données comparatives -->
+      </tbody>
+    </table>
+  </div>
+  
+  <script>
+    // Constantes depuis splineSceneData.ts - IMPLANTATION RÉELLE
+    // Configuration actuelle (sans allées de circulation)
+    const POWER_BLOCK_SPACING_CURRENT = 50;
+    const TRANSFORMER_VERTICAL_SPACING_CURRENT = 20;
+    const CONTAINER_OFFSET_CURRENT = 7;
+    
+    // Configuration optimisée (avec allées béton pour maintenance)
+    const POWER_BLOCK_SPACING_OPTIMIZED = 65; // +15m pour allée principale 6m + marges
+    const TRANSFORMER_VERTICAL_SPACING_OPTIMIZED = 28; // +8m pour allée secondaire 4m + marges
+    const CONTAINER_OFFSET_OPTIMIZED = 9; // +2m pour allée périmétrique 3m autour containers
+    
+    // Constantes communes
+    const SWITCHGEAR_OFFSET = 4.5;
+    const POWER_BLOCK_START_X = -75;
+    const POWER_BLOCK_START_Z = 75;
+    const TRANSFORMER_START_Z = 25;
+    
+    // Dimensions réelles en mètres (depuis splineSceneData.ts)
+    const DIMENSIONS = {
+      substation: { width: 40, height: 15 },
+      powerBlock: { width: 15, height: 10 },
+      transformer: { width: 2.5, height: 2.5 },
+      switchgear: { width: 2, height: 3 },
+      containerHD5: { width: 12.196, height: 2.896 }, // Bitmain Antspace HD5
+      concreteSlab: { width: 13, height: 3.5 } // Dalle béton sous containers
+    };
+    
+    // Espacements circulation - Optimisés pour maintenance
+    const CIRCULATION = {
+      main: 6,      // Allée principale entre Power Blocks (camions maintenance)
+      secondary: 4, // Allée secondaire entre transformateurs (véhicules légers)
+      perimeter: 3, // Allée périmétrique autour de chaque container (accès technique)
+      safety: 2     // Zone de sécurité minimale
+    };
+    
+    // Échelle pour l'affichage (1m = 5px)
+    const SCALE = 5;
+    const OFFSET_X = 1000; // Centre X
+    const OFFSET_Z = 500;  // Centre Z
+    
+    let currentView = 'current';
+    let showCablesFlag = false;
+    let zoomLevel = 1;
+    let panX = 0;
+    let panZ = 0;
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartZ = 0;
+    
+    // Génération des données basée sur l'implantation réelle
+    function generatePowerBlockData(pbIndex, optimized = false) {
+      const pbNum = pbIndex + 1;
+      const spacing = optimized ? POWER_BLOCK_SPACING_OPTIMIZED : POWER_BLOCK_SPACING_CURRENT;
+      const transformerSpacing = optimized ? TRANSFORMER_VERTICAL_SPACING_OPTIMIZED : TRANSFORMER_VERTICAL_SPACING_CURRENT;
+      const containerOffset = optimized ? CONTAINER_OFFSET_OPTIMIZED : CONTAINER_OFFSET_CURRENT;
+      const pbX = POWER_BLOCK_START_X + (pbIndex * spacing);
+      
+      const transformers = [];
+      for (let trIndex = 0; trIndex < 4; trIndex++) {
+        const trNum = trIndex + 1;
+        const trZ = TRANSFORMER_START_Z - (trIndex * transformerSpacing);
+        
+        const transformer = {
+          id: `PB${pbNum}_TR${trNum.toString().padStart(2, '0')}`,
+          x: pbX,
+          z: trZ,
+          containers: [
+            { id: `PB${pbNum}_TR${trNum.toString().padStart(2, '0')}_HD5_A`, x: pbX - containerOffset, z: trZ, side: 'A' },
+            { id: `PB${pbNum}_TR${trNum.toString().padStart(2, '0')}_HD5_B`, x: pbX + containerOffset, z: trZ, side: 'B' }
+          ],
+          switchgears: [
+            { id: `PB${pbNum}_SG_${trNum.toString().padStart(2, '0')}_L`, x: pbX - SWITCHGEAR_OFFSET, z: trZ, side: 'L' },
+            { id: `PB${pbNum}_SG_${trNum.toString().padStart(2, '0')}_R`, x: pbX + SWITCHGEAR_OFFSET, z: trZ, side: 'R' }
+          ]
+        };
+        transformers.push(transformer);
+      }
+      
+      return {
+        id: `PowerBlock_${pbNum}`,
+        x: pbX,
+        z: POWER_BLOCK_START_Z,
+        transformers
+      };
+    }
+    
+    // Conversion coordonnées 3D vers SVG
+    function toSVG(x, z) {
+      const svgX = (x * SCALE) + OFFSET_X + panX;
+      const svgZ = (z * SCALE) + OFFSET_Z + panZ;
+      return { x: svgX, z: svgZ };
+    }
+    
+    // Dessin des éléments
+    function drawElement(svg, type, x, z, width, height, className, label = '') {
+      const pos = toSVG(x, z);
+      const w = width * SCALE * zoomLevel;
+      const h = height * SCALE * zoomLevel;
+      
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', pos.x - w/2);
+      rect.setAttribute('y', pos.z - h/2);
+      rect.setAttribute('width', w);
+      rect.setAttribute('height', h);
+      rect.setAttribute('class', `element ${className}`);
+      rect.setAttribute('data-type', type);
+      rect.setAttribute('data-x', x);
+      rect.setAttribute('data-z', z);
+      
+      if (label) {
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', pos.x);
+        text.setAttribute('y', pos.z);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'middle');
+        text.setAttribute('class', 'label');
+        text.textContent = label;
+        rect.appendChild(text);
+      }
+      
+      rect.addEventListener('mouseenter', (e) => {
+        e.stopPropagation();
+        showTooltip(e, type, x, z, width, height);
+      });
+      rect.addEventListener('mouseleave', (e) => {
+        e.stopPropagation();
+        hideTooltip();
+      });
+      rect.addEventListener('mousemove', (e) => {
+        e.stopPropagation();
+        updateTooltipPosition(e);
+      });
+      
+      svg.appendChild(rect);
+      return rect;
+    }
+    
+    // Dessin des allées de circulation en béton
+    function drawCirculation(svg, optimized) {
+      if (!optimized) return;
+      
+      // 1. ALLÉES PRINCIPALES BÉTON entre Power Blocks (6m - accès camions)
+      for (let i = 0; i < 3; i++) {
+        const pbX1 = POWER_BLOCK_START_X + (i * POWER_BLOCK_SPACING_OPTIMIZED);
+        const pbX2 = POWER_BLOCK_START_X + ((i + 1) * POWER_BLOCK_SPACING_OPTIMIZED);
+        const roadX = (pbX1 + pbX2) / 2;
+        const roadZ1 = TRANSFORMER_START_Z + 10;
+        const roadZ2 = TRANSFORMER_START_Z - (3 * TRANSFORMER_VERTICAL_SPACING_OPTIMIZED) - 10;
+        
+        const pos1 = toSVG(roadX, roadZ1);
+        const pos2 = toSVG(roadX, roadZ2);
+        const width = CIRCULATION.main * SCALE * zoomLevel;
+        
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', pos1.x - width/2);
+        rect.setAttribute('y', Math.min(pos1.z, pos2.z));
+        rect.setAttribute('width', width);
+        rect.setAttribute('height', Math.abs(pos2.z - pos1.z));
+        rect.setAttribute('class', 'element circulation-main');
+        rect.setAttribute('rx', '3');
+        svg.appendChild(rect);
+      }
+      
+      // 2. ALLÉES SECONDAIRES BÉTON entre transformateurs (4m - véhicules légers)
+      for (let pb = 0; pb < 4; pb++) {
+        const pbX = POWER_BLOCK_START_X + (pb * POWER_BLOCK_SPACING_OPTIMIZED);
+        for (let tr = 0; tr < 3; tr++) {
+          const trZ1 = TRANSFORMER_START_Z - (tr * TRANSFORMER_VERTICAL_SPACING_OPTIMIZED);
+          const trZ2 = TRANSFORMER_START_Z - ((tr + 1) * TRANSFORMER_VERTICAL_SPACING_OPTIMIZED);
+          const roadZ = (trZ1 + trZ2) / 2;
+          const roadX1 = pbX - CONTAINER_OFFSET_OPTIMIZED - DIMENSIONS.containerHD5.width/2 - CIRCULATION.perimeter;
+          const roadX2 = pbX + CONTAINER_OFFSET_OPTIMIZED + DIMENSIONS.containerHD5.width/2 + CIRCULATION.perimeter;
+          
+          const pos1 = toSVG(roadX1, roadZ);
+          const pos2 = toSVG(roadX2, roadZ);
+          const width = CIRCULATION.secondary * SCALE * zoomLevel;
+          
+          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('x', Math.min(pos1.x, pos2.x));
+          rect.setAttribute('y', pos1.z - width/2);
+          rect.setAttribute('width', Math.abs(pos2.x - pos1.x));
+          rect.setAttribute('height', width);
+          rect.setAttribute('class', 'element circulation-secondary');
+          rect.setAttribute('rx', '2');
+          svg.appendChild(rect);
+        }
+      }
+      
+      // 3. ALLÉES PÉRIMÉTRIQUES BÉTON autour de chaque container (3m - accès maintenance)
+      for (let pb = 0; pb < 4; pb++) {
+        const powerBlock = generatePowerBlockData(pb, true);
+        powerBlock.transformers.forEach(transformer => {
+          transformer.containers.forEach(container => {
+            const pos = toSVG(container.x, container.z);
+            const w = (DIMENSIONS.containerHD5.width + CIRCULATION.perimeter * 2) * SCALE * zoomLevel;
+            const h = (DIMENSIONS.containerHD5.height + CIRCULATION.perimeter * 2) * SCALE * zoomLevel;
+            
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', pos.x - w/2);
+            rect.setAttribute('y', pos.z - h/2);
+            rect.setAttribute('width', w);
+            rect.setAttribute('height', h);
+            rect.setAttribute('class', 'element circulation-perimeter');
+            rect.setAttribute('rx', '2');
+            svg.appendChild(rect);
+          });
+        });
+      }
+      
+      // 4. ZONES DE SÉCURITÉ autour transformateurs (2m)
+      for (let pb = 0; pb < 4; pb++) {
+        const powerBlock = generatePowerBlockData(pb, true);
+        powerBlock.transformers.forEach(transformer => {
+          const pos = toSVG(transformer.x, transformer.z);
+          const w = (DIMENSIONS.transformer.width + CIRCULATION.safety * 2) * SCALE * zoomLevel;
+          const h = (DIMENSIONS.transformer.height + CIRCULATION.safety * 2) * SCALE * zoomLevel;
+          
+          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('x', pos.x - w/2);
+          rect.setAttribute('y', pos.z - h/2);
+          rect.setAttribute('width', w);
+          rect.setAttribute('height', h);
+          rect.setAttribute('class', 'element circulation-safety');
+          rect.setAttribute('rx', '1');
+          svg.appendChild(rect);
+        });
+      }
+    }
+    
+    // Dessin des câbles
+    function drawCables(svg, optimized) {
+      if (!showCablesFlag) return;
+      
+      for (let pb = 0; pb < 4; pb++) {
+        const powerBlock = generatePowerBlockData(pb, optimized);
+        powerBlock.transformers.forEach(transformer => {
+          transformer.containers.forEach(container => {
+            const trPos = toSVG(transformer.x, transformer.z);
+            const contPos = toSVG(container.x, container.z);
+            
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', trPos.x);
+            line.setAttribute('y1', trPos.z);
+            line.setAttribute('x2', contPos.x);
+            line.setAttribute('y2', contPos.z);
+            line.setAttribute('class', optimized ? 'cable-optimized' : 'cable');
+            svg.appendChild(line);
+          });
+        });
+      }
+    }
+    
+    // Calcul des métriques
+    function calculateMetrics(optimized) {
+      const spacing = optimized ? POWER_BLOCK_SPACING_OPTIMIZED : POWER_BLOCK_SPACING_CURRENT;
+      const transformerSpacing = optimized ? TRANSFORMER_VERTICAL_SPACING_OPTIMIZED : TRANSFORMER_VERTICAL_SPACING_CURRENT;
+      
+      // Longueur totale des câbles
+      let totalCableLength = 0;
+      for (let pb = 0; pb < 4; pb++) {
+        const powerBlock = generatePowerBlockData(pb, optimized);
+        powerBlock.transformers.forEach(transformer => {
+          transformer.containers.forEach(container => {
+            const distance = Math.sqrt(
+              Math.pow(container.x - transformer.x, 2) + 
+              Math.pow(container.z - transformer.z, 2)
+            );
+            // Ajouter 15% de marge pour connexions et courbes
+            totalCableLength += distance * 1.15;
+          });
+        });
+      }
+      
+      // Surface de circulation béton (si optimisé)
+      let circulationArea = 0;
+      let concreteVolume = 0;
+      const concreteThickness = 0.25; // 25cm d'épaisseur béton
+      
+      if (optimized) {
+        // Allées principales béton (6m)
+        const mainRoadLength = 3 * (TRANSFORMER_START_Z * 2 + (3 * transformerSpacing));
+        const mainArea = CIRCULATION.main * mainRoadLength;
+        circulationArea += mainArea;
+        
+        // Allées secondaires béton (4m)
+        const containerOffset = optimized ? CONTAINER_OFFSET_OPTIMIZED : CONTAINER_OFFSET_CURRENT;
+        const secondaryRoadLength = 4 * 3 * (containerOffset * 2 + DIMENSIONS.containerHD5.width + CIRCULATION.perimeter * 2);
+        const secondaryArea = CIRCULATION.secondary * secondaryRoadLength;
+        circulationArea += secondaryArea;
+        
+        // Allées périmétriques béton autour containers (3m)
+        const containerPerimeter = 2 * (DIMENSIONS.containerHD5.width + DIMENSIONS.containerHD5.height + CIRCULATION.perimeter * 2);
+        const perimeterArea = CIRCULATION.perimeter * containerPerimeter * 32; // 32 containers
+        circulationArea += perimeterArea;
+        
+        // Zones de sécurité (2m) - non bétonné
+        const safetyPerimeter = 2 * (DIMENSIONS.transformer.width + DIMENSIONS.transformer.height + CIRCULATION.safety * 2);
+        const safetyArea = CIRCULATION.safety * safetyPerimeter * 16; // 16 transformateurs
+        
+        // Volume béton total
+        concreteVolume = circulationArea * concreteThickness;
+      }
+      
+      return {
+        totalCableLength: totalCableLength.toFixed(2),
+        circulationArea: circulationArea.toFixed(2),
+        concreteVolume: concreteVolume.toFixed(2),
+        transformerSpacing: transformerSpacing,
+        powerBlockSpacing: spacing,
+        maintenanceAccess: optimized ? 'Complet' : 'Limité',
+        concreteThickness: concreteThickness
+      };
+    }
+    
+    // Affichage de la vue
+    function renderView(optimized) {
+      const svg = document.getElementById('plan');
+      svg.innerHTML = '';
+      
+      // Substation
+      drawElement(svg, 'substation', 0, 100, DIMENSIONS.substation.width, DIMENSIONS.substation.height, 'substation', 'Substation');
+      
+      // Power Blocks et équipements
+      for (let pb = 0; pb < 4; pb++) {
+        const powerBlock = generatePowerBlockData(pb, optimized);
+        
+        // Power Block
+        drawElement(svg, 'powerblock', powerBlock.x, powerBlock.z, DIMENSIONS.powerBlock.width, DIMENSIONS.powerBlock.height, 'powerblock', `PB${pb + 1}`);
+        
+        // Transformateurs, containers et switchgears
+        powerBlock.transformers.forEach(transformer => {
+          drawElement(svg, 'transformer', transformer.x, transformer.z, DIMENSIONS.transformer.width, DIMENSIONS.transformer.height, 'transformer', transformer.id.slice(-2));
+          
+          transformer.containers.forEach(container => {
+            drawElement(svg, 'container', container.x, container.z, DIMENSIONS.containerHD5.width, DIMENSIONS.containerHD5.height, 'container-elem', container.side);
+          });
+          
+          transformer.switchgears.forEach(switchgear => {
+            drawElement(svg, 'switchgear', switchgear.x, switchgear.z, DIMENSIONS.switchgear.width, DIMENSIONS.switchgear.height, 'switchgear', 'SG');
+          });
+        });
+      }
+      
+      // Allées de circulation (si optimisé)
+      if (optimized) {
+        drawCirculation(svg, optimized);
+      }
+      
+      // Câbles
+      drawCables(svg, optimized);
+      
+      // Métriques
+      updateMetrics(optimized);
+    }
+    
+    // Mise à jour des métriques
+    function updateMetrics(optimized) {
+      const metrics = calculateMetrics(optimized);
+      const metricsDiv = document.getElementById('metrics');
+      
+      metricsDiv.innerHTML = `
+        <div class="metric-card">
+          <h3>Longueur Totale Câbles</h3>
+          <div class="metric-value">${metrics.totalCableLength} m</div>
+          <div class="metric-label">Distance totale de câblage</div>
+        </div>
+        <div class="metric-card">
+          <h3>Espacement Transformateurs</h3>
+          <div class="metric-value">${metrics.transformerSpacing} m</div>
+          <div class="metric-label">Distance verticale pour circulation</div>
+        </div>
+        <div class="metric-card">
+          <h3>Espacement Power Blocks</h3>
+          <div class="metric-value">${metrics.powerBlockSpacing} m</div>
+          <div class="metric-label">Distance horizontale pour allées</div>
+        </div>
+        ${optimized ? `
+        <div class="metric-card">
+          <h3>Surface Béton Circulation</h3>
+          <div class="metric-value">${metrics.circulationArea} m²</div>
+          <div class="metric-label">Allées béton maintenance</div>
+        </div>
+        <div class="metric-card">
+          <h3>Volume Béton Requis</h3>
+          <div class="metric-value">${metrics.concreteVolume} m³</div>
+          <div class="metric-label">Épaisseur ${(metrics.concreteThickness * 100).toFixed(0)}cm</div>
+        </div>
+        <div class="metric-card">
+          <h3>Accès Maintenance</h3>
+          <div class="metric-value">${metrics.maintenanceAccess}</div>
+          <div class="metric-label">Accès 360° tous containers</div>
+        </div>
+        ` : `
+        <div class="metric-card">
+          <h3>Accès Maintenance</h3>
+          <div class="metric-value">${metrics.maintenanceAccess}</div>
+          <div class="metric-label">Accès restreint</div>
+        </div>
+        `}
+      `;
+      
+      // Tableau comparatif
+      const currentMetrics = calculateMetrics(false);
+      const optimizedMetrics = calculateMetrics(true);
+      
+      const cableReduction = ((currentMetrics.totalCableLength - optimizedMetrics.totalCableLength) / currentMetrics.totalCableLength * 100).toFixed(1);
+      
+      document.getElementById('comparison-body').innerHTML = `
+        <tr>
+          <td>Longueur totale câbles</td>
+          <td>${currentMetrics.totalCableLength} m</td>
+          <td>${optimizedMetrics.totalCableLength} m</td>
+          <td class="improvement">${cableReduction}% réduction</td>
+        </tr>
+        <tr>
+          <td>Espacement transformateurs</td>
+          <td>${currentMetrics.transformerSpacing} m</td>
+          <td>${optimizedMetrics.transformerSpacing} m</td>
+          <td class="improvement">+${optimizedMetrics.transformerSpacing - currentMetrics.transformerSpacing} m circulation</td>
+        </tr>
+        <tr>
+          <td>Espacement Power Blocks</td>
+          <td>${currentMetrics.powerBlockSpacing} m</td>
+          <td>${optimizedMetrics.powerBlockSpacing} m</td>
+          <td class="improvement">+${optimizedMetrics.powerBlockSpacing - currentMetrics.powerBlockSpacing} m allées principales</td>
+        </tr>
+        <tr>
+          <td>Surface circulation béton</td>
+          <td>0 m²</td>
+          <td>${optimizedMetrics.circulationArea} m²</td>
+          <td class="improvement">Allées complètes</td>
+        </tr>
+        <tr>
+          <td>Volume béton requis</td>
+          <td>0 m³</td>
+          <td>${optimizedMetrics.concreteVolume} m³</td>
+          <td class="improvement">25cm épaisseur</td>
+        </tr>
+        <tr>
+          <td>Accès maintenance containers</td>
+          <td>${currentMetrics.maintenanceAccess}</td>
+          <td>${optimizedMetrics.maintenanceAccess}</td>
+          <td class="improvement">Accès 360° béton</td>
+        </tr>
+        <tr>
+          <td>Largeur allée principale</td>
+          <td>Non définie</td>
+          <td>6 m</td>
+          <td class="improvement">Camions maintenance</td>
+        </tr>
+        <tr>
+          <td>Largeur allée secondaire</td>
+          <td>Non définie</td>
+          <td>4 m</td>
+          <td class="improvement">Véhicules légers</td>
+        </tr>
+        <tr>
+          <td>Périmètre containers</td>
+          <td>Non défini</td>
+          <td>3 m</td>
+          <td class="improvement">Accès technique complet</td>
+        </tr>
+      `;
+    }
+    
+    // Fonctions de contrôle
+    function showView(view) {
+      currentView = view;
+      const optimized = view === 'optimized';
+      
+      document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      renderView(optimized);
+    }
+    
+    function showCables() {
+      showCablesFlag = !showCablesFlag;
+      event.target.classList.toggle('active');
+      renderView(currentView === 'optimized');
+    }
+    
+    function resetView() {
+      zoomLevel = 1;
+      panX = 0;
+      panZ = 0;
+      renderView(currentView === 'optimized');
+    }
+    
+    let zoomTimeout = null;
+    
+    function zoomIn() {
+      zoomLevel = Math.min(zoomLevel * 1.2, 3);
+      clearTimeout(zoomTimeout);
+      zoomTimeout = setTimeout(() => {
+        renderView(currentView === 'optimized');
+      }, 100);
+    }
+    
+    function zoomOut() {
+      zoomLevel = Math.max(zoomLevel / 1.2, 0.5);
+      clearTimeout(zoomTimeout);
+      zoomTimeout = setTimeout(() => {
+        renderView(currentView === 'optimized');
+      }, 100);
+    }
+    
+    // Tooltip
+    let tooltipTimeout = null;
+    
+    function showTooltip(event, type, x, z, width, height) {
+      clearTimeout(tooltipTimeout);
+      const tooltip = document.getElementById('tooltip');
+      tooltip.style.display = 'block';
+      tooltip.style.left = (event.clientX + 10) + 'px';
+      tooltip.style.top = (event.clientY + 10) + 'px';
+      tooltip.innerHTML = `
+        <strong>${type}</strong><br>
+        Position: X=${x.toFixed(1)}m, Z=${z.toFixed(1)}m<br>
+        Dimensions: ${width.toFixed(2)}m × ${height.toFixed(2)}m
+      `;
+    }
+    
+    function updateTooltipPosition(event) {
+      const tooltip = document.getElementById('tooltip');
+      if (tooltip.style.display === 'block') {
+        tooltip.style.left = (event.clientX + 10) + 'px';
+        tooltip.style.top = (event.clientY + 10) + 'px';
+      }
+    }
+    
+    function hideTooltip() {
+      tooltipTimeout = setTimeout(() => {
+        document.getElementById('tooltip').style.display = 'none';
+      }, 50);
+    }
+    
+    // Pan avec la souris
+    const planElement = document.getElementById('plan');
+    let renderTimeout = null;
+    
+    planElement.addEventListener('mousedown', (e) => {
+      if (e.target === planElement || e.target.tagName === 'svg') {
+        isDragging = true;
+        dragStartX = e.clientX - panX;
+        dragStartZ = e.clientY - panZ;
+      }
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        panX = e.clientX - dragStartX;
+        panZ = e.clientY - dragStartZ;
+        
+        // Throttle le rendu pour éviter les clignotements
+        if (!renderTimeout) {
+          renderTimeout = setTimeout(() => {
+            renderView(currentView === 'optimized');
+            renderTimeout = null;
+          }, 16); // ~60fps
+        }
+      }
+    });
+    
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+    
+    // Initialisation
+    renderView(false);
+  </script>
+</body>
+</html>
+

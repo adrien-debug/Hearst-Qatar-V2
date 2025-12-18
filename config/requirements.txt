@@ -1,0 +1,12 @@
+# Dépendances Python pour la génération Excel
+# Installation: pip install -r requirements.txt
+
+openpyxl>=3.1.0
+
+
+
+
+
+
+
+

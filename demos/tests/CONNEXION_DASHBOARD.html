@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion Dashboard Qatar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 48px;
+            border: 2px solid rgba(138, 253, 129, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        .logo {
+            width: 100px;
+            height: 100px;
+            background: #8AFD81;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            font-weight: bold;
+            color: #1e293b;
+            margin: 0 auto 30px;
+        }
+        h1 {
+            font-size: 36px;
+            margin-bottom: 16px;
+            color: #8AFD81;
+        }
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 40px;
+            font-size: 18px;
+        }
+        .address-box {
+            background: rgba(138, 253, 129, 0.1);
+            border: 2px solid #8AFD81;
+            border-radius: 16px;
+            padding: 32px;
+            margin: 32px 0;
+        }
+        .label {
+            color: #94a3b8;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        .address {
+            font-size: 32px;
+            font-weight: bold;
+            color: #8AFD81;
+            font-family: 'Monaco', 'Courier New', monospace;
+            margin-bottom: 24px;
+            word-break: break-all;
+            text-shadow: 0 0 20px rgba(138, 253, 129, 0.3);
+        }
+        .btn {
+            display: inline-block;
+            background: #8AFD81;
+            color: #1e293b;
+            padding: 18px 40px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(138, 253, 129, 0.3);
+        }
+        .btn:hover {
+            background: #7ae871;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(138, 253, 129, 0.5);
+        }
+        .qr {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            display: inline-block;
+            margin: 30px 0;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        .instructions {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid #8AFD81;
+            padding: 24px;
+            border-radius: 12px;
+            margin-top: 32px;
+            text-align: left;
+        }
+        .instructions h3 {
+            color: #8AFD81;
+            margin-bottom: 16px;
+            font-size: 20px;
+        }
+        .instructions ol {
+            margin-left: 24px;
+            line-height: 2;
+            color: #cbd5e1;
+            font-size: 16px;
+        }
+        .status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 32px;
+            padding: 20px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 12px;
+        }
+        .status-dot {
+            width: 14px;
+            height: 14px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">Q</div>
+        <h1>Dashboard Hearst Qatar</h1>
+        <p class="subtitle">Accès Réseau Local Sécurisé</p>
+        
+        <div class="address-box">
+            <div class="label">Adresse de Connexion</div>
+            <div class="address" id="address">http://192.168.1.65:1111</div>
+            <a href="http://192.168.1.65:1111" class="btn" target="_blank">🚀 Ouvrir le Dashboard</a>
+        </div>
+        
+        <div class="qr">
+            <canvas id="qrcode"></canvas>
+        </div>
+        <p style="color: #94a3b8; font-size: 14px;">Scannez ce QR code avec votre mobile</p>
+        
+        <div class="instructions">
+            <h3>📱 Instructions</h3>
+            <ol>
+                <li>Connectez-vous au <strong>même réseau WiFi</strong></li>
+                <li>Cliquez sur le bouton vert ci-dessus</li>
+                <li>Ou scannez le QR code avec votre téléphone</li>
+                <li>Le dashboard s'ouvrira automatiquement</li>
+            </ol>
+        </div>
+        
+        <div class="status">
+            <div class="status-dot"></div>
+            <span style="font-weight: 600;">Serveur en ligne et opérationnel</span>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        const url = 'http://192.168.1.65:1111';
+        const canvas = document.getElementById('qrcode');
+        
+        QRCode.toCanvas(canvas, url, {
+            width: 300,
+            margin: 2,
+            color: {
+                dark: '#1e293b',
+                light: '#ffffff'
+            }
+        }, function (error) {
+            if (error) console.error(error);
+        });
+    </script>
+</body>
+</html>
+
+

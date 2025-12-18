@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan du Site - Vue de Dessus</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #1a1a1a;
+      color: white;
+      padding: 20px;
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #8AFD81;
+    }
+    
+    .subtitle {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #888;
+      font-size: 14px;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: #2a2a2a;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    }
+    
+    .plan {
+      width: 100%;
+      height: 800px;
+      background: #f5f5f5;
+      position: relative;
+      border: 3px solid #333;
+      margin-bottom: 30px;
+    }
+    
+    /* Légende */
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 30px;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: #333;
+      border-radius: 5px;
+    }
+    
+    .legend-color {
+      width: 30px;
+      height: 30px;
+      border: 2px solid white;
+      border-radius: 3px;
+    }
+    
+    /* Éléments sur le plan */
+    .element {
+      position: absolute;
+      border: 2px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .element:hover {
+      transform: scale(1.05);
+      z-index: 100;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    
+    .element .label {
+      text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+    }
+    
+    .substation {
+      background: #4CAF50;
+    }
+    
+    .powerblock {
+      background: #FF9800;
+    }
+    
+    .building-personnel {
+      background: #2196F3;
+    }
+    
+    .building-maintenance {
+      background: #F44336;
+    }
+    
+    .parking-existing {
+      background: rgba(156, 39, 176, 0.5);
+      border-style: dashed;
+    }
+    
+    .parking-new {
+      background: rgba(255, 235, 59, 0.7);
+      border: 3px solid #FFD700;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
+      }
+      50% {
+        box-shadow: 0 0 0 10px rgba(255, 215, 0, 0);
+      }
+    }
+    
+    .containers {
+      background: rgba(96, 125, 139, 0.4);
+      border: 1px solid #666;
+    }
+    
+    .road {
+      background: rgba(120, 120, 120, 0.3);
+      border: 1px dashed #555;
+    }
+    
+    /* Axes */
+    .axis {
+      position: absolute;
+      background: #000;
+    }
+    
+    .axis-x {
+      height: 2px;
+      width: 100%;
+      top: 50%;
+    }
+    
+    .axis-z {
+      width: 2px;
+      height: 100%;
+      left: 50%;
+    }
+    
+    .axis-label {
+      position: absolute;
+      background: #000;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    .coordinates {
+      position: absolute;
+      top: -25px;
+      left: 0;
+      font-size: 9px;
+      color: #000;
+      background: rgba(255,255,255,0.8);
+      padding: 2px 5px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+    
+    .rotation-indicator {
+      position: absolute;
+      font-size: 20px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    
+    /* Pointeur interactif */
+    .crosshair {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      pointer-events: none;
+      z-index: 1000;
+      display: none;
+    }
+    
+    .crosshair::before,
+    .crosshair::after {
+      content: '';
+      position: absolute;
+      background: #FF0000;
+    }
+    
+    .crosshair::before {
+      width: 100%;
+      height: 2px;
+      top: 50%;
+      left: 0;
+      transform: translateY(-1px);
+    }
+    
+    .crosshair::after {
+      width: 2px;
+      height: 100%;
+      left: 50%;
+      top: 0;
+      transform: translateX(-1px);
+    }
+    
+    .crosshair-center {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #FF0000;
+      border: 2px solid white;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+    }
+    
+    .coordinates-display {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #FF0000;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 2000;
+    }
+    
+    .coordinates-display.active {
+      display: block;
+      animation: fadeIn 0.3s;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .instructions {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: #8AFD81;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 14px;
+      border: 2px solid #8AFD81;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      text-align: center;
+    }
+    
+    .plan.interactive {
+      cursor: crosshair;
+    }
+  </style>
+</head>
+<body>
+  <h1>🗺️ PLAN DU SITE - VUE DE DESSUS</h1>
+  <p class="subtitle">Hearst Qatar - 200 MW - Coordonnées 3D (X, Z)</p>
+  
+  <div class="container">
+    <!-- Affichage des coordonnées -->
+    <div class="coordinates-display" id="coordsDisplay">
+      <div>Position cliquée :</div>
+      <div id="coordsText" style="font-size: 20px; margin-top: 5px;">X: 0, Z: 0</div>
+    </div>
+    
+    <div class="plan interactive" id="plan">
+      <!-- Crosshair -->
+      <div class="crosshair" id="crosshair">
+        <div class="crosshair-center"></div>
+      </div>
+      <!-- Axes X et Z -->
+      <div class="axis axis-x"></div>
+      <div class="axis axis-z"></div>
+      <div class="axis-label" style="top: 48%; left: 98%;">+X (Est) →</div>
+      <div class="axis-label" style="top: 48%; left: 1%;">← -X (Ouest)</div>
+      <div class="axis-label" style="top: 98%; left: 51%;">+Z (Nord) ↓</div>
+      <div class="axis-label" style="top: 1%; left: 51%;">↑ -Z (Sud)</div>
+      <div class="axis-label" style="top: 48%; left: 48%; background: red;">0,0</div>
+      
+      <!-- SUBSTATION -->
+      <div class="element substation" style="left: 48%; top: 8%; width: 60px; height: 40px;">
+        <div class="label">SUBSTATION<br>120MW</div>
+        <div class="coordinates">[0, 0, 50]</div>
+      </div>
+      
+      <!-- POWER BLOCKS -->
+      <div class="element powerblock" style="left: 25%; top: 25%; width: 40px; height: 35px;">
+        <div class="label">PB1</div>
+        <div class="coordinates">[-75, 0, 25]</div>
+      </div>
+      
+      <div class="element powerblock" style="left: 41%; top: 25%; width: 40px; height: 35px;">
+        <div class="label">PB2</div>
+        <div class="coordinates">[-25, 0, 25]</div>
+      </div>
+      
+      <div class="element powerblock" style="left: 57%; top: 25%; width: 40px; height: 35px;">
+        <div class="label">PB3</div>
+        <div class="coordinates">[25, 0, 25]</div>
+      </div>
+      
+      <div class="element powerblock" style="left: 73%; top: 25%; width: 40px; height: 35px;">
+        <div class="label">PB4</div>
+        <div class="coordinates">[75, 0, 25]</div>
+      </div>
+      
+      <!-- ZONE CONTAINERS (approximative) -->
+      <div class="element containers" style="left: 20%; top: 38%; width: 60%; height: 30%;">
+        <div class="label">48 CONTAINERS HD5<br>24 TRANSFORMERS<br>24 SWITCHGEARS</div>
+      </div>
+      
+      <!-- BÂTIMENT PERSONNEL (dans groupe rotation -90°) -->
+      <!-- Position locale: [-45, 0, -110] -->
+      <!-- Après rotation -90°: devient approximativement [-110, 0, -45] en global -->
+      <div class="element building-personnel" style="left: 15%; top: 55%; width: 70px; height: 90px;">
+        <div class="label">🏢<br>BÂTIMENT<br>PERSONNEL<br><span class="rotation-indicator">↻-90°</span></div>
+        <div class="coordinates">LOCAL: [-45, 0, -110]<br>ROTATION: -90°</div>
+      </div>
+      
+      <!-- PARKING ACTUEL (existant selon IMPLEMENTATION_VRD.md) -->
+      <div class="element parking-existing" style="left: 8%; top: 50%; width: 50px; height: 35px;">
+        <div class="label">🅿️<br>PARKING<br>EXISTANT</div>
+        <div class="coordinates">[-100, 0, -20]</div>
+      </div>
+      
+      <!-- NOUVEAU PARKING (position mise à jour) -->
+      <div class="element parking-new" style="left: 78%; top: 50%; width: 50px; height: 25px;">
+        <div class="label">🅿️ NOUVEAU<br>PARKING</div>
+        <div class="coordinates">[85, 0, -20]<br>✅ VALIDÉ</div>
+      </div>
+      
+      <!-- BÂTIMENT MAINTENANCE (dans groupe rotation -90°) -->
+      <!-- Position locale: [-45, 0, 110] -->
+      <!-- Après rotation -90°: devient approximativement [110, 0, -45] en global -->
+      <div class="element building-maintenance" style="left: 75%; top: 55%; width: 70px; height: 90px;">
+        <div class="label">🏢<br>BÂTIMENT<br>MAINTENANCE<br><span class="rotation-indicator">↻-90°</span></div>
+        <div class="coordinates">LOCAL: [-45, 0, 110]<br>ROTATION: -90°</div>
+      </div>
+      
+      <!-- ROUTES (approximatives) -->
+      <div class="element road" style="left: 48%; top: 15%; width: 8px; height: 65%;">
+        <div class="label" style="writing-mode: vertical-rl;">ROUTE PRINCIPALE</div>
+      </div>
+    </div>
+    
+    <!-- LÉGENDE -->
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color substation"></div>
+        <span>Substation 120MW</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color powerblock"></div>
+        <span>Power Blocks (PB1-4)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color building-personnel"></div>
+        <span>Bâtiment Personnel</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color building-maintenance"></div>
+        <span>Bâtiment Maintenance</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color parking-existing"></div>
+        <span>Parking Existant (VRD)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color parking-new"></div>
+        <span>🆕 NOUVEAU Parking (position à valider)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color containers"></div>
+        <span>Zone Containers/Équipements</span>
+      </div>
+    </div>
+    
+    <div style="margin-top: 30px; padding: 20px; background: #444; border-radius: 5px;">
+      <h3 style="color: #FFD700; margin-bottom: 10px;">⚠️ PROBLÈME IDENTIFIÉ</h3>
+      <p style="line-height: 1.6;">
+        Les <strong>bâtiments Personnel et Maintenance</strong> sont dans des <code>&lt;group rotation={[0, -Math.PI / 2, 0]}&gt;</code>,
+        ce qui signifie que leurs coordonnées <strong>locales</strong> ne correspondent PAS aux coordonnées <strong>globales</strong>.
+      </p>
+      <p style="line-height: 1.6; margin-top: 10px;">
+        Le parking actuel est placé à <code>[-45, 0, -95]</code> en coordonnées <strong>GLOBALES</strong>,
+        mais le bâtiment Personnel est à <code>[-45, 0, -110]</code> en coordonnées <strong>LOCALES</strong> (dans le groupe tourné).
+      </p>
+      <p style="line-height: 1.6; margin-top: 10px; color: #8AFD81;">
+        <strong>👉 QUESTION :</strong> Où voulez-vous EXACTEMENT le parking par rapport au bâtiment Personnel ?
+      </p>
+    </div>
+  </div>
+  
+  <!-- Instructions -->
+  <div class="instructions">
+    🖱️ <strong>CLIQUEZ</strong> sur le plan pour placer le pointeur et obtenir les coordonnées 3D (X, Z)
+  </div>
+  
+  <script>
+    const plan = document.getElementById('plan');
+    const crosshair = document.getElementById('crosshair');
+    const coordsDisplay = document.getElementById('coordsDisplay');
+    const coordsText = document.getElementById('coordsText');
+    
+    // Dimensions du site en mètres
+    const SITE_WIDTH = 220;  // -110 à +110
+    const SITE_DEPTH = 200;  // -100 à +100
+    
+    // Fonction pour convertir position pixel -> coordonnées 3D
+    function pixelTo3D(pixelX, pixelY, planWidth, planHeight) {
+      // Normaliser entre 0 et 1
+      const normalizedX = pixelX / planWidth;
+      const normalizedZ = pixelY / planHeight;
+      
+      // Convertir en coordonnées 3D
+      // X: -110 à +110
+      const x3D = (normalizedX * SITE_WIDTH) - (SITE_WIDTH / 2);
+      // Z: -100 à +100
+      const z3D = (normalizedZ * SITE_DEPTH) - (SITE_DEPTH / 2);
+      
+      return {
+        x: Math.round(x3D),
+        z: Math.round(z3D)
+      };
+    }
+    
+    // Gestionnaire de clic
+    plan.addEventListener('click', function(e) {
+      const rect = plan.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      // Afficher le crosshair
+      crosshair.style.display = 'block';
+      crosshair.style.left = x + 'px';
+      crosshair.style.top = y + 'px';
+      
+      // Calculer les coordonnées 3D
+      const coords = pixelTo3D(x, y, rect.width, rect.height);
+      
+      // Afficher les coordonnées
+      coordsText.innerHTML = `X: <span style="color: #FFD700;">${coords.x}</span>, Z: <span style="color: #FFD700;">${coords.z}</span>`;
+      coordsDisplay.classList.add('active');
+      
+      // Log dans la console pour copier-coller facilement
+      console.log('Position 3D:', coords);
+      console.log(`Position pour le code: [${coords.x}, 0, ${coords.z}]`);
+      
+      // Créer un marqueur visuel permanent
+      const marker = document.createElement('div');
+      marker.className = 'element';
+      marker.style.cssText = `
+        left: ${x - 15}px;
+        top: ${y - 15}px;
+        width: 30px;
+        height: 30px;
+        background: rgba(255, 0, 0, 0.5);
+        border: 3px solid #FF0000;
+        border-radius: 50%;
+        z-index: 500;
+        animation: pulse 2s infinite;
+      `;
+      marker.innerHTML = `<div style="font-size: 10px; color: white; text-shadow: 1px 1px 2px #000;">${coords.x},${coords.z}</div>`;
+      plan.appendChild(marker);
+    });
+    
+    // Suivre la souris avec le crosshair
+    plan.addEventListener('mousemove', function(e) {
+      const rect = plan.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      // Afficher temporairement les coordonnées
+      const coords = pixelTo3D(x, y, rect.width, rect.height);
+      plan.title = `Position: [${coords.x}, 0, ${coords.z}]`;
+    });
+  </script>
+</body>
+</html>
+
